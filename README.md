@@ -1,12 +1,22 @@
 # Format
 
-A simple plugin to format JavaScript code.
+Because you have better things to worry about than formatting your code.
 
 ## Prerequisites
 
-This package relies on the amazing [prettier](https://github.com/jlongster/prettier) to format JavaScript source code files.
+As this plugin merely acts as a proxy, each formatter will require it's own tool and options for code formatting.
 
-Install with `npm install -g prettier`.
+#### JavaScript
+
+JavsScript formatting relies on the amazing [prettier](https://github.com/jlongster/prettier).
+
+    $ npm install -g prettier
+
+#### Rust
+
+Rust formatting relies on the amazing [rustfmt](https://github.com/rust-lang-nursery/rustfmt).
+
+    $ cargo install rustfmt
 
 ## Installation
 
@@ -33,10 +43,3 @@ Install with `npm install -g prettier`.
     + Enable automatic formatting of JavaScript source files on save
 - `Format: Disable Format on Save`
     + Disable automatic formatting of JavaScript source files on save
-
-## Configuration
-
-- `prettier_format_on_save`
-    + Automatically format files on save
-- `prettier_binary`
-    + Full path to `prettier` binary (if not on `PATH`)
