@@ -1,7 +1,17 @@
 {
     "format_on_save": false,
     "node_binary": "",
+    "elm": {
+        "binary": "",
+        "format_on_save": false,
+        "options": {}
+    },
     "javascript": {
+        "binary": "",
+        "format_on_save": false,
+        "options": {}
+    },
+    "python": {
         "binary": "",
         "format_on_save": false,
         "options": {}
