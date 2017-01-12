@@ -1,4 +1,5 @@
 from .formatters.elm import ElmFormat
+from .formatters.go import GoFormat
 from .formatters.javascript import JavaScriptFormat
 from .formatters.python import PythonFormat
 from .formatters.rust import RustFormat
@@ -6,6 +7,7 @@ from .formatters.terraform import TerraformFormat
 
 formatters = {
     'source.elm': ElmFormat(),
+    'source.go': GoFormat(),
     'source.js': JavaScriptFormat(),
     'source.python': PythonFormat(),
     'source.rust': RustFormat(),

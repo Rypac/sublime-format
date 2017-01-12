@@ -5,6 +5,7 @@ Because you have better things to worry about than formatting your code.
 ## Supported Languages
 
 - [Elm](#elm-elm-format)
+- [Go](#go-gofmt)
 - [JavaScript](#javascript-prettier)
 - [Python](#python-yapf)
 - [Rust](#rust-rustfmt)
@@ -17,6 +18,10 @@ As this plugin merely acts as a proxy, each formatter will require it's own tool
 #### Elm ([`elm-format`](https://github.com/avh4/elm-format))
 
 Download [the latest release](https://github.com/avh4/elm-format/releases) from the repo and ensure the binary is available on your `$PATH`.
+
+#### Go ([`gofmt`](https://golang.org/cmd/gofmt))
+
+Installed with `Go` by default. Download `go` via your package manager or from [the website](https://golang.org/dl).
 
 #### JavaScript ([`prettier`](https://github.com/jlongster/prettier))
 
