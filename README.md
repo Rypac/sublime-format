@@ -8,7 +8,7 @@ Because you have better things to worry about than formatting your code.
 - [JavaScript](#javascript-prettier)
 - [Python](#python-yapf)
 - [Rust](#rust-rustfmt)
-- [Terraform](#terraform-terraform-format)
+- [Terraform](#terraform-terraform-fmt)
 
 ## Prerequisites
 
@@ -56,6 +56,6 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 - `Format: Format File` (<kbd>Ctrl+k</kbd>, <kbd>Ctrl+f</kbd>)
     + Format the current file
 - `Format: Enable Format on Save`
-    + Enable automatic formatting of JavaScript source files on save
+    + Enable automatic formatting of source files on save
 - `Format: Disable Format on Save`
-    + Disable automatic formatting of JavaScript source files on save
+    + Disable automatic formatting of source files on save
