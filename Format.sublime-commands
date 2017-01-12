@@ -1,0 +1,18 @@
+[
+    {
+        "caption": "Format: Format Selection",
+        "command": "format_selection"
+    },
+    {
+        "caption": "Format: Format File",
+        "command": "format_file"
+    },
+    {
+        "caption": "Format: Enable Format on Save",
+        "command": "enable_format_on_save"
+    },
+    {
+        "caption": "Format: Disable Format on Save",
+        "command": "disable_format_on_save"
+    }
+]

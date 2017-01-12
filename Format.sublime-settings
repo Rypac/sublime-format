@@ -1,0 +1,19 @@
+{
+    "format_on_save": false,
+    "node_binary": "",
+    "javascript": {
+        "binary": "",
+        "format_on_save": false,
+        "options": {}
+    },
+    "rust": {
+        "binary": "",
+        "format_on_save": false,
+        "options": {}
+    },
+    "terraform": {
+        "binary": "",
+        "format_on_save": false,
+        "options": {}
+    }
+}

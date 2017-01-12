@@ -1,0 +1,59 @@
+[
+    {
+        "id": "tools",
+        "children": [
+            {
+                "caption": "Format",
+                "id": "formatter",
+                "children": [
+                    {
+                        "caption": "Format Selection",
+                        "command": "format_selection"
+                    },
+                    {
+                        "caption": "Format File",
+                        "command": "format_file"
+                    },
+                    {
+                        "caption": "-",
+                    },
+                    {
+                        "caption": "Format on Save",
+                        "command": "toggle_format_on_save"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "preferences",
+        "children": [
+            {
+                "caption": "Package Settings",
+                "mnemonic": "P",
+                "id": "package-settings",
+                "children": [
+                    {
+                        "caption": "Format",
+                        "children": [
+                            {
+                                "command": "open_file",
+                                "args": {
+                                    "file": "${packages}/Format/Format.sublime-settings"
+                                },
+                                "caption": "Settings - Default"
+                            },
+                            {
+                                "command": "open_file",
+                                "args": {
+                                    "file": "${packages}/User/Format.sublime-settings"
+                                },
+                                "caption": "Settings - User"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
