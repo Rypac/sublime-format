@@ -2,25 +2,51 @@
 
 Because you have better things to worry about than formatting your code.
 
+## Supported Languages
+
+- [Elm](#elm)
+- [JavaScript](#javascript)
+- [Python](#python)
+- [Rust](#rust)
+- [Terraform](#terraform)
+
 ## Prerequisites
 
 As this plugin merely acts as a proxy, each formatter will require it's own tool and options for code formatting.
 
+#### Elm
+
+Elm formatting relies on [`elm-format`](https://github.com/avh4/elm-format).
+
+Download [the latest release](https://github.com/avh4/elm-format/releases) from the repo and ensure the binary is available on your `$PATH`.
+
 #### JavaScript
 
-JavsScript formatting relies on the amazing [prettier](https://github.com/jlongster/prettier).
+JavsScript formatting relies on [`prettier`](https://github.com/jlongster/prettier).
 
     $ npm install -g prettier
 
+#### Python
+
+Python formatting relies on [`yapf`](https://github.com/google/yapf).
+
+    $ pip install yapf
+
 #### Rust
 
-Rust formatting relies on the amazing [rustfmt](https://github.com/rust-lang-nursery/rustfmt).
+Rust formatting relies on [`rustfmt`](https://github.com/rust-lang-nursery/rustfmt).
 
     $ cargo install rustfmt
 
+#### Terraform
+
+Terraform formatting relies on [`terraform fmt`](https://github.com/hashicorp/terraform).
+
+Visit [the website](https://www.terraform.io/downloads.html) and follow the instructions to download.
+
 ## Installation
 
-#### Package Control
+#### Package Control (coming soon...)
 
 1. Install [Package Control](https://packagecontrol.io/)
 2. Run `Package Control: Install Package` in the Command Palette (<kbd>Super+Shift+P</kbd>)
