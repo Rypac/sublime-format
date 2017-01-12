@@ -2,13 +2,11 @@ from .formatter import Formatter
 
 
 class JavaScriptFormat(Formatter):
-    def name(self):
-        return 'javascript'
+    def __init__(self):
+        super().__init__(name='javascript', binary='prettier')
 
     def command(self):
-        node = self.settings().get('node') or 'node'
-        binary = self.settings().get('binary') or 'prettier'
-        return [node, binary]
+        return [self.settings().get('node', 'node'), self.binary()]
 
     def file_args(self, file_name):
         return ['--write', file_name]
