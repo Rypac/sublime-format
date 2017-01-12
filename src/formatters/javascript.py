@@ -1,9 +1,9 @@
-from ..settings import settings, settings_for
+from ..settings import settings_for
 
 
 class JavaScriptFormat():
     def command(self):
-        node = settings().get('node_binary') or 'node'
+        node = settings_for('javascript').get('node') or 'node'
         binary = settings_for('javascript').get('binary') or 'prettier'
         return [node, binary]
 
