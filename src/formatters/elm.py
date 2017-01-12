@@ -1,9 +1,12 @@
-from ..settings import settings_for
+from .formatter import Formatter
 
 
-class ElmFormat():
+class ElmFormat(Formatter):
+    def name(self):
+        return 'elm'
+
     def command(self):
-        return [settings_for('elm').get('binary') or 'elm-format']
+        return [self.settings().get('binary') or 'elm-format']
 
     def selection_args(self):
         return ['--stdin']

@@ -1,14 +1,14 @@
-from ..settings import settings_for
+from .formatter import Formatter
 
 
-class JavaScriptFormat():
+class JavaScriptFormat(Formatter):
+    def name(self):
+        return 'javascript'
+
     def command(self):
-        node = settings_for('javascript').get('node') or 'node'
-        binary = settings_for('javascript').get('binary') or 'prettier'
+        node = self.settings().get('node') or 'node'
+        binary = self.settings().get('binary') or 'prettier'
         return [node, binary]
-
-    def selection_args(self):
-        return []
 
     def file_args(self, file_name):
         return ['--write', file_name]

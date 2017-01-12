@@ -1,9 +1,12 @@
-from ..settings import settings_for
+from .formatter import Formatter
 
 
-class TerraformFormat():
+class TerraformFormat(Formatter):
+    def name(self):
+        return 'terraform'
+
     def command(self):
-        binary = settings_for('terraform').get('binary') or 'terraform'
+        binary = self.settings().get('binary') or 'terraform'
         return [binary, 'fmt']
 
     def selection_args(self):

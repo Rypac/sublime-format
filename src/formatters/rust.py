@@ -1,12 +1,12 @@
-from ..settings import settings_for
+from .formatter import Formatter
 
 
-class RustFormat():
+class RustFormat(Formatter):
+    def name(self):
+        return 'rust'
+
     def command(self):
-        return [settings_for('rust').get('binary') or 'rustfmt']
-
-    def selection_args(self):
-        return []
+        return [self.settings().get('binary') or 'rustfmt']
 
     def file_args(self, file_name):
         return ['--write-mode=overwrite', file_name]
