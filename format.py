@@ -66,7 +66,7 @@ class FormatListener(sublime_plugin.EventListener):
 
 
 class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
-    def run(self):
+    def run(self, source=None):
         format_on_save = settings().get('format_on_save')
         settings().set('format_on_save', not format_on_save)
         save_settings()

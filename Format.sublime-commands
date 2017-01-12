@@ -8,11 +8,21 @@
         "command": "format_file"
     },
     {
+        "caption": "Format: Toggle Format on Save",
+        "command": "toggle_format_on_save"
+    },
+    {
         "caption": "Format: Enable Format on Save",
-        "command": "enable_format_on_save"
+        "command": "enable_format_on_save",
+        "args": {
+            "which": "disabled"
+        }
     },
     {
         "caption": "Format: Disable Format on Save",
-        "command": "disable_format_on_save"
+        "command": "disable_format_on_save",
+        "args": {
+            "which": "enabled"
+        }
     }
 ]

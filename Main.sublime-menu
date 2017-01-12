@@ -19,7 +19,58 @@
                     },
                     {
                         "caption": "Format on Save",
-                        "command": "toggle_format_on_save"
+                        "id": "tools",
+                        "children": [
+                            {
+                                "caption": "All",
+                                "command": "toggle_format_on_save"
+                            },
+                            {
+                                "caption": "-",
+                            },
+                            {
+                                "caption": "Elm",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "source": "elm"
+                                }
+                            },
+                            {
+                                "caption": "Go",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "source": "go"
+                                }
+                            },
+                            {
+                                "caption": "JavaScript",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "source": "javascript"
+                                }
+                            },
+                            {
+                                "caption": "Python",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "source": "python"
+                                }
+                            },
+                            {
+                                "caption": "Rust",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "source": "rust"
+                                }
+                            },
+                            {
+                                "caption": "Terraform",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "source": "terraform"
+                                }
+                            }
+                        ]
                     }
                 ]
             }
@@ -37,18 +88,18 @@
                         "caption": "Format",
                         "children": [
                             {
+                                "caption": "Settings - Default",
                                 "command": "open_file",
                                 "args": {
                                     "file": "${packages}/Format/Format.sublime-settings"
-                                },
-                                "caption": "Settings - Default"
+                                }
                             },
                             {
+                                "caption": "Settings - User",
                                 "command": "open_file",
                                 "args": {
                                     "file": "${packages}/User/Format.sublime-settings"
-                                },
-                                "caption": "Settings - User"
+                                }
                             }
                         ]
                     }
