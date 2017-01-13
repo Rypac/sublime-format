@@ -2,8 +2,7 @@ import sublime_plugin
 import subprocess
 import os
 
-from .src.registry import formatter_for
-from .src.settings import settings, save_settings
+from .src.registry import formatter_for, formatter_named
 
 
 def process_startup_info():
@@ -67,17 +66,23 @@ class FormatListener(sublime_plugin.EventListener):
 
 
 class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
-    def run(self, source=None):
-        format_on_save = settings().get('format_on_save')
-        settings().set('format_on_save', not format_on_save)
-        save_settings()
+    def is_checked(self, name=None):
+        formatter = formatter_named(name)
+        return formatter is not None and formatter.format_on_save
+
+    def run(self, name=None):
+        formatter = formatter_named(name)
+        if formatter is not None:
+            formatter.format_on_save = not formatter.format_on_save
 
 
 class EnableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
     def is_visible(self):
-        return not settings().get('format_on_save')
+        formatter = formatter_for(self.view)
+        return formatter is not None and not formatter.format_on_save
 
 
 class DisableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
     def is_visible(self):
-        return settings().get('format_on_save')
+        formatter = formatter_for(self.view)
+        return formatter is not None and formatter.format_on_save

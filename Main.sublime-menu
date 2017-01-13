@@ -32,42 +32,42 @@
                                 "caption": "Elm",
                                 "command": "toggle_format_on_save",
                                 "args": {
-                                    "source": "elm"
+                                    "name": "Elm"
                                 }
                             },
                             {
                                 "caption": "Go",
                                 "command": "toggle_format_on_save",
                                 "args": {
-                                    "source": "go"
+                                    "name": "Go"
                                 }
                             },
                             {
                                 "caption": "JavaScript",
                                 "command": "toggle_format_on_save",
                                 "args": {
-                                    "source": "javascript"
+                                    "name": "JavaScript"
                                 }
                             },
                             {
                                 "caption": "Python",
                                 "command": "toggle_format_on_save",
                                 "args": {
-                                    "source": "python"
+                                    "name": "Python"
                                 }
                             },
                             {
                                 "caption": "Rust",
                                 "command": "toggle_format_on_save",
                                 "args": {
-                                    "source": "rust"
+                                    "name": "Rust"
                                 }
                             },
                             {
                                 "caption": "Terraform",
                                 "command": "toggle_format_on_save",
                                 "args": {
-                                    "source": "terraform"
+                                    "name": "Terraform"
                                 }
                             }
                         ]

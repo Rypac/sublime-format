@@ -5,21 +5,29 @@ from .formatters.python import PythonFormat
 from .formatters.rust import RustFormat
 from .formatters.terraform import TerraformFormat
 
-formatters = {
-    'source.elm': ElmFormat(),
-    'source.go': GoFormat(),
-    'source.js': JavaScriptFormat(),
-    'source.python': PythonFormat(),
-    'source.rust': RustFormat(),
-    'source.terraform': TerraformFormat()
-}
+registered_formatters = [
+    ElmFormat(),
+    GoFormat(),
+    JavaScriptFormat(),
+    PythonFormat(),
+    RustFormat(),
+    TerraformFormat()
+]
 
 
 def source_file(view):
     scope = view.scope_name(0) or ''
-    scopes = scope.split(' ')
-    return next(iter(scopes)) if scopes else None
+    return next(iter(scope.split(' ')))
 
 
 def formatter_for(view):
-    return formatters.get(source_file(view))
+    source = source_file(view)
+    return next((x for x in registered_formatters if x.source == source), None)
+
+
+def formatter_named(name):
+    return next((x for x in registered_formatters if x.name == name), None)
+
+
+def formatters():
+    return registered_formatters
