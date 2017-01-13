@@ -20,6 +20,10 @@ class Formatter(object):
         self.__settings = Settings(name.lower())
 
     @property
+    def settings(self):
+        return self.__settings
+
+    @property
     def name(self):
         return self.__name
 
@@ -29,15 +33,15 @@ class Formatter(object):
 
     @property
     def binary(self):
-        return self.__settings.get('binary', self.__binary)
+        return self.settings.get('binary', self.__binary)
 
     @property
     def format_on_save(self):
-        return self.__settings.get('format_on_save', False)
+        return self.settings.get('format_on_save', False)
 
     @format_on_save.setter
     def format_on_save(self, value):
-        self.__settings.set('format_on_save', value)
+        self.settings.set('format_on_save', value)
 
     def command(self):
         return [self.binary]

@@ -6,7 +6,7 @@ class JavaScriptFormat(Formatter):
         super().__init__(name='JavaScript', source='js', binary='prettier')
 
     def command(self):
-        return [self.settings().get('node', 'node'), self.binary()]
+        return [self.settings.get('node', 'node'), self.binary]
 
     def file_args(self, file_name):
         return ['--write', file_name]
