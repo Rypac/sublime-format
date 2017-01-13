@@ -1,3 +1,4 @@
+import sublime
 import sublime_plugin
 
 from .src.registry import FormatRegistry
@@ -6,6 +7,10 @@ from .src.registry import FormatRegistry
 def source_file(view):
     scope = view.scope_name(0) or ''
     return next(iter(scope.split(' ')))
+
+
+def reload(view):
+    sublime.set_timeout(lambda: view.run_command('revert'), 50)
 
 
 def print_error(error):
@@ -32,6 +37,7 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
                 self.view.replace(edit, region, output)
             else:
                 print_error(error)
+        reload(self.view)
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
@@ -45,7 +51,9 @@ class FormatFileCommand(sublime_plugin.TextCommand):
             return
 
         output, error = formatter.format(file=self.view.file_name())
-        if error:
+        if not error:
+            reload(self.view)
+        else:
             print_error(error)
 
 
