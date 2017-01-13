@@ -9,8 +9,12 @@ def source_file(view):
     return next(iter(scope.split(' ')))
 
 
+def queue_command(callback):
+    sublime.set_timeout(callback, 100)
+
+
 def reload(view):
-    sublime.set_timeout(lambda: view.run_command('revert'), 50)
+    queue_command(lambda: view.run_command('revert'))
 
 
 def print_error(error):
