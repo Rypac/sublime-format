@@ -1,9 +1,4 @@
-from .formatters.elm import ElmFormat
-from .formatters.go import GoFormat
-from .formatters.javascript import JavaScriptFormat
-from .formatters.python import PythonFormat
-from .formatters.rust import RustFormat
-from .formatters.terraform import TerraformFormat
+from .formatters import *
 
 
 class FormatRegistry():
