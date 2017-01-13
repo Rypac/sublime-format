@@ -95,19 +95,14 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
             formatter.format_on_save = enable
 
 
-class EnableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
-    def is_visible(self):
-        formatter = registry.for_source(source_file(self.view))
-        return not formatter.format_on_save if formatter else False
+class ManageFormatOnSaveCommand(sublime_plugin.WindowCommand):
+    def run(self, which=None):
+        enabled = which == 'enabled'
+        items = [[x.name] for x in registry.all if x.format_on_save == enabled]
 
-    def run(self, name, value):
-        super(EnableFormatOnSaveCommand, self).run(name, value=True)
+        def callback(selection):
+            if selection >= 0 and selection < len(items):
+                args = {'name': items[selection][0]}
+                self.window.run_command('toggle_format_on_save', args)
 
-
-class DisableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
-    def is_visible(self):
-        formatter = registry.for_source(source_file(self.view))
-        return formatter.format_on_save if formatter else False
-
-    def run(self, name, value):
-        super(DisableFormatOnSaveCommand, self).run(name, value=False)
+        queue_command(lambda: self.window.show_quick_panel(items, callback))
