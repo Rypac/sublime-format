@@ -41,9 +41,6 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        return registry.for_source(source_file(self.view)) is not None
-
     def run(self, edit):
         formatter = registry.for_source(source_file(self.view))
         if formatter is None:
