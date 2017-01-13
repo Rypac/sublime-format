@@ -43,7 +43,7 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 
 #### Package Control (coming soon...)
 
-1. Install [Package Control](https://packagecontrol.io/)
+1. Install [Package Control](https://packagecontrol.io)
 2. Run `Package Control: Install Package` in the Command Palette (<kbd>Super+Shift+P</kbd>)
 3. Install `Format`
 
@@ -60,7 +60,9 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
     + Format the current selection
 - `Format: Format File` (<kbd>Ctrl+k</kbd>, <kbd>Ctrl+f</kbd>)
     + Format the current file
-- `Format: Enable Format on Save`
-    + Enable automatic formatting of source files on save
-- `Format: Disable Format on Save`
-    + Disable automatic formatting of source files on save
+- `Format: Toggle Format on Save`
+    + Toggle formatting on save for all supported source file types
+- `Format: Enable Format on Save...`
+    + Select source file types to enable automatic formatting on save
+- `Format: Disable Format on Save...`
+    + Select source file types to disable automatic formatting on save
