@@ -26,7 +26,7 @@ registry = FormatRegistry()
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        formatter = registry.for_source(source_file(self.view))
+        formatter = registry.by_source(source_file(self.view))
         if formatter is None:
             print_error('No formatter for source file')
             return
@@ -46,7 +46,7 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 class FormatFileCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        formatter = registry.for_source(source_file(self.view))
+        formatter = registry.by_source(source_file(self.view))
         if formatter is None:
             print_error('No formatter for source file')
             return
@@ -60,7 +60,7 @@ class FormatFileCommand(sublime_plugin.TextCommand):
 
 class FormatListener(sublime_plugin.EventListener):
     def on_post_save_async(self, view):
-        formatter = registry.for_source(source_file(view))
+        formatter = registry.by_source(source_file(view))
         if formatter and formatter.format_on_save:
             view.run_command('format_file')
 
@@ -72,7 +72,7 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
             enabled = [x for x in formatters if x.format_on_save]
             return len(enabled) == len(formatters)
         else:
-            formatter = registry.for_name(name)
+            formatter = registry.by_name(name)
             return formatter.format_on_save if formatter else False
 
     def run(self, name=None, value=None):
@@ -82,7 +82,7 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
             self.toggle(name, value)
 
     def toggle(self, name, value):
-        formatter = registry.for_name(name)
+        formatter = registry.by_name(name)
         if formatter is not None:
             current = formatter.format_on_save
             formatter.format_on_save = not current if value is None else value

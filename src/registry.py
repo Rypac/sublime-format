@@ -12,8 +12,11 @@ class FormatRegistry():
     def all(self):
         return self.__registered_formatters
 
-    def for_source(self, source):
-        return next((x for x in self.all if x.source == source), None)
+    def find(self, predicate, default=None):
+        return next((x for x in self.all if predicate(x)), default)
 
-    def for_name(self, name):
-        return next((x for x in self.all if x.name == name), None)
+    def by_source(self, source):
+        return self.find(lambda x: x.source == source)
+
+    def by_name(self, name):
+        return self.find(lambda x: x.name == name)
