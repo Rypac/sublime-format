@@ -1,47 +1,33 @@
 import sublime_plugin
-import subprocess
-import os
 
-from .src.registry import formatter_for, formatter_named
+from .src.registry import FormatRegistry
 
 
-def process_startup_info():
-    if not os.name == 'nt':
-        return None
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    startupinfo.wShowWindow = subprocess.SW_HIDE
-    return startupinfo
-
-
-def format(view, file=None, input=None):
-    formatter = formatter_for(view)
-    if not formatter:
-        return None, 'No formatter for source file'
-
-    command = formatter.command()
-    args = formatter.file_args(file) if file else formatter.selection_args()
-    return subprocess.Popen(
-        command + args,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        startupinfo=process_startup_info(),
-        universal_newlines=True).communicate(input=input)
+def source_file(view):
+    scope = view.scope_name(0) or ''
+    return next(iter(scope.split(' ')))
 
 
 def print_error(error):
     print('Format:', error)
 
 
+registry = FormatRegistry()
+
+
 class FormatSelectionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        formatter = registry.for_source(source_file(self.view))
+        if formatter is None:
+            print_error('No formatter for source file')
+            return
+
         for region in self.view.sel():
             if region.empty():
                 continue
 
             selection = self.view.substr(region)
-            output, error = format(self.view, input=selection)
+            output, error = formatter.format(input=selection)
             if not error:
                 self.view.replace(edit, region, output)
             else:
@@ -50,39 +36,69 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 class FormatFileCommand(sublime_plugin.TextCommand):
     def is_enabled(self):
-        return formatter_for(self.view) is not None
+        return registry.for_source(source_file(self.view)) is not None
 
     def run(self, edit):
-        output, error = format(self.view, file=self.view.file_name())
+        formatter = registry.for_source(source_file(self.view))
+        if formatter is None:
+            print_error('No formatter for source file')
+            return
+
+        output, error = formatter.format(file=self.view.file_name())
         if error:
             print_error(error)
 
 
 class FormatListener(sublime_plugin.EventListener):
     def on_post_save_async(self, view):
-        formatter = formatter_for(view)
+        formatter = registry.for_source(source_file(view))
         if formatter is not None and formatter.format_on_save:
             view.run_command('format_file')
 
 
 class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
     def is_checked(self, name=None):
-        formatter = formatter_named(name)
-        return formatter is not None and formatter.format_on_save
+        if name is None:
+            formatters = registry.all
+            enabled = [x for x in formatters if x.format_on_save]
+            return len(enabled) == len(formatters)
+        else:
+            formatter = registry.for_name(name)
+            return formatter.format_on_save if formatter is not None else False
 
-    def run(self, name=None):
-        formatter = formatter_named(name)
+    def run(self, name=None, value=None):
+        if name is None:
+            self.toggle_all()
+        else:
+            self.toggle(name, value)
+
+    def toggle(self, name, value):
+        formatter = registry.for_name(name)
         if formatter is not None:
-            formatter.format_on_save = not formatter.format_on_save
+            current = formatter.format_on_save
+            formatter.format_on_save = not current if value is None else value
+
+    def toggle_all(self):
+        formatters = registry.all
+        enabled = [x for x in formatters if x.format_on_save]
+        enable = len(enabled) < len(formatters)
+        for formatter in formatters:
+            formatter.format_on_save = enable
 
 
 class EnableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
     def is_visible(self):
-        formatter = formatter_for(self.view)
-        return formatter is not None and not formatter.format_on_save
+        formatter = registry.for_source(source_file(self.view))
+        return not formatter.format_on_save if formatter is not None else False
+
+    def run(self, name, value):
+        super(EnableFormatOnSaveCommand, self).run(name, value=True)
 
 
 class DisableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
     def is_visible(self):
-        formatter = formatter_for(self.view)
-        return formatter is not None and formatter.format_on_save
+        formatter = registry.for_source(source_file(self.view))
+        return formatter.format_on_save if formatter is not None else False
+
+    def run(self, name, value):
+        super(DisableFormatOnSaveCommand, self).run(name, value=False)
