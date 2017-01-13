@@ -1,4 +1,4 @@
-from .formatter import Formatter
+from ..formatter import Formatter
 
 
 class GoFormat(Formatter):

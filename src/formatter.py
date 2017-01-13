@@ -1,6 +1,6 @@
 import subprocess
 import os
-from ..settings import Settings
+from .settings import Settings
 
 
 def process_startup_info():
