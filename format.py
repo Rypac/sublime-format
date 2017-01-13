@@ -52,7 +52,7 @@ class FormatFileCommand(sublime_plugin.TextCommand):
 class FormatListener(sublime_plugin.EventListener):
     def on_post_save_async(self, view):
         formatter = registry.for_source(source_file(view))
-        if formatter is not None and formatter.format_on_save:
+        if formatter and formatter.format_on_save:
             view.run_command('format_file')
 
 
@@ -64,7 +64,7 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
             return len(enabled) == len(formatters)
         else:
             formatter = registry.for_name(name)
-            return formatter.format_on_save if formatter is not None else False
+            return formatter.format_on_save if formatter else False
 
     def run(self, name=None, value=None):
         if name is None:
@@ -89,7 +89,7 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
 class EnableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
     def is_visible(self):
         formatter = registry.for_source(source_file(self.view))
-        return not formatter.format_on_save if formatter is not None else False
+        return not formatter.format_on_save if formatter else False
 
     def run(self, name, value):
         super(EnableFormatOnSaveCommand, self).run(name, value=True)
@@ -98,7 +98,7 @@ class EnableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
 class DisableFormatOnSaveCommand(ToggleFormatOnSaveCommand):
     def is_visible(self):
         formatter = registry.for_source(source_file(self.view))
-        return formatter.format_on_save if formatter is not None else False
+        return formatter.format_on_save if formatter else False
 
     def run(self, name, value):
         super(DisableFormatOnSaveCommand, self).run(name, value=False)
