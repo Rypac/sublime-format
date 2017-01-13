@@ -21,9 +21,5 @@ def source_file(view):
     return next(iter(scopes)) if scopes else None
 
 
-def has_formatter(view):
-    return formatters.get(source_file(view)) is not None
-
-
 def formatter_for(view):
     return formatters.get(source_file(view))

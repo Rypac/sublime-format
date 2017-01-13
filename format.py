@@ -2,7 +2,7 @@ import sublime_plugin
 import subprocess
 import os
 
-from .src.registry import has_formatter, formatter_for
+from .src.registry import formatter_for
 from .src.settings import settings, save_settings
 
 
@@ -51,7 +51,7 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 class FormatFileCommand(sublime_plugin.TextCommand):
     def is_enabled(self):
-        return has_formatter(self.view)
+        return formatter_for(self.view) is not None
 
     def run(self, edit):
         output, error = format(self.view, file=self.view.file_name())
@@ -61,7 +61,8 @@ class FormatFileCommand(sublime_plugin.TextCommand):
 
 class FormatListener(sublime_plugin.EventListener):
     def on_post_save_async(self, view):
-        if has_formatter(view) and settings().get('format_on_save'):
+        formatter = formatter_for(view)
+        if formatter is not None and formatter.format_on_save:
             view.run_command('format_file')
 
 

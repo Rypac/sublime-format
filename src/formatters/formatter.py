@@ -1,13 +1,21 @@
 from ..settings import settings
 
 
-class Formatter():
+class Formatter(object):
     def __init__(self, name=None, binary=None):
         self.__name = name
         self.__binary = binary
 
     def settings(self):
         return settings().get(self.__name, {})
+
+    @property
+    def format_on_save(self):
+        return self.settings().get('format_on_save', False)
+
+    @format_on_save.setter
+    def format_on_save(self, value):
+        return self.settings().set('format_on_save', value)
 
     def binary(self):
         return self.settings().get('binary', self.__binary)
