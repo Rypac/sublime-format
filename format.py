@@ -21,7 +21,15 @@ def print_error(error):
     print('Format:', error)
 
 
-registry = FormatRegistry()
+registry = None
+
+
+def plugin_loaded():
+    globals()['registry'] = FormatRegistry()
+
+
+def plugin_unloaded():
+    globals()['registry'] = None
 
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):
