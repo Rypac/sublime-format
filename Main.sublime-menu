@@ -29,7 +29,7 @@
                                 "caption": "-",
                             },
                             {
-                                "caption": "Clang",
+                                "caption": "C++",
                                 "command": "toggle_format_on_save",
                                 "args": {
                                     "name": "Clang"

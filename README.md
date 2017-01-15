@@ -4,6 +4,7 @@ Because you have better things to worry about than formatting your code.
 
 ## Supported Languages
 
+- [C++](#c-clang-format)
 - [Elm](#elm-elm-format)
 - [Go](#go-gofmt)
 - [JavaScript](#javascript-prettier)
@@ -14,6 +15,10 @@ Because you have better things to worry about than formatting your code.
 ## Prerequisites
 
 As this plugin merely acts as a proxy, each formatter will require it's own tool and options for code formatting.
+
+#### C++ ([`clang-format`](http://clang.llvm.org/docs/ClangFormat.html))
+
+Download `clang-format` via you package manager or from [the LLVM website](http://releases.llvm.org/download.html).
 
 #### Elm ([`elm-format`](https://github.com/avh4/elm-format))
 
