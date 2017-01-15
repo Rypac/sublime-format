@@ -1,15 +1,5 @@
-import subprocess
-import os
+from .command import Command
 from .settings import Settings
-
-
-def process_startup_info():
-    if not os.name == 'nt':
-        return None
-    startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    startupinfo.wShowWindow = subprocess.SW_HIDE
-    return startupinfo
 
 
 class Formatter(object):
@@ -54,10 +44,4 @@ class Formatter(object):
 
     def format(self, file=None, input=None):
         args = self.file_args(file) if file else self.selection_args()
-        return subprocess.Popen(
-            self.command() + args,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            startupinfo=process_startup_info(),
-            universal_newlines=True).communicate(input=input)
+        return Command(self.command() + args).run(input)
