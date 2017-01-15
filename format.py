@@ -4,11 +4,6 @@ import sublime_plugin
 from .src.registry import FormatRegistry
 
 
-def source_file(view):
-    scope = view.scope_name(0) or ''
-    return next(iter(scope.split(' ')))
-
-
 def queue_command(callback):
     sublime.set_timeout(callback, 100)
 
@@ -34,7 +29,7 @@ def plugin_unloaded():
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        formatter = registry.by_source(source_file(self.view))
+        formatter = registry.by_view(self.view)
         if formatter is None:
             print_error('No formatter for source file')
             return
@@ -54,7 +49,7 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 class FormatFileCommand(sublime_plugin.TextCommand):
     def run(self, edit):
-        formatter = registry.by_source(source_file(self.view))
+        formatter = registry.by_view(self.view)
         if formatter is None:
             print_error('No formatter for source file')
             return
@@ -68,7 +63,7 @@ class FormatFileCommand(sublime_plugin.TextCommand):
 
 class FormatListener(sublime_plugin.EventListener):
     def on_post_save_async(self, view):
-        formatter = registry.by_source(source_file(view))
+        formatter = registry.by_view(view)
         if formatter and formatter.format_on_save:
             view.run_command('format_file')
 

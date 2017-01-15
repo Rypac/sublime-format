@@ -19,7 +19,9 @@ class FormatRegistry():
     def find(self, predicate, default=None):
         return next((x for x in self.all if predicate(x)), default)
 
-    def by_source(self, source):
+    def by_view(self, view):
+        scope = view.scope_name(0) or ''
+        source = next(iter(scope.split(' ')))
         return self.find(lambda x: x.source == source)
 
     def by_name(self, name):
