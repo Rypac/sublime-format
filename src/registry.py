@@ -12,6 +12,10 @@ class FormatRegistry():
     def all(self):
         return self.__registered_formatters
 
+    @property
+    def enabled(self):
+        return [x for x in registry.all if x.format_on_save]
+
     def find(self, predicate, default=None):
         return next((x for x in self.all if predicate(x)), default)
 
