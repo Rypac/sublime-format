@@ -1,3 +1,4 @@
+from .clang import ClangFormat
 from .elm import ElmFormat
 from .go import GoFormat
 from .javascript import JavaScriptFormat
@@ -6,6 +7,6 @@ from .rust import RustFormat
 from .terraform import TerraformFormat
 
 __all__ = [
-    'ElmFormat', 'GoFormat', 'JavaScriptFormat', 'PythonFormat', 'RustFormat',
-    'TerraformFormat'
+    'ClangFormat', 'ElmFormat', 'GoFormat', 'JavaScriptFormat', 'PythonFormat',
+    'RustFormat', 'TerraformFormat'
 ]

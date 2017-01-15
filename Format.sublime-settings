@@ -1,4 +1,9 @@
 {
+    "clang": {
+        "binary": "",
+        "format_on_save": false,
+        "options": {}
+    },
     "elm": {
         "binary": "",
         "format_on_save": false,

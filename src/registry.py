@@ -4,8 +4,8 @@ from .formatters import *
 class FormatRegistry():
     def __init__(self):
         self.__registered_formatters = [
-            ElmFormat(), GoFormat(), JavaScriptFormat(), PythonFormat(),
-            RustFormat(), TerraformFormat()
+            ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
+            PythonFormat(), RustFormat(), TerraformFormat()
         ]
 
     @property

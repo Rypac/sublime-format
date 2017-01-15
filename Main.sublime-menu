@@ -29,6 +29,13 @@
                                 "caption": "-",
                             },
                             {
+                                "caption": "Clang",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "name": "Clang"
+                                }
+                            },
+                            {
                                 "caption": "Elm",
                                 "command": "toggle_format_on_save",
                                 "args": {
