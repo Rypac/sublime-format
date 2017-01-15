@@ -26,6 +26,10 @@ class Formatter(object):
         return self.settings.get('binary', self.__binary)
 
     @property
+    def options(self):
+        return self.settings.get('options', {})
+
+    @property
     def format_on_save(self):
         return self.settings.get('format_on_save', False)
 
@@ -42,6 +46,14 @@ class Formatter(object):
     def file_args(self, file_name):
         return [file_name]
 
+    def parsed_options(self):
+        options = []
+        for key, value in self.options.items():
+            options.extend(['--' + key, value])
+        return options
+
     def format(self, file=None, input=None):
+        command = self.command()
+        options = self.parsed_options()
         args = self.file_args(file) if file else self.selection_args()
-        return Command(self.command() + args).run(input)
+        return Command(command + options + args).run(input)
