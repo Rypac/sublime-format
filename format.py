@@ -8,10 +8,6 @@ def queue_command(callback):
     sublime.set_timeout(callback, 100)
 
 
-def reload(view):
-    queue_command(lambda: view.run_command('revert'))
-
-
 def print_error(error):
     print('Format:', error)
 
@@ -55,7 +51,7 @@ class FormatFileCommand(sublime_plugin.TextCommand):
 
         output, error = formatter.format(file=self.view.file_name())
         if not error:
-            reload(self.view)
+            queue_command(lambda: self.view.run_command('revert'))
         else:
             print_error(error)
 
