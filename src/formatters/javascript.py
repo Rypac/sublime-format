@@ -8,5 +8,8 @@ class JavaScriptFormat(Formatter):
     def command(self):
         return [self.settings.get('node', 'node'), self.binary]
 
+    def selection_args(self):
+        return ['--stdin']
+
     def file_args(self, file_name):
         return ['--write', file_name]
