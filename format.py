@@ -44,7 +44,6 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
                 self.view.replace(edit, region, output)
             else:
                 print_error(error)
-        reload(self.view)
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
