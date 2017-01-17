@@ -35,13 +35,15 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        formatter = registry.by_view(self.view)
-        if formatter is None:
-            print_error('No formatter for source file')
-            return
+    def __init__(self, view):
+        super().__init__(view)
+        self.formatter = registry.by_view(view)
 
-        output, error = formatter.format(file=self.view.file_name())
+    def is_enabled(self):
+        return self.formatter is not None
+
+    def run(self, edit):
+        output, error = self.formatter.format(file=self.view.file_name())
         if not error:
             queue_command(lambda: self.view.run_command('revert'))
         else:
