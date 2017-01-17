@@ -7,6 +7,9 @@ class FormatRegistry():
             ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
             PythonFormat(), RustFormat(), TerraformFormat()
         ]
+        self.__source_formatter_lookup_table = {}
+        for formatter in self.__registered_formatters:
+            self.__source_formatter_lookup_table[formatter.source] = formatter
 
     @property
     def all(self):
@@ -20,9 +23,8 @@ class FormatRegistry():
         return next((x for x in self.all if predicate(x)), default)
 
     def by_view(self, view):
-        scope = view.scope_name(0) or ''
-        source = next(iter(scope.split(' ')))
-        return self.find(lambda x: x.source == source)
+        source = view.scope_name(0).split(' ')[0]
+        return self.__source_formatter_lookup_table.get(source)
 
     def by_name(self, name):
         return self.find(lambda x: x.name == name)
