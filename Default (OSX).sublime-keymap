@@ -1,5 +1,9 @@
 [
     {
+        "keys": ["super+k", "super+s"],
+        "command": "format_selection"
+    },
+    {
         "keys": ["super+k", "super+f"],
         "command": "format_file"
     }

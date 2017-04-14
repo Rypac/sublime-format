@@ -1,5 +1,9 @@
 [
     {
+        "keys": ["ctrl+k", "ctrl+s"],
+        "command": "format_selection"
+    },
+    {
         "keys": ["ctrl+k", "ctrl+f"],
         "command": "format_file"
     }

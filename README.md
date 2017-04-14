@@ -87,6 +87,9 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 
 ## Keybindings
 
+- `Format: Format Selection`
+    + OSX: (<kbd>Cmd</kbd> + <kbd>K</kbd>, <kbd>Cmd</kbd> + <kbd>S</kbd>)
+    + Windows/Linux: (<kbd>Ctrl</kbd> + <kbd>K</kbd>, <kbd>Ctrl</kbd> + <kbd>S</kbd>)
 - `Format: Format File`
     + OSX: (<kbd>Cmd</kbd> + <kbd>K</kbd>, <kbd>Cmd</kbd> + <kbd>F</kbd>)
     + Windows/Linux: (<kbd>Ctrl</kbd> + <kbd>K</kbd>, <kbd>Ctrl</kbd> + <kbd>F</kbd>)
