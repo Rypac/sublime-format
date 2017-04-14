@@ -2,32 +2,32 @@
     "clang": {
         "binary": "clang-format",
         "format_on_save": false,
-        "options": {}
+        "args": []
     },
     "elm": {
         "binary": "elm-format",
         "format_on_save": false,
-        "options": {}
+        "args": []
     },
     "javascript": {
         "node": "node",
         "binary": "prettier",
         "format_on_save": false,
-        "options": {}
+        "args": []
     },
     "python": {
         "binary": "yapf",
         "format_on_save": false,
-        "options": {}
+        "args": []
     },
     "rust": {
         "binary": "rustfmt",
         "format_on_save": false,
-        "options": {}
+        "args": []
     },
     "terraform": {
         "binary": "terraform",
         "format_on_save": false,
-        "options": {}
+        "args": []
     }
 }

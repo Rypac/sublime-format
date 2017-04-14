@@ -28,7 +28,7 @@ class Formatter(object):
 
     @property
     def options(self):
-        return self.settings.get('options', default={})
+        return self.settings.get('args', default=[])
 
     @property
     def format_on_save(self):
@@ -47,15 +47,9 @@ class Formatter(object):
     def file_args(self, file_name):
         return [file_name]
 
-    def parsed_options(self):
-        options = []
-        for key, value in self.options.items():
-            options.extend(['--' + key, value])
-        return options
-
     def format(self, file=None, input=None):
         command = self.command()
-        options = self.parsed_options()
+        options = self.options
         args = self.file_args(file) if file else self.selection_args()
         return Command(command + options + args).run(input)
 
