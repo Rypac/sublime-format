@@ -17,7 +17,6 @@
         "format_on_save": false
     },
     "javascript": {
-        "node": "node",
         "binary": "prettier",
         "format_on_save": false,
         "args": []
