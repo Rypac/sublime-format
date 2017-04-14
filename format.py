@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 
-from .src.registry import FormatRegistry
+from .src.registry import FormatterRegistry
 
 
 def queue_command(callback):
@@ -12,7 +12,7 @@ def print_error(error):
     print('Format:', error)
 
 
-registry = FormatRegistry()
+registry = FormatterRegistry()
 
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):

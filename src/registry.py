@@ -1,7 +1,7 @@
 from .formatter import *
 
 
-class FormatRegistry():
+class FormatterRegistry():
     def __init__(self):
         self.__formatters = [
             ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
