@@ -57,6 +57,13 @@
                                 }
                             },
                             {
+                                "caption": "JSON",
+                                "command": "toggle_format_on_save",
+                                "args": {
+                                    "name": "JSON"
+                                }
+                            },
+                            {
                                 "caption": "Python",
                                 "command": "toggle_format_on_save",
                                 "args": {

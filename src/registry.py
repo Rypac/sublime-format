@@ -5,7 +5,7 @@ class FormatterRegistry():
     def __init__(self):
         self.__formatters = [
             ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
-            PythonFormat(), RustFormat(), TerraformFormat()
+            JsonFormat(), PythonFormat(), RustFormat(), TerraformFormat()
         ]
 
     @property

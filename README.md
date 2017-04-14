@@ -8,6 +8,7 @@ Because you have better things to worry about than formatting your code.
 - [Elm](#elm-elm-format)
 - [Go](#go-gofmt)
 - [JavaScript](#javascript-prettier)
+- [JSON](#json-json)
 - [Python](#python-yapf)
 - [Rust](#rust-rustfmt)
 - [Terraform](#terraform-terraform-fmt)
@@ -31,6 +32,10 @@ Installed with `Go` by default. Download `go` via your package manager or from [
 #### JavaScript ([`prettier`](https://github.com/jlongster/prettier))
 
     npm install -g prettier
+
+#### JSON ([`json`](https://docs.python.org/3.3/library/json.html))
+
+Uses the JSON encoder and decoder from the Python standard library.
 
 #### Python ([`yapf`](https://github.com/google/yapf))
 

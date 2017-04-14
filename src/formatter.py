@@ -1,3 +1,5 @@
+import json
+from collections import OrderedDict
 from .command import Command
 from .settings import Settings
 
@@ -90,6 +92,34 @@ class JavaScriptFormat(Formatter):
 
     def file_args(self, file_name):
         return ['--write', file_name]
+
+
+class JsonFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='JSON')
+
+    def format(self, file=None, input=None):
+        return self.format_file(file) if file else self.format_selection(input)
+
+    def format_file(self, file):
+        try:
+            with open(file, 'r+') as handle:
+                data = json.load(handle, object_pairs_hook=OrderedDict)
+                handle.seek(0)
+                json.dump(data, handle, indent=4)
+                handle.truncate()
+                return None, None
+        except IOError as error:
+            return None, error
+        except ValueError:
+            return None, 'Invalid JSON'
+
+    def format_selection(self, selection):
+        try:
+            data = json.loads(selection, object_pairs_hook=OrderedDict)
+            return json.dumps(data, indent=4), None
+        except ValueError:
+            return None, 'Invalid JSON'
 
 
 class PythonFormat(Formatter):
