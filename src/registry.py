@@ -3,6 +3,9 @@ from .formatter import *
 
 class FormatterRegistry():
     def __init__(self):
+        self.__formatters = []
+
+    def populate(self):
         self.__formatters = [
             ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
             JsonFormat(), PythonFormat(), RustFormat(), TerraformFormat()

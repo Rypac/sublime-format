@@ -11,6 +11,10 @@ class Settings():
         sublime.save_settings('Format.sublime-settings')
 
     @staticmethod
+    def on_change(callback):
+        Settings.load().add_on_change('Format.sublime-settings', callback)
+
+    @staticmethod
     def formatters():
         return Settings.load().get('formatters', default={})
 
