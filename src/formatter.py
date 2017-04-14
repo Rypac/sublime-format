@@ -23,15 +23,15 @@ class Formatter(object):
 
     @property
     def binary(self):
-        return self.settings.get('binary', self.__binary)
+        return self.settings.get('binary', default=self.__binary)
 
     @property
     def options(self):
-        return self.settings.get('options', {})
+        return self.settings.get('options', default={})
 
     @property
     def format_on_save(self):
-        return self.settings.get('format_on_save', False)
+        return self.settings.get('format_on_save', default=False)
 
     @format_on_save.setter
     def format_on_save(self, value):
@@ -57,3 +57,68 @@ class Formatter(object):
         options = self.parsed_options()
         args = self.file_args(file) if file else self.selection_args()
         return Command(command + options + args).run(input)
+
+
+class ClangFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Clang', source='c++', binary='clang-format')
+
+    def file_args(self, file_name):
+        return ['-i', file_name]
+
+
+class ElmFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Elm', binary='elm-format')
+
+    def selection_args(self):
+        return ['--stdin']
+
+
+class GoFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Go', binary='gofmt')
+
+    def file_args(self, file_name):
+        return ['-w', file_name]
+
+
+class JavaScriptFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='JavaScript', source='js', binary='prettier')
+
+    def command(self):
+        return [self.settings.get('node'), self.binary]
+
+    def selection_args(self):
+        return ['--stdin']
+
+    def file_args(self, file_name):
+        return ['--write', file_name]
+
+
+class PythonFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Python', binary='yapf')
+
+    def file_args(self, file_name):
+        return ['--in-place', file_name]
+
+
+class RustFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Rust', binary='rustfmt')
+
+    def file_args(self, file_name):
+        return ['--write-mode=overwrite', file_name]
+
+
+class TerraformFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Terraform', binary='terraform')
+
+    def command(self):
+        return [self.binary, 'fmt']
+
+    def selection_args(self):
+        return ['-']
