@@ -59,20 +59,20 @@ class FormatListener(sublime_plugin.EventListener):
 
 class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
     def is_checked(self, name=None):
-        if name is None:
-            return len(registry.enabled) == len(registry.all)
-        formatter = registry.by_name(name)
-        return formatter.format_on_save if formatter else False
+        if name:
+            formatter = registry.by_name(name)
+            return formatter and formatter.format_on_save
+        return len(registry.enabled) == len(registry.all)
 
     def run(self, name=None, value=None):
-        if name is None:
-            self.toggle_all()
-        else:
+        if name:
             self.toggle(name, value)
+        else:
+            self.toggle_all()
 
     def toggle(self, name, value):
         formatter = registry.by_name(name)
-        if formatter is not None:
+        if formatter:
             current = formatter.format_on_save
             formatter.format_on_save = not current if value is None else value
 
