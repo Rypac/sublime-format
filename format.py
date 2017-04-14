@@ -4,8 +4,8 @@ import sublime_plugin
 from .src.registry import FormatterRegistry
 
 
-def queue_command(callback):
-    sublime.set_timeout(callback, 100)
+def queue_command(callback, timeout=100):
+    sublime.set_timeout(callback, timeout)
 
 
 def print_error(error):
