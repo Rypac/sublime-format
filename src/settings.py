@@ -5,10 +5,12 @@ class Settings():
     def __init__(self, formatter):
         self.__formatter = formatter
 
-    def load(self):
+    @staticmethod
+    def load():
         return sublime.load_settings('Format.sublime-settings')
 
-    def save(self):
+    @staticmethod
+    def save():
         sublime.save_settings('Format.sublime-settings')
 
     def get(self, value, default=None):
