@@ -4,10 +4,11 @@ from .settings import Settings
 
 class Formatter(object):
     def __init__(self, name=None, source=None, binary=None):
+        key = name.lower()
         self.__name = name
-        self.__source = 'source.' + (source if source else name.lower())
+        self.__source = source or key
         self.__binary = binary
-        self.__settings = Settings(name.lower())
+        self.__settings = Settings(key)
 
     @property
     def settings(self):

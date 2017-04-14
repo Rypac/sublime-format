@@ -1,4 +1,4 @@
-from .formatters import *
+from .formatter import *
 
 
 class FormatRegistry():
@@ -20,7 +20,7 @@ class FormatRegistry():
         return next((x for x in self.all if predicate(x)), default)
 
     def by_view(self, view):
-        source = view.scope_name(0).split(' ')[0]
+        source = view.scope_name(0).split(' ')[0].split('.')[1]
         return self.find(lambda x: x.source == source)
 
     def by_name(self, name):
