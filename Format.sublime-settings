@@ -31,7 +31,6 @@
     },
     "terraform": {
         "binary": "terraform",
-        "format_on_save": false,
-        "args": []
+        "format_on_save": false
     }
 }
