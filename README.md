@@ -63,7 +63,7 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 
 - `Format: Format Selection`
     + Format the current selection
-- `Format: Format File` (<kbd>Ctrl+k</kbd>, <kbd>Ctrl+f</kbd>)
+- `Format: Format File`
     + Format the current file
 - `Format: Toggle Format on Save`
     + Toggle formatting on save for all supported source file types
@@ -71,3 +71,9 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
     + Select source file types to enable automatic formatting on save
 - `Format: Disable Format on Save...`
     + Select source file types to disable automatic formatting on save
+
+## Keybindings
+
+- `Format: Format File`
+    + OSX: (<kbd>Cmd</kbd> + <kbd>K</kbd>, <kbd>Cmd</kbd> + <kbd>F</kbd>)
+    + Windows/Linux: (<kbd>Ctrl</kbd> + <kbd>K</kbd>, <kbd>Ctrl</kbd> + <kbd>F</kbd>)

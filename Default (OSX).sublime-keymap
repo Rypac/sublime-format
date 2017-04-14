@@ -1,0 +1,6 @@
+[
+    {
+        "keys": ["super+k", "super+f"],
+        "command": "format_file"
+    }
+]
