@@ -9,6 +9,10 @@
         "format_on_save": false,
         "args": []
     },
+    "go": {
+        "binary": "gofmt",
+        "format_on_save": false
+    },
     "javascript": {
         "node": "node",
         "binary": "prettier",
