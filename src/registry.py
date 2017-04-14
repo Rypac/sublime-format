@@ -3,17 +3,14 @@ from .formatters import *
 
 class FormatRegistry():
     def __init__(self):
-        self.__registered_formatters = [
+        self.__formatters = [
             ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
             PythonFormat(), RustFormat(), TerraformFormat()
         ]
-        self.__source_formatter_lookup_table = {}
-        for formatter in self.__registered_formatters:
-            self.__source_formatter_lookup_table[formatter.source] = formatter
 
     @property
     def all(self):
-        return self.__registered_formatters
+        return self.__formatters
 
     @property
     def enabled(self):
@@ -24,7 +21,7 @@ class FormatRegistry():
 
     def by_view(self, view):
         source = view.scope_name(0).split(' ')[0]
-        return self.__source_formatter_lookup_table.get(source)
+        return self.find(lambda x: x.source == source)
 
     def by_name(self, name):
         return self.find(lambda x: x.name == name)
