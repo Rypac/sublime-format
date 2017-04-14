@@ -1,16 +1,17 @@
 import json
 from collections import OrderedDict
 from .command import Command
-from .settings import Settings
+from .settings import FormatterSettings
 
 
 class Formatter(object):
-    def __init__(self, name=None, source=None, binary=None):
-        key = name.lower()
+    def __init__(self, name, binary=None):
         self.__name = name
-        self.__source = source or key
         self.__binary = binary
-        self.__settings = Settings(key)
+        self.__settings = FormatterSettings(name.lower())
+        self.__sources = self.__settings.sources
+        self.__options = self.__settings.args
+        self.__format_on_save = self.__settings.format_on_save
 
     @property
     def settings(self):
@@ -21,24 +22,25 @@ class Formatter(object):
         return self.__name
 
     @property
-    def source(self):
-        return self.__source
+    def sources(self):
+        return self.__sources
 
     @property
     def binary(self):
-        return self.settings.get('binary', default=self.__binary)
+        return self.__binary
 
     @property
     def options(self):
-        return self.settings.get('args', default=[])
+        return self.__options
 
     @property
     def format_on_save(self):
-        return self.settings.get('format_on_save', default=False)
+        return self.__format_on_save
 
     @format_on_save.setter
     def format_on_save(self, value):
-        self.settings.set('format_on_save', value)
+        self.__format_on_save = value
+        self.__settings.format_on_save = value
 
     def command(self):
         return [self.binary]
@@ -58,7 +60,7 @@ class Formatter(object):
 
 class ClangFormat(Formatter):
     def __init__(self):
-        super().__init__(name='Clang', source='c++', binary='clang-format')
+        super().__init__(name='Clang', binary='clang-format')
 
     def file_args(self, file_name):
         return ['-i', file_name]
@@ -82,7 +84,7 @@ class GoFormat(Formatter):
 
 class JavaScriptFormat(Formatter):
     def __init__(self):
-        super().__init__(name='JavaScript', source='js', binary='prettier')
+        super().__init__(name='JavaScript', binary='prettier')
 
     def selection_args(self):
         return ['--stdin']

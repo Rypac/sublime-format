@@ -21,7 +21,7 @@ class FormatterRegistry():
 
     def by_view(self, view):
         source = view.scope_name(0).split(' ')[0].split('.')[1]
-        return self.find(lambda x: x.source == source)
+        return self.find(lambda x: source in x.sources)
 
     def by_name(self, name):
         return self.find(lambda x: x.name == name)

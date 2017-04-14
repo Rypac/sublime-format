@@ -1,38 +1,45 @@
 {
-    "clang": {
-        "binary": "clang-format",
-        "format_on_save": false,
-        "args": []
-    },
-    "elm": {
-        "binary": "elm-format",
-        "format_on_save": false,
-        "args": []
-    },
-    "go": {
-        "binary": "gofmt",
-        "format_on_save": false
-    },
-    "json": {
-        "format_on_save": false
-    },
-    "javascript": {
-        "binary": "prettier",
-        "format_on_save": false,
-        "args": []
-    },
-    "python": {
-        "binary": "yapf",
-        "format_on_save": false,
-        "args": []
-    },
-    "rust": {
-        "binary": "rustfmt",
-        "format_on_save": false,
-        "args": []
-    },
-    "terraform": {
-        "binary": "terraform",
-        "format_on_save": false
+    "paths": [],
+    "formatters": {
+        "clang": {
+            "format_on_save": false,
+            "sources": ["c++", "c", "objective-c"],
+            "args": []
+        },
+        "elm": {
+            "format_on_save": false,
+            "sources": ["elm"],
+            "args": []
+        },
+        "go": {
+            "format_on_save": false,
+            "sources": ["go"],
+            "args": []
+        },
+        "json": {
+            "format_on_save": false,
+            "sources": ["json"],
+            "args": []
+        },
+        "javascript": {
+            "format_on_save": false,
+            "sources": ["js"],
+            "args": []
+        },
+        "python": {
+            "format_on_save": false,
+            "sources": ["python"],
+            "args": []
+        },
+        "rust": {
+            "format_on_save": false,
+            "sources": ["rust"],
+            "args": []
+        },
+        "terraform": {
+            "format_on_save": false,
+            "sources": ["terraform"],
+            "args": []
+        }
     }
 }
