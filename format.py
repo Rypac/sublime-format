@@ -13,7 +13,7 @@ def perform_in_background(callback, timeout=0):
     sublime.set_timeout_async(callback, timeout)
 
 
-def print_error(error):
+def log_error(error):
     print('Format:', error)
 
 
@@ -42,32 +42,28 @@ def format_region(formatter, view, region, edit):
     if not error:
         view.replace(edit, region, output)
     else:
-        print_error(error)
+        log_error(error)
 
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         formatter = registry.by_view(self.view)
-        if formatter is None:
-            print_error('No formatter for source file')
-            return
-
-        for region in self.view.sel():
-            if not region.empty():
-                format_region(formatter, self.view, region, edit)
+        if formatter:
+            for region in self.view.sel():
+                if not region.empty():
+                    format_region(formatter, self.view, region, edit)
+        else:
+            log_error('No formatter for source file')
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
-    def __init__(self, view):
-        super().__init__(view)
-        self.formatter = registry.by_view(view)
-
-    def is_enabled(self):
-        return self.formatter is not None
-
     def run(self, edit):
-        region = sublime.Region(0, self.view.size())
-        format_region(self.formatter, self.view, region, edit)
+        formatter = registry.by_view(self.view)
+        if formatter:
+            region = sublime.Region(0, self.view.size())
+            format_region(formatter, self.view, region, edit)
+        else:
+            log_error('No formatter for source file')
 
 
 class FormatListener(sublime_plugin.EventListener):
