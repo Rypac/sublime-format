@@ -3,7 +3,7 @@
     "formatters": {
         "clang": {
             "format_on_save": false,
-            "sources": ["c++", "c", "objective-c"],
+            "sources": ["c++", "c", "objc", "objc++"],
             "args": []
         },
         "elm": {
