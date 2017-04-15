@@ -30,11 +30,26 @@ class Settings():
 
     @staticmethod
     def update_formatter(name, value):
-        settings = Settings.load()
         formatters = Settings.formatters()
         formatters[name] = value
-        settings.set('formatters', formatters)
+        Settings.update_formatters(formatters)
+
+    @staticmethod
+    def update_formatters(value):
+        Settings.load().set('formatters', value)
         Settings.save()
+
+    @staticmethod
+    def upgrade():
+        try:
+            path = 'Packages/Format/' + Settings.FORMAT_SETTINGS
+            resources = sublime.load_resource(path)
+            settings = sublime.decode_value(resources)
+            formatters = settings.get('formatters', {})
+            formatters.update(Settings.formatters())
+            Settings.update_formatters(formatters)
+        except Exception:
+            return
 
 
 class FormatterSettings():
