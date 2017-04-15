@@ -15,6 +15,7 @@ Because you have better things to worry about than formatting your code.
 - [Clang](#clang-clang-format)
 - [Elm](#elm-elm-format)
 - [Go](#go-gofmt)
+- [Haskell](#haskell-hindent)
 - [JavaScript](#javascript-prettier)
 - [JSON](#json-json)
 - [Python](#python-yapf)
@@ -38,6 +39,10 @@ Download `clang-format` via you package manager or from [the LLVM website](http:
 #### Go ([`gofmt`](https://golang.org/cmd/gofmt))
 
 Installed with `Go` by default. Download `go` via your package manager or from [the website](https://golang.org/dl).
+
+#### Haskell ([`hindent`](https://github.com/commercialhaskell/hindent))
+
+    stack install hindent
 
 #### JavaScript ([`prettier`](https://github.com/jlongster/prettier))
 

@@ -79,6 +79,11 @@ class GoFormat(Formatter):
         return ['-w', file_name]
 
 
+class HaskellFormat(Formatter):
+    def __init__(self):
+        super().__init__(name='Haskell', binary='hindent')
+
+
 class JavaScriptFormat(Formatter):
     def __init__(self):
         super().__init__(name='JavaScript', binary='prettier')

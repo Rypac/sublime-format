@@ -29,6 +29,11 @@
             "sources": ["go"],
             "args": []
         },
+        "haskell": {
+            "format_on_save": false,
+            "sources": ["haskell"],
+            "args": []
+        },
         "json": {
             "format_on_save": false,
             "sources": ["json"],

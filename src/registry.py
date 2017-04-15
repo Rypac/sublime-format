@@ -8,8 +8,9 @@ class FormatterRegistry():
 
     def populate(self):
         self.__formatters = [
-            ClangFormat(), ElmFormat(), GoFormat(), JavaScriptFormat(),
-            JsonFormat(), PythonFormat(), RustFormat(), TerraformFormat()
+            ClangFormat(), ElmFormat(), GoFormat(), HaskellFormat(),
+            JavaScriptFormat(), JsonFormat(), PythonFormat(), RustFormat(),
+            TerraformFormat()
         ]
         self.__formatter_source_map = dict((source, formatter)
                                            for formatter in self.__formatters

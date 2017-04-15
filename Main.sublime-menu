@@ -54,6 +54,14 @@
                                 }
                             },
                             {
+                                "caption": "Haskell",
+                                "command": "toggle_format_on_save",
+                                "checkbox": true,
+                                "args": {
+                                    "name": "Haskell"
+                                }
+                            },
+                            {
                                 "caption": "JavaScript",
                                 "command": "toggle_format_on_save",
                                 "checkbox": true,
