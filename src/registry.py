@@ -1,4 +1,4 @@
-from .formatter import *
+from .formatter import Formatter, JsonFormatter
 
 
 class FormatterRegistry():
@@ -8,9 +8,15 @@ class FormatterRegistry():
 
     def populate(self):
         self.__formatters = [
-            ClangFormat(), ElmFormat(), GoFormat(), HaskellFormat(),
-            JavaScriptFormat(), JsonFormat(), PythonFormat(), RustFormat(),
-            TerraformFormat()
+            Formatter('Clang', command='clang-format'),
+            Formatter('Elm', command='elm-format', args='--stdin'),
+            Formatter('Go', command='gofmt'),
+            Formatter('Haskell', command='hindent'),
+            Formatter('JavaScript', command='prettier', args='--stdin'),
+            Formatter('Python', command='yapf'),
+            Formatter('Rust', command='rustfmt'),
+            Formatter('Terraform', command='terraform fmt', args='-'),
+            JsonFormatter(),
         ]
         self.__formatter_source_map = dict((source, formatter)
                                            for formatter in self.__formatters
