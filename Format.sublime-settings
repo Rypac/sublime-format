@@ -1,9 +1,21 @@
 {
+    // Default settings for sublime format. DO NOT MODIFY!
+    // To make changes, copy and/or modify your user settings.
+    // User settings can be accessed from the menu via:
+    //     Preferences > Package Settings > Format > Settings - User
+
+    // A list a paths to be searched when executing a formatter in addition to those found on $PATH.
     "paths": [],
+
+    // Individual formatter settings.
     "formatters": {
         "clang": {
+            // Automatically format a source file after saving.
             "format_on_save": false,
+            // List of sources that the formatter will apply to.
             "sources": ["c++", "c", "objc", "objc++"],
+            // Arguments to be passed to the formatter.
+            // Formatter specific configuration should be  here.
             "args": []
         },
         "elm": {
