@@ -2,17 +2,19 @@ import sublime
 
 
 class Settings():
+    FORMAT_SETTINGS = 'Format.sublime-settings'
+
     @staticmethod
     def load():
-        return sublime.load_settings('Format.sublime-settings')
+        return sublime.load_settings(Settings.FORMAT_SETTINGS)
 
     @staticmethod
     def save():
-        sublime.save_settings('Format.sublime-settings')
+        sublime.save_settings(Settings.FORMAT_SETTINGS)
 
     @staticmethod
     def on_change(callback):
-        Settings.load().add_on_change('Format.sublime-settings', callback)
+        Settings.load().add_on_change(Settings.FORMAT_SETTINGS, callback)
 
     @staticmethod
     def formatters():
