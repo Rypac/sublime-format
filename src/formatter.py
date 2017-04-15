@@ -1,14 +1,16 @@
 import json
 from collections import OrderedDict
+from functools import wraps
 from .cache import cache, recache
 from .command import Command
 from .settings import FormatterSettings
 
 
-def formatter(name, *args, **kwargs):
-    def decorator(f):
-        def make_formatter():
-            return Formatter(name, *args, **kwargs)
+def formatter(name, command='', args=''):
+    def decorator(cls):
+        @wraps(cls)
+        def make_formatter(*args, **kwargs):
+            return cls(name, command, args, *args, **kwargs)
         return make_formatter
     return decorator
 
