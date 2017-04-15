@@ -5,6 +5,7 @@
     //     Preferences > Package Settings > Format > Settings - User
 
     // A list a paths to be searched when executing a formatter in addition to those found on $PATH.
+    // Paths defined here take precedence over existing paths in environment.
     "paths": [],
 
     // Individual formatter settings.
