@@ -2,29 +2,35 @@ from functools import wraps
 
 
 def cache(fn):
+    key = fn.__name__
+
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
-        if not hasattr(self, '__cached_values'):
-            self.__cached_values = {}
+        if not hasattr(self, '__cache'):
+            self.__cache = {}
 
-        key = fn.__name__
-        value = self.__cached_values.get(key)
+        value = self.__cache.get(key)
         if value is None:
             value = fn(self, *args, **kwargs)
-            self.__cached_values[key] = value
+            print('Caching', key, 'with', value)
+            self.__cache[key] = value
+        else:
+            print('Using', key, 'as', value)
         return value
 
     return wrapper
 
 
-def recache(fn):
-    @wraps(fn)
-    def wrapper(self, value, *args, **kwargs):
-        if not hasattr(self, '__cached_values'):
-            self.__cached_values = {}
+def invalidate(fn):
+    key = fn.__name__
 
-        key = fn.__name__
-        self.__cached_values[key] = value
-        fn(self, value, *args, **kwargs)
+    @wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(self, '__cache'):
+            self.__cache = {}
+
+        print('Invalidating', key)
+        self.__cache.pop(key, None)
+        fn(self, *args, **kwargs)
 
     return wrapper
