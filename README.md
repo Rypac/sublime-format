@@ -2,6 +2,14 @@
 
 Because you have better things to worry about than formatting your code.
 
+## Contents
+
+- [Supported Languages](#supported-languages)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Commands](#commands)
+- [Keybindings](#keybindings)
+
 ## Supported Languages
 
 - [C++](#c-clang-format)
@@ -54,7 +62,7 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 #### Package Control (coming soon...)
 
 1. Install [Package Control](https://packagecontrol.io)
-2. Run `Package Control: Install Package` in the Command Palette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>)
+2. Run `Package Control: Install Package` in the Command Palette (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>)
 3. Install `Format`
 
 #### Manual (via Package Control)
@@ -88,8 +96,8 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 ## Keybindings
 
 - `Format: Format Selection`
-    + OSX: (<kbd>Cmd</kbd> + <kbd>K</kbd>, <kbd>Cmd</kbd> + <kbd>S</kbd>)
-    + Windows/Linux: (<kbd>Ctrl</kbd> + <kbd>K</kbd>, <kbd>Ctrl</kbd> + <kbd>S</kbd>)
+    + OSX: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>S</kbd>)
+    + Windows/Linux: (<kbd>Ctrl</kbd>+<kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>S</kbd>)
 - `Format: Format File`
-    + OSX: (<kbd>Cmd</kbd> + <kbd>K</kbd>, <kbd>Cmd</kbd> + <kbd>F</kbd>)
-    + Windows/Linux: (<kbd>Ctrl</kbd> + <kbd>K</kbd>, <kbd>Ctrl</kbd> + <kbd>F</kbd>)
+    + OSX: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>F</kbd>)
+    + Windows/Linux: (<kbd>Ctrl</kbd>+<kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>F</kbd>)
