@@ -9,55 +9,54 @@
     "paths": [],
 
     // Individual formatter settings.
-    "formatters": {
-        "clang": {
-            // Automatically format a source file after saving.
-            "format_on_save": false,
-            // List of sources that the formatter will apply to.
-            "sources": ["c++", "c", "objc", "objc++"],
-            // Arguments to be passed to the formatter.
-            // Formatter specific configuration should be  here.
-            "args": []
-        },
-        "elm": {
-            "format_on_save": false,
-            "sources": ["elm"],
-            "args": []
-        },
-        "go": {
-            "format_on_save": false,
-            "sources": ["go"],
-            "args": []
-        },
-        "haskell": {
-            "format_on_save": false,
-            "sources": ["haskell"],
-            "args": []
-        },
-        "json": {
-            "format_on_save": false,
-            "sources": ["json"],
-            "args": []
-        },
-        "javascript": {
-            "format_on_save": false,
-            "sources": ["js"],
-            "args": []
-        },
-        "python": {
-            "format_on_save": false,
-            "sources": ["python"],
-            "args": []
-        },
-        "rust": {
-            "format_on_save": false,
-            "sources": ["rust"],
-            "args": []
-        },
-        "terraform": {
-            "format_on_save": false,
-            "sources": ["terraform"],
-            "args": []
-        }
+    "clang_formatter": {
+        // Automatically format a source file after saving.
+        "format_on_save": false,
+        // List of sources that the formatter will apply to.
+        "sources": ["c++", "c", "objc", "objc++"],
+        // Configuration options to be passed to the formatter.
+        // Formatter specific configuration should be defined here.
+        // Refer to the documentation of each formatter for a list of configuration options.
+        "options": []
+    },
+    "elm_formatter": {
+        "format_on_save": false,
+        "sources": ["elm"],
+        "options": []
+    },
+    "go_formatter": {
+        "format_on_save": false,
+        "sources": ["go"],
+        "options": []
+    },
+    "haskell_formatter": {
+        "format_on_save": false,
+        "sources": ["haskell"],
+        "options": []
+    },
+    "json_formatter": {
+        "format_on_save": false,
+        "sources": ["json"],
+        "options": []
+    },
+    "javascript_formatter": {
+        "format_on_save": false,
+        "sources": ["js"],
+        "options": []
+    },
+    "python_formatter": {
+        "format_on_save": false,
+        "sources": ["python"],
+        "options": []
+    },
+    "rust_formatter": {
+        "format_on_save": false,
+        "sources": ["rust"],
+        "options": []
+    },
+    "terraform_formatter": {
+        "format_on_save": false,
+        "sources": ["terraform"],
+        "options": []
     }
 }

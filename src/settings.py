@@ -21,8 +21,8 @@ class Settings():
         Settings.load().clear_on_change(Settings.FORMAT_SETTINGS)
 
     @staticmethod
-    def formatters():
-        return Settings.load().get('formatters', default={})
+    def formatter(name):
+        return Settings.load().get('{}_formatter'.format(name), default={})
 
     @staticmethod
     def paths():
@@ -30,39 +30,21 @@ class Settings():
 
     @staticmethod
     def update_formatter(name, value):
-        formatters = Settings.formatters()
-        formatters[name] = value
-        Settings.update_formatters(formatters)
-
-    @staticmethod
-    def update_formatters(value):
-        Settings.load().set('formatters', value)
+        Settings.load().set('{}_formatter'.format(name), value)
         Settings.save()
-
-    @staticmethod
-    def upgrade():
-        try:
-            path = 'Packages/Format/' + Settings.FORMAT_SETTINGS
-            resources = sublime.load_resource(path)
-            settings = sublime.decode_value(resources)
-            formatters = settings.get('formatters', {})
-            formatters.update(Settings.formatters())
-            Settings.update_formatters(formatters)
-        except Exception:
-            return
 
 
 class FormatterSettings():
-    def __init__(self, formatter):
-        self.__formatter = formatter
-        self.__settings = Settings.formatters().get(formatter, {})
+    def __init__(self, name):
+        self.__name = name
+        self.__settings = Settings.formatter(name)
 
     def get(self, value, default=None):
         return self.__settings.get(value, default)
 
     def set(self, key, value):
         self.__settings[key] = value
-        Settings.update_formatter(self.__formatter, self.__settings)
+        Settings.update_formatter(self.__name, self.__settings)
 
     @property
     def format_on_save(self):
@@ -77,5 +59,5 @@ class FormatterSettings():
         return self.get('sources', default=[])
 
     @property
-    def args(self):
-        return self.get('args', default=[])
+    def options(self):
+        return self.get('options', default=[])

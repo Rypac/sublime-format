@@ -9,10 +9,6 @@ def queue_command(callback, timeout=100):
     sublime.set_timeout(callback, timeout)
 
 
-def perform_in_background(callback, timeout=0):
-    sublime.set_timeout_async(callback, timeout)
-
-
 def log_error(error):
     print('Format:', error)
 
@@ -24,12 +20,8 @@ def plugin_loaded():
     def load_formatters():
         registry.populate()
 
-    def prepare_plugin():
-        Settings.upgrade()
-        Settings.on_change(load_formatters)
-        load_formatters()
-
-    perform_in_background(prepare_plugin)
+    Settings.on_change(load_formatters)
+    load_formatters()
 
 
 def plugin_unloaded():

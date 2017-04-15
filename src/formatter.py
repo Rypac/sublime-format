@@ -36,7 +36,7 @@ class Formatter():
     @property
     @cache
     def options(self):
-        return self.__settings.args
+        return self.__settings.options
 
     @property
     @cache
