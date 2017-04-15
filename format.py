@@ -24,6 +24,10 @@ def plugin_loaded():
     load_formatters()
 
 
+def plugin_unloaded():
+    Settings.stop_listening_for_changes()
+
+
 class FormatSelectionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         formatter = registry.by_view(self.view)

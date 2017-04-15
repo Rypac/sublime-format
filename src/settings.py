@@ -17,6 +17,10 @@ class Settings():
         Settings.load().add_on_change(Settings.FORMAT_SETTINGS, callback)
 
     @staticmethod
+    def stop_listening_for_changes():
+        Settings.load().clear_on_change(Settings.FORMAT_SETTINGS)
+
+    @staticmethod
     def formatters():
         return Settings.load().get('formatters', default={})
 
