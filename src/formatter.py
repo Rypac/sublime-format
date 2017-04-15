@@ -11,7 +11,9 @@ def formatter(name, command='', args=''):
         @wraps(cls)
         def make_formatter(*args, **kwargs):
             return cls(name, command, args, *args, **kwargs)
+
         return make_formatter
+
     return decorator
 
 
