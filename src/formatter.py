@@ -5,7 +5,7 @@ from .command import Command
 from .settings import FormatterSettings
 
 
-class Formatter(object):
+class Formatter():
     def __init__(self, name, binary=None):
         self.__name = name
         self.__binary = binary
