@@ -20,6 +20,9 @@ def cache(fn):
 def recache(fn):
     @wraps(fn)
     def wrapper(self, value, *args, **kwargs):
+        if not hasattr(self, '__cached_values'):
+            self.__cached_values = {}
+
         key = fn.__name__
         self.__cached_values[key] = value
         fn(self, value, *args, **kwargs)
