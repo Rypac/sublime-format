@@ -1,7 +1,6 @@
 import json
 from collections import OrderedDict
 from functools import wraps
-from .cache import cache, invalidate
 from .command import Command
 from .settings import FormatterSettings
 
@@ -29,22 +28,18 @@ class Formatter():
         return self.__name
 
     @property
-    @cache
     def sources(self):
         return self.__settings.sources
 
     @property
-    @cache
     def options(self):
         return self.__settings.options
 
     @property
-    @cache
     def format_on_save(self):
         return self.__settings.format_on_save
 
     @format_on_save.setter
-    @invalidate
     def format_on_save(self, value):
         self.__settings.format_on_save = value
 
