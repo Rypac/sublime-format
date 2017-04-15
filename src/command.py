@@ -15,7 +15,7 @@ class Command():
             self.__shell = True
 
     @staticmethod
-    def env(self):
+    def env():
         path = os.pathsep.join(Settings.paths())
         env = os.environ.copy()
         env['PATH'] = path + os.pathsep + env['PATH']
