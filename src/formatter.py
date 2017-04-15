@@ -1,5 +1,6 @@
 import json
 from collections import OrderedDict
+from .cache import cache, recache
 from .command import Command
 from .settings import FormatterSettings
 
@@ -9,37 +10,33 @@ class Formatter(object):
         self.__name = name
         self.__binary = binary
         self.__settings = FormatterSettings(name.lower())
-        self.__sources = self.__settings.sources
-        self.__options = self.__settings.args
-        self.__format_on_save = self.__settings.format_on_save
-
-    @property
-    def settings(self):
-        return self.__settings
 
     @property
     def name(self):
         return self.__name
 
     @property
-    def sources(self):
-        return self.__sources
-
-    @property
     def binary(self):
         return self.__binary
 
     @property
-    def options(self):
-        return self.__options
+    @cache
+    def sources(self):
+        return self.__settings.sources
 
     @property
+    @cache
+    def options(self):
+        return self.__settings.args
+
+    @property
+    @cache
     def format_on_save(self):
-        return self.__format_on_save
+        return self.__settings.format_on_save
 
     @format_on_save.setter
+    @recache
     def format_on_save(self, value):
-        self.__format_on_save = value
         self.__settings.format_on_save = value
 
     def command(self):
