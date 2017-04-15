@@ -5,6 +5,14 @@ from .command import Command
 from .settings import FormatterSettings
 
 
+def formatter(name, binary=None):
+    def decorator(f):
+        def make_formatter():
+            return Formatter(name, binary)
+        return make_formatter
+    return decorator
+
+
 class Formatter():
     def __init__(self, name, binary=None):
         self.__name = name
@@ -52,41 +60,35 @@ class Formatter():
         return Command(command + options + args).run(input)
 
 
+@formatter(name='Clang', binary='clang-format')
 class ClangFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Clang', binary='clang-format')
+    pass
 
 
+@formatter(name='Elm', binary='elm-format')
 class ElmFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Elm', binary='elm-format')
-
     def args(self):
         return ['--stdin']
 
 
+@formatter(name='Go', binary='gofmt')
 class GoFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Go', binary='gofmt')
+    pass
 
 
+@formatter(name='Haskell', binary='hindent')
 class HaskellFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Haskell', binary='hindent')
+    pass
 
 
+@formatter(name='JavaScript', binary='prettier')
 class JavaScriptFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='JavaScript', binary='prettier')
-
     def args(self):
         return ['--stdin']
 
 
+@formatter(name='JSON')
 class JsonFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='JSON')
-
     def format(self, input):
         try:
             data = json.loads(input, object_pairs_hook=OrderedDict)
@@ -95,20 +97,18 @@ class JsonFormat(Formatter):
             return None, 'Invalid JSON'
 
 
+@formatter(name='Python', binary='yapf')
 class PythonFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Python', binary='yapf')
+    pass
 
 
+@formatter(name='Rust', binary='rustfmt')
 class RustFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Rust', binary='rustfmt')
+    pass
 
 
+@formatter(name='Terraform', binary='terraform')
 class TerraformFormat(Formatter):
-    def __init__(self):
-        super().__init__(name='Terraform', binary='terraform')
-
     def command(self):
         return [self.binary, 'fmt']
 
