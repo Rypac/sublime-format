@@ -5,27 +5,24 @@ from .command import Command
 from .settings import FormatterSettings
 
 
-def formatter(name, binary=None):
+def formatter(name, *args, **kwargs):
     def decorator(f):
         def make_formatter():
-            return Formatter(name, binary)
+            return Formatter(name, *args, **kwargs)
         return make_formatter
     return decorator
 
 
 class Formatter():
-    def __init__(self, name, binary=None):
+    def __init__(self, name, command='', args=''):
         self.__name = name
-        self.__binary = binary
+        self.__command = command.split(' ') if command else []
+        self.__args = args.split(' ') if args else []
         self.__settings = FormatterSettings(name.lower())
 
     @property
     def name(self):
         return self.__name
-
-    @property
-    def binary(self):
-        return self.__binary
 
     @property
     @cache
@@ -47,44 +44,36 @@ class Formatter():
     def format_on_save(self, value):
         self.__settings.format_on_save = value
 
-    def command(self):
-        return [self.binary]
-
-    def args(self):
-        return []
-
     def format(self, input):
-        command = self.command()
+        command = self.__command
         options = self.options
-        args = self.args()
+        args = self.__args
         return Command(command + options + args).run(input)
 
 
-@formatter(name='Clang', binary='clang-format')
+@formatter(name='Clang', command='clang-format')
 class ClangFormat(Formatter):
     pass
 
 
-@formatter(name='Elm', binary='elm-format')
+@formatter(name='Elm', command='elm-format', args='--stdin')
 class ElmFormat(Formatter):
-    def args(self):
-        return ['--stdin']
+    pass
 
 
-@formatter(name='Go', binary='gofmt')
+@formatter(name='Go', command='gofmt')
 class GoFormat(Formatter):
     pass
 
 
-@formatter(name='Haskell', binary='hindent')
+@formatter(name='Haskell', command='hindent')
 class HaskellFormat(Formatter):
     pass
 
 
-@formatter(name='JavaScript', binary='prettier')
+@formatter(name='JavaScript', command='prettier', args='--stdin')
 class JavaScriptFormat(Formatter):
-    def args(self):
-        return ['--stdin']
+    pass
 
 
 @formatter(name='JSON')
@@ -97,20 +86,16 @@ class JsonFormat(Formatter):
             return None, 'Invalid JSON'
 
 
-@formatter(name='Python', binary='yapf')
+@formatter(name='Python', command='yapf')
 class PythonFormat(Formatter):
     pass
 
 
-@formatter(name='Rust', binary='rustfmt')
+@formatter(name='Rust', command='rustfmt')
 class RustFormat(Formatter):
     pass
 
 
-@formatter(name='Terraform', binary='terraform')
+@formatter(name='Terraform', command='terraform fmt', args='-')
 class TerraformFormat(Formatter):
-    def command(self):
-        return [self.binary, 'fmt']
-
-    def args(self):
-        return ['-']
+    pass
