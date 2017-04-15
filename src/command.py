@@ -3,9 +3,9 @@ import os
 from .settings import Settings
 
 
-class Command():
-    def __init__(self, command):
-        self.__command = command
+class ShellCommand():
+    def __init__(self, args):
+        self.__args = args
         self.__startup_info = None
         self.__shell = False
         if os.name == 'nt':
@@ -13,6 +13,10 @@ class Command():
             self.__startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             self.__startup_info.wShowWindow = subprocess.SW_HIDE
             self.__shell = True
+
+    @property
+    def args(self):
+        return self.__args
 
     @staticmethod
     def env():
@@ -23,7 +27,7 @@ class Command():
 
     def run(self, input):
         return subprocess.Popen(
-            self.__command,
+            self.args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

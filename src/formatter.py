@@ -1,6 +1,6 @@
 import json
 from collections import OrderedDict
-from .command import Command
+from .command import ShellCommand
 from .settings import FormatterSettings
 
 
@@ -14,7 +14,7 @@ class Formatter():
             command = command.split(' ') if command else []
             options = self.__settings.options
             args = args.split(' ') if args else []
-            shell_command = Command(command + options + args)
+            shell_command = ShellCommand(command + options + args)
 
             def external_format(input):
                 return shell_command.run(input)
