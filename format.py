@@ -36,6 +36,17 @@ def plugin_unloaded():
     Settings.stop_listening_for_changes()
 
 
+def format_region(formatter, view, region, edit):
+    selection = view.substr(region)
+    output, error = formatter.format(selection)
+    if not error:
+        print('Output')
+        print(output)
+        view.replace(edit, region, output)
+    else:
+        print_error(error)
+
+
 class FormatSelectionCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         formatter = registry.by_view(self.view)
@@ -44,15 +55,8 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
             return
 
         for region in self.view.sel():
-            if region.empty():
-                continue
-
-            selection = self.view.substr(region)
-            output, error = formatter.format(input=selection)
-            if not error:
-                self.view.replace(edit, region, output)
-            else:
-                print_error(error)
+            if not region.empty():
+                format_region(formatter, self.view, region, edit)
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
@@ -64,15 +68,12 @@ class FormatFileCommand(sublime_plugin.TextCommand):
         return self.formatter is not None
 
     def run(self, edit):
-        output, error = self.formatter.format(file=self.view.file_name())
-        if not error:
-            queue_command(lambda: self.view.run_command('revert'))
-        else:
-            print_error(error)
+        region = sublime.Region(0, self.view.size())
+        format_region(self.formatter, self.view, region, edit)
 
 
 class FormatListener(sublime_plugin.EventListener):
-    def on_post_save_async(self, view):
+    def on_pre_save(self, view):
         formatter = registry.by_view(view)
         if formatter and formatter.format_on_save:
             view.run_command('format_file')
