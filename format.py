@@ -93,11 +93,12 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
 class ManageFormatOnSaveCommand(sublime_plugin.WindowCommand):
     def run(self, which=None):
         enabled = which == 'enabled'
-        items = [[x.name] for x in registry.all if x.format_on_save == enabled]
+        items = [[x.name]
+                 for x in registry.by(lambda f: f.format_on_save == enabled)]
 
         def callback(selection):
             if selection >= 0 and selection < len(items):
-                args = {'name': items[selection][0]}
-                self.window.run_command('toggle_format_on_save', args)
+                self.window.run_command('toggle_format_on_save',
+                                        {'name': items[selection][0]})
 
         queue_command(lambda: self.window.show_quick_panel(items, callback))
