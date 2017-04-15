@@ -40,8 +40,6 @@ def format_region(formatter, view, region, edit):
     selection = view.substr(region)
     output, error = formatter.format(selection)
     if not error:
-        print('Output')
-        print(output)
         view.replace(edit, region, output)
     else:
         print_error(error)
