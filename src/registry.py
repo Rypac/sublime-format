@@ -26,10 +26,6 @@ class FormatterRegistry():
     def all(self):
         return self.__formatters
 
-    @property
-    def enabled(self):
-        return [x for x in self.all if x.format_on_save]
-
     def by_view(self, view):
         source = view.scope_name(0).split(' ')[0].split('.')[1]
         return self.__formatter_source_map.get(source)
