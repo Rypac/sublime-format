@@ -36,8 +36,7 @@
     },
     "json_formatter": {
         "format_on_save": false,
-        "sources": ["json"],
-        "options": []
+        "sources": ["json"]
     },
     "javascript_formatter": {
         "format_on_save": false,
