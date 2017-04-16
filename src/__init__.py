@@ -1,1 +1,1 @@
-__all__ = ['cache', 'command', 'formatter', 'registry', 'settings']
+__all__ = ['command', 'formatter', 'registry', 'settings']
