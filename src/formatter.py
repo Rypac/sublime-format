@@ -5,15 +5,15 @@ from .settings import FormatterSettings
 
 
 class Formatter():
-    def __init__(self, name, command=None, args=None, formatter=None):
+    def __init__(self, name, command='', args='', formatter=None):
         self.__name = name
-        self.__format = formatter
         self.__settings = FormatterSettings(name.lower())
-
-        if not formatter:
-            command = command.split(' ') if command else []
+        if formatter:
+            self.__format = formatter
+        else:
+            command = command.split(' ')
             options = self.__settings.options
-            args = args.split(' ') if args else []
+            args = args.split(' ')
             self.__format = ShellCommand(command + options + args).run
 
     @property
