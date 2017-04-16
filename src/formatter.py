@@ -14,12 +14,7 @@ class Formatter():
             command = command.split(' ') if command else []
             options = self.__settings.options
             args = args.split(' ') if args else []
-            shell_command = ShellCommand(command + options + args)
-
-            def external_format(input):
-                return shell_command.run(input)
-
-            self.__format = external_format
+            self.__format = ShellCommand(command + options + args).run
 
     @property
     def name(self):

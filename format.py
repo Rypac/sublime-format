@@ -17,11 +17,8 @@ registry = FormatterRegistry()
 
 
 def plugin_loaded():
-    def load_formatters():
-        registry.populate()
-
-    Settings.on_change(load_formatters)
-    load_formatters()
+    Settings.on_change(registry.populate)
+    registry.populate()
 
 
 def plugin_unloaded():
