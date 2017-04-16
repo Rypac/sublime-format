@@ -1,5 +1,3 @@
-import json
-from collections import OrderedDict
 from .command import ShellCommand
 from .settings import FormatterSettings
 
@@ -36,13 +34,4 @@ class Formatter:
         return self.__format(input)
 
 
-class JsonFormatter(Formatter):
-    def __init__(self):
-        def format_json(input):
-            try:
-                data = json.loads(input, object_pairs_hook=OrderedDict)
-                return json.dumps(data, indent=4), None
-            except ValueError:
-                return None, 'Invalid JSON'
 
-        super().__init__(name='JSON', formatter=format_json)

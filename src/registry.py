@@ -1,4 +1,5 @@
-from .formatter import Formatter, JsonFormatter
+from .formatter import Formatter
+from .formatters import json
 
 
 class FormatterRegistry:
@@ -15,7 +16,7 @@ class FormatterRegistry:
             Formatter('Python', command='yapf'),
             Formatter('Rust', command='rustfmt'),
             Formatter('Terraform', command='terraform fmt', args='-'),
-            JsonFormatter(),
+            Formatter('JSON', formatter=json.format),
         ]
 
     @property
