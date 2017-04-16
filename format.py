@@ -1,8 +1,8 @@
 import sublime
 import sublime_plugin
 
-from .src import FormatterRegistry
-from .src import Settings
+from .plugin import FormatterRegistry
+from .plugin import Settings
 
 
 def queue_command(callback, timeout=100):
