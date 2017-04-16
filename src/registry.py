@@ -1,5 +1,5 @@
-from .formatter import Formatter
-from .formatters import json
+from .formatter import ExternalFormatter, Formatter
+from .formatters import format_json
 
 
 class FormatterRegistry:
@@ -8,15 +8,16 @@ class FormatterRegistry:
 
     def populate(self):
         self.__formatters = [
-            Formatter('Clang', command='clang-format'),
-            Formatter('Elm', command='elm-format', args='--stdin'),
-            Formatter('Go', command='gofmt'),
-            Formatter('Haskell', command='hindent'),
-            Formatter('JavaScript', command='prettier', args='--stdin'),
-            Formatter('Python', command='yapf'),
-            Formatter('Rust', command='rustfmt'),
-            Formatter('Terraform', command='terraform fmt', args='-'),
-            Formatter('JSON', formatter=json.format),
+            ExternalFormatter('Clang', command='clang-format'),
+            ExternalFormatter('Elm', command='elm-format', args='--stdin'),
+            ExternalFormatter('Go', command='gofmt'),
+            ExternalFormatter('Haskell', command='hindent'),
+            ExternalFormatter(
+                'JavaScript', command='prettier', args='--stdin'),
+            Formatter('JSON', formatter=format_json),
+            ExternalFormatter('Python', command='yapf'),
+            ExternalFormatter('Rust', command='rustfmt'),
+            ExternalFormatter('Terraform', command='terraform fmt', args='-'),
         ]
 
     @property

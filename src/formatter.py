@@ -1,22 +1,12 @@
+from .base import Formatter as BaseFormatter
 from .command import ShellCommand
 from .settings import FormatterSettings
 
 
-class Formatter:
-    def __init__(self, name, command='', args='', formatter=None):
-        self.__name = name
-        self.__settings = FormatterSettings(name.lower())
-        if formatter:
-            self.__format = formatter
-        else:
-            command = command.split(' ')
-            options = self.__settings.options
-            args = args.split(' ')
-            self.__format = ShellCommand(command + options + args).run
-
-    @property
-    def name(self):
-        return self.__name
+class Formatter(BaseFormatter):
+    def __init__(self, name, formatter, settings=None):
+        super().__init__(name, formatter=formatter)
+        self.__settings = settings or FormatterSettings(name.lower())
 
     @property
     def sources(self):
@@ -30,8 +20,12 @@ class Formatter:
     def format_on_save(self, value):
         self.__settings.format_on_save = value
 
-    def format(self, input):
-        return self.__format(input)
 
-
-
+class ExternalFormatter(Formatter):
+    def __init__(self, name, command='', args='', settings=None):
+        settings = settings or FormatterSettings(name.lower())
+        command = command.split(' ') if command else []
+        options = settings.options
+        args = args.split(' ') if args else []
+        shell_command = ShellCommand(command + options + args).run
+        super().__init__(name, formatter=shell_command, settings=settings)
