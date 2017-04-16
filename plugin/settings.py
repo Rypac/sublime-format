@@ -1,24 +1,25 @@
 import sublime
 
+PLUGIN_NAME = 'Format'
+PLUGIN_SETTINGS = '{}.sublime-settings'.format(PLUGIN_NAME)
+
 
 class Settings:
-    FORMAT_SETTINGS = 'Format.sublime-settings'
-
     @staticmethod
     def load():
-        return sublime.load_settings(Settings.FORMAT_SETTINGS)
+        return sublime.load_settings(PLUGIN_SETTINGS)
 
     @staticmethod
     def save():
-        sublime.save_settings(Settings.FORMAT_SETTINGS)
+        sublime.save_settings(PLUGIN_SETTINGS)
 
     @staticmethod
     def on_change(callback):
-        Settings.load().add_on_change(Settings.FORMAT_SETTINGS, callback)
+        Settings.load().add_on_change(PLUGIN_NAME, callback)
 
     @staticmethod
     def stop_listening_for_changes():
-        Settings.load().clear_on_change(Settings.FORMAT_SETTINGS)
+        Settings.load().clear_on_change(PLUGIN_NAME)
 
     @staticmethod
     def formatter(name):
