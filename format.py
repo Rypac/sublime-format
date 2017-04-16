@@ -72,22 +72,15 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
             return formatter and formatter.format_on_save
         return all(f.format_on_save for f in registry.all)
 
-    def run(self, name=None, value=None):
+    def run(self, name=None):
         if name:
-            self.toggle(name, value)
+            formatter = registry.by_name(name)
+            if formatter:
+                formatter.format_on_save = not formatter.format_on_save
         else:
-            self.toggle_all()
-
-    def toggle(self, name, value):
-        formatter = registry.by_name(name)
-        if formatter:
-            current = formatter.format_on_save
-            formatter.format_on_save = not current if value is None else value
-
-    def toggle_all(self):
-        enable = any(not f.format_on_save for f in registry.all)
-        for formatter in registry.all:
-            formatter.format_on_save = enable
+            enable = any(not f.format_on_save for f in registry.all)
+            for formatter in registry.all:
+                formatter.format_on_save = enable
 
 
 class ManageFormatOnSaveCommand(sublime_plugin.WindowCommand):
