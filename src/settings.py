@@ -1,7 +1,7 @@
 import sublime
 
 
-class Settings():
+class Settings:
     FORMAT_SETTINGS = 'Format.sublime-settings'
 
     @staticmethod
@@ -34,7 +34,7 @@ class Settings():
         Settings.save()
 
 
-class FormatterSettings():
+class FormatterSettings:
     def __init__(self, name):
         self.__name = name
         self.__settings = Settings.formatter(name)

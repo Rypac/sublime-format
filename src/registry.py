@@ -1,7 +1,7 @@
 from .formatter import Formatter, JsonFormatter
 
 
-class FormatterRegistry():
+class FormatterRegistry:
     def __init__(self):
         self.__formatters = []
 

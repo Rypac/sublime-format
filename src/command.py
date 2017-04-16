@@ -3,7 +3,7 @@ import os
 from .settings import Settings
 
 
-class ShellCommand():
+class ShellCommand:
     def __init__(self, args):
         self.__args = args
         self.__startup_info = None

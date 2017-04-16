@@ -4,7 +4,7 @@ from .command import ShellCommand
 from .settings import FormatterSettings
 
 
-class Formatter():
+class Formatter:
     def __init__(self, name, command='', args='', formatter=None):
         self.__name = name
         self.__settings = FormatterSettings(name.lower())
