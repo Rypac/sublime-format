@@ -35,6 +35,9 @@ def format_region(formatter, view, region, edit):
 
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return registry.by_view(self.view) is not None
+
     def run(self, edit):
         formatter = registry.by_view(self.view)
         if formatter:
@@ -46,6 +49,9 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
 
 
 class FormatFileCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return registry.by_view(self.view) is not None
+
     def run(self, edit):
         formatter = registry.by_view(self.view)
         if formatter:
