@@ -1,0 +1,6 @@
+[
+    { "caption": "-", "id": "selection" },
+    { "command": "format_selection" },
+    { "caption": "-", "id": "file" },
+    { "command": "format_file" }
+]
