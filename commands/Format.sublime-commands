@@ -24,5 +24,21 @@
         "args": {
             "which": "enabled"
         }
+    },
+    {
+        "caption": "Preferences: Format Settings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/Format/settings/Format.sublime-settings",
+            "default": "{\n\t$0\n}\n"
+        }
+    },
+    {
+        "caption": "Preferences: Format Key Bindings",
+        "command": "edit_settings",
+        "args": {
+            "base_file": "${packages}/Format/keymaps/Default (${platform}).sublime-keymap",
+            "default": "[\n\t$0\n]\n"
+        }
     }
 ]
