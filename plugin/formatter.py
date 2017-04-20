@@ -29,8 +29,8 @@ class Formatter:
     def format_on_save(self, value):
         self.__settings.format_on_save = value
 
-    def format(self, input):
-        return self.__format(input)
+    def format(self, input, *args, **kwargs):
+        return self.__format(input, *args, **kwargs)
 
 
 class ExternalFormatter(Formatter):
@@ -43,5 +43,5 @@ class ExternalFormatter(Formatter):
         args = self.__command + self.settings.options + self.__args
         return ShellCommand(args)
 
-    def format(self, input):
+    def format(self, input, *args, **kwargs):
         return self.command().run(input)

@@ -27,7 +27,7 @@ def plugin_unloaded():
 
 def format_region(formatter, view, region, edit):
     selection = view.substr(region)
-    output, error = formatter.format(selection)
+    output, error = formatter.format(selection, settings=view.settings())
     if not error:
         view.replace(edit, region, output)
     else:
