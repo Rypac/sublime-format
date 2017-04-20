@@ -1,6 +1,13 @@
 [
-    { "caption": "-", "id": "selection" },
-    { "command": "format_selection" },
-    { "caption": "-", "id": "file" },
-    { "command": "format_file" }
+    {
+        "caption": "Format",
+        "children": [
+            {
+                "command": "format_selection"
+            },
+            {
+                "command": "format_file"
+            }
+        ]
+    }
 ]
