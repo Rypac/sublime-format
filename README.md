@@ -78,7 +78,7 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 2. Run `Package Control: Add Repository` in the Command Palette
 3. Add the repository: `https://github.com/Rypac/sublime-format.git`
 4. Run `Package Control: Install Package` in the Command Palette
-5. Install `Format`
+5. Install `sublime-format`
 
 #### Manual
 
