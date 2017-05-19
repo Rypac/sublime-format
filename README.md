@@ -20,6 +20,7 @@ Because you have better things to worry about than formatting your code.
 - [JSON](#json-json)
 - [Python](#python-yapf)
 - [Rust](#rust-rustfmt)
+- [Swift](#swift-swiftformat)
 - [Terraform](#terraform-terraform-fmt)
 
 ## Prerequisites
@@ -59,6 +60,10 @@ Uses the JSON encoder and decoder from the Python standard library.
 #### Rust ([`rustfmt`](https://github.com/rust-lang-nursery/rustfmt))
 
     cargo install rustfmt
+
+#### Swift ([`swiftformat`](https://github.com/nicklockwood/SwiftFormat))
+
+    brew install swiftformat
 
 #### Terraform ([`terraform fmt`](https://github.com/hashicorp/terraform))
 

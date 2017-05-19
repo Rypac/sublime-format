@@ -53,6 +53,11 @@
         "sources": ["rust"],
         "options": []
     },
+    "swift_formatter": {
+        "format_on_save": false,
+        "sources": ["swift"],
+        "options": []
+    },
     "terraform_formatter": {
         "format_on_save": false,
         "sources": ["terraform"],

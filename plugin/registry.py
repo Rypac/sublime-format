@@ -17,6 +17,7 @@ class FormatterRegistry:
             Formatter('JSON', formatter=format_json),
             ExternalFormatter('Python', command='yapf'),
             ExternalFormatter('Rust', command='rustfmt'),
+            ExternalFormatter('Swift', command='swiftformat'),
             ExternalFormatter('Terraform', command='terraform fmt', args='-'),
         ]
 
