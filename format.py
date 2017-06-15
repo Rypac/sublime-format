@@ -9,8 +9,8 @@ def queue_command(callback, timeout=100):
     sublime.set_timeout(callback, timeout)
 
 
-def log_error(error):
-    print('Format:', error)
+def log_error(output, error):
+    print('Format:', output, error)
 
 
 registry = FormatterRegistry()
@@ -27,11 +27,11 @@ def plugin_unloaded():
 
 def format_region(formatter, view, region, edit):
     selection = view.substr(region)
-    output, error = formatter.format(selection, settings=view.settings())
-    if not error:
+    ok, output, error = formatter.format(selection, settings=view.settings())
+    if ok:
         view.replace(edit, region, output)
     else:
-        log_error(error)
+        log_error(output, error)
 
 
 class FormatSelectionCommand(sublime_plugin.TextCommand):
