@@ -1,5 +1,5 @@
 from .command import shell
-from .settings import FormatterSettings
+from .settings import FormatterSettings, Settings
 
 
 class Formatter:
@@ -39,5 +39,5 @@ class ExternalFormatter(Formatter):
         args = args.split(' ') if args else []
         settings = settings or FormatterSettings(name.lower())
         opts = settings.options or []
-        formatter = shell(command + opts + args)
+        formatter = shell(command + opts + args, paths=Settings.paths())
         super().__init__(name, formatter=formatter, settings=settings)
