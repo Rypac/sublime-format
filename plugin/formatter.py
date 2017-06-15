@@ -1,4 +1,4 @@
-from .command import ShellCommand
+from .command import shell
 from .settings import FormatterSettings
 
 
@@ -34,14 +34,10 @@ class Formatter:
 
 
 class ExternalFormatter(Formatter):
-    def __init__(self, name, command='', args='', *aargs, **kwargs):
-        self.__command = command.split(' ') if command else []
-        self.__args = args.split(' ') if args else []
-        super().__init__(name, *aargs, **kwargs)
-
-    def command(self):
-        args = self.__command + self.settings.options + self.__args
-        return ShellCommand(args)
-
-    def format(self, input, *args, **kwargs):
-        return self.command().run(input)
+    def __init__(self, name, command='', args='', settings=None):
+        command = command.split(' ') if command else []
+        args = args.split(' ') if args else []
+        settings = settings or FormatterSettings(name.lower())
+        opts = settings.options or []
+        formatter = shell(command + opts + args)
+        super().__init__(name, formatter=formatter, settings=settings)

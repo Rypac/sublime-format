@@ -3,38 +3,34 @@ import os
 from .settings import Settings
 
 
-class ShellCommand:
-    def __init__(self, args):
-        self.__args = args
-        self.__startup_info = None
-        self.__shell = False
-        if os.name == 'nt':
-            self.__startup_info = subprocess.STARTUPINFO()
-            self.__startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            self.__startup_info.wShowWindow = subprocess.SW_HIDE
-            self.__shell = True
+def env():
+    path = os.pathsep.join(Settings.paths())
+    env = os.environ.copy()
+    env['PATH'] = path + os.pathsep + env['PATH']
+    return env
 
-    @property
-    def args(self):
-        return self.__args
 
-    @staticmethod
-    def env():
-        path = os.pathsep.join(Settings.paths())
-        env = os.environ.copy()
-        env['PATH'] = path + os.pathsep + env['PATH']
-        return env
+def shell(command):
+    startup_info = None
+    shell = False
+    if os.name == 'nt':
+        startup_info = subprocess.STARTUPINFO()
+        startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startup_info.wShowWindow = subprocess.SW_HIDE
+        shell = True
 
-    def run(self, input):
+    def run(input, *args, **kwargs):
         process = subprocess.Popen(
-            self.args,
+            command,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            startupinfo=self.__startup_info,
-            shell=self.__shell,
-            env=self.env(),
+            startupinfo=startup_info,
+            shell=shell,
+            env=env(),
             universal_newlines=True)
         stdout, stderr = process.communicate(input=input)
         ok = process.returncode == 0
         return ok, stdout, stderr
+
+    return run
