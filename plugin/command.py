@@ -5,13 +5,11 @@ import os
 def shell(command, paths=[]):
     startup_info = None
     shell = False
-    login_shell = ["/usr/bin/env", "bash", "-l", "-c"]
     if os.name == 'nt':
         startup_info = subprocess.STARTUPINFO()
         startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup_info.wShowWindow = subprocess.SW_HIDE
         shell = True
-        login_shell = []
 
     env = os.environ.copy()
     if paths:
@@ -19,7 +17,7 @@ def shell(command, paths=[]):
 
     def run(input, *args, **kwargs):
         process = subprocess.Popen(
-            login_shell + command,
+            command,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
