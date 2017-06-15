@@ -26,7 +26,7 @@ class ShellCommand:
         return env
 
     def run(self, input):
-        return subprocess.Popen(
+        process = subprocess.Popen(
             self.args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -34,4 +34,7 @@ class ShellCommand:
             startupinfo=self.__startup_info,
             shell=self.__shell,
             env=self.env(),
-            universal_newlines=True).communicate(input=input)
+            universal_newlines=True)
+        stdout, stderr = process.communicate(input=input)
+        ok = process.returncode == 0
+        return ok, stdout, stderr
