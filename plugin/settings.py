@@ -12,14 +12,22 @@ class Settings:
         self.__load().clear_on_change(self.__observer_id(key))
 
     def formatter(self, name):
-        return self.__load().get('{}_formatter'.format(name), default={})
+        return self.__formatters().get(name, {})
 
     def paths(self):
         return self.__load().get('paths', default=[])
 
     def update_formatter(self, name, value):
-        self.__load().set('{}_formatter'.format(name), value)
+        formatters = self.__formatters()
+        formatters[name] = value
+        self.__update_formatters(formatters)
         self.__save()
+
+    def __formatters(self):
+        return self.__load().get('formatters', default={})
+
+    def __update_formatters(self, formatters):
+        return self.__load().set('formatters', formatters)
 
     def __load(self):
         return sublime.load_settings(self.__settings_key)
