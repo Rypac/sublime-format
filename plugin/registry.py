@@ -21,6 +21,9 @@ class FormatterRegistry:
             ExternalFormatter('Terraform', command='terraform fmt', args='-'),
         ]
 
+    def clear(self):
+        self.formatters = []
+
     @property
     def all(self):
         return self.__formatters

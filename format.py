@@ -2,7 +2,6 @@ import sublime
 import sublime_plugin
 
 from .plugin import FormatterRegistry
-from .plugin import Settings
 
 
 def queue_command(callback, timeout=100):
@@ -17,12 +16,11 @@ registry = FormatterRegistry()
 
 
 def plugin_loaded():
-    Settings.on_change(registry.populate)
     registry.populate()
 
 
 def plugin_unloaded():
-    Settings.stop_listening_for_changes()
+    registry.clear()
 
 
 def format_region(formatter, view, region, edit):
