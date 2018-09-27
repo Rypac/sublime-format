@@ -4,12 +4,10 @@ import os
 
 def shell(command, paths=[]):
     startup_info = None
-    shell = False
     if os.name == 'nt':
         startup_info = subprocess.STARTUPINFO()
         startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup_info.wShowWindow = subprocess.SW_HIDE
-        shell = True
 
     env = os.environ.copy()
     if paths:
@@ -22,8 +20,8 @@ def shell(command, paths=[]):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             startupinfo=startup_info,
-            shell=shell,
             env=env,
+            shell=False,
             universal_newlines=True)
         stdout, stderr = process.communicate(input=input)
         ok = process.returncode == 0
