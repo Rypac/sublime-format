@@ -8,6 +8,6 @@ def format_json(input, settings=None):
         indent = settings.get('tab_size', indent)
     try:
         data = json.loads(input, object_pairs_hook=OrderedDict)
-        return json.dumps(data, indent=indent, separators=(',', ': ')), None
+        return True, json.dumps(data, indent=indent, separators=(',', ': ')), None
     except ValueError:
-        return None, 'Invalid JSON'
+        return False, None, 'Invalid JSON'
