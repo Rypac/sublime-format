@@ -94,6 +94,14 @@
                                 }
                             },
                             {
+                                "caption": "Scala",
+                                "command": "toggle_format_on_save",
+                                "checkbox": true,
+                                "args": {
+                                    "name": "Scala"
+                                }
+                            },
+                            {
                                 "caption": "Terraform",
                                 "command": "toggle_format_on_save",
                                 "checkbox": true,

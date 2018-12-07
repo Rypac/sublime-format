@@ -22,6 +22,7 @@ Because you have better things to worry about than formatting your code.
 - [Rust](#rust-rustfmt)
 - [Swift](#swift-swiftformat)
 - [Terraform](#terraform-terraform-fmt)
+- [Scala](#scala-scalafmt)
 
 ## Prerequisites
 
@@ -68,6 +69,28 @@ Uses the JSON encoder and decoder from the Python standard library.
 #### Terraform ([`terraform fmt`](https://github.com/hashicorp/terraform))
 
 Visit [the website](https://www.terraform.io/downloads.html) and follow the instructions to download and install.
+
+#### Scala ([`scalafmt`](https://github.com/scalameta/scalafmt))
+
+Check [the documentation](https://scalameta.org/scalafmt/docs/installation.html#cli) on how to install the formatter as a CLI.
+
+You can specify your scalafmt config file path and the sources in the plugin settings like:
+```json
+        "scala":
+        {
+            "format_on_save": true,
+            "options":
+            [
+                "--config",
+                "/my/path/.scalafmt.conf"
+            ],
+            "sources":
+            [
+                "scala"
+            ]
+        }
+```
+Please check scalafmt documentation if you want to pass other arguments, via the "options" config field, to the CLI.
 
 ## Installation
 
