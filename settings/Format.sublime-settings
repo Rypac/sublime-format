@@ -54,6 +54,11 @@
             "sources": ["rust"],
             "options": []
         },
+        "scala": {
+            "format_on_save": false,
+            "sources": ["scala"],
+            "options": []
+        },
         "swift": {
             "format_on_save": false,
             "sources": ["swift"],
