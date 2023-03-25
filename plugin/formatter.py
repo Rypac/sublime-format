@@ -1,43 +1,31 @@
-from .command import shell
-from .settings import FormatterSettings, Settings
+from __future__ import annotations
+
+from sublime import Settings
+
+from .configuration import Configuration
+from .shell import shell
 
 
 class Formatter:
-    def __init__(self, name, sources=None, formatter=None, settings=None):
-        self.__name = name
-        self.__sources = sources
-        self.__settings = settings or FormatterSettings(name.lower())
-        self.__format = formatter
+    def __init__(self, name: str, config: Configuration):
+        self._name = name
+        self._config = config
 
     @property
-    def name(self):
-        return self.__name
+    def name(self) -> str:
+        return self._name
 
     @property
-    def settings(self):
-        return self.__settings
+    def selector(self) -> str:
+        return self._config.selector
 
     @property
-    def sources(self):
-        return self.__sources or self.settings.sources
+    def enabled(self) -> bool:
+        return self._config.enabled
 
     @property
-    def format_on_save(self):
-        return self.settings.format_on_save
+    def format_on_save(self) -> bool:
+        return self._config.format_on_save
 
-    @format_on_save.setter
-    def format_on_save(self, value):
-        self.__settings.format_on_save = value
-
-    def format(self, input, *args, **kwargs):
-        return self.__format(input, *args, **kwargs)
-
-
-class ExternalFormatter(Formatter):
-    def __init__(self, name, command='', args='', settings=None):
-        command = command.split(' ') if command else []
-        args = args.split(' ') if args else []
-        settings = settings or FormatterSettings(name.lower())
-        opts = settings.options or []
-        formatter = shell(command + opts + args, paths=Settings().paths())
-        super().__init__(name, formatter=formatter, settings=settings)
+    def format(self, input: str, settings: Settings) -> None:
+        shell(args=self._config.cmd, input=input, timeout=self._config.timeout)

@@ -1,5 +1,4 @@
-from . import command, formatter, formatters, registry, settings
+from . import configuration, formatter, registry, settings, shell
 
-from .formatter import Formatter, ExternalFormatter
+from .formatter import Formatter
 from .registry import FormatterRegistry
-from .settings import Settings

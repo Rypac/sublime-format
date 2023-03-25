@@ -12,14 +12,14 @@
         "command": "toggle_format_on_save"
     },
     {
-        "caption": "Format: Enable Format on Save...",
+        "caption": "Format: Enable Format on Save…",
         "command": "manage_format_on_save",
         "args": {
             "which": "disabled"
         }
     },
     {
-        "caption": "Format: Disable Format on Save...",
+        "caption": "Format: Disable Format on Save…",
         "command": "manage_format_on_save",
         "args": {
             "which": "enabled"

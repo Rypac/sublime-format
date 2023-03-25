@@ -1,5 +1,8 @@
-import sublime
-import sublime_plugin
+from __future__ import annotations
+
+from sublime import Edit, View, Window
+from sublime_plugin import ApplicationCommand, EventListener, TextCommand, ViewEventListener, WindowCommand
+from typing import Optional
 
 from .plugin import FormatterRegistry
 
@@ -12,15 +15,19 @@ def log_error(output, error):
     print('Format:', output, error)
 
 
-registry = FormatterRegistry()
+registry = None  # type: Optional[FormatterRegistry]
 
 
 def plugin_loaded():
-    registry.populate()
+    global registry
+    registry = FormatterRegistry()
+    registry.setup()
 
 
 def plugin_unloaded():
-    registry.clear()
+    global registry
+    registry.teardown()
+    registry = None
 
 
 def format_region(formatter, view, region, edit):
@@ -32,11 +39,33 @@ def format_region(formatter, view, region, edit):
         log_error(output, error)
 
 
-class FormatSelectionCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        return registry.by_view(self.view) is not None
+class ProjectSettingsListener(EventListener):
+    def on_init(self, views: list[View]) -> None:
+        window_ids = set()
+        for view in views:
+            if (window := view.window()) is not None and window.id() not in window_ids:
+                window_ids.add(window.id())
+                registry.register(window)
 
-    def run(self, edit):
+    def on_load_project_async(self, window: Window) -> None:
+        registry.update(window)
+
+    def on_post_save_project_async(self, window: Window) -> None:
+        registry.update(window)
+
+    def on_pre_close_window(self, window: Window) -> None:
+        registry.unregister(window)
+
+
+class FormatListener(ViewEventListener):
+    def on_pre_save(self, view: View) -> None:
+        formatter = registry.by_view(view)
+        if formatter and formatter.enabled and formatter.format_on_save:
+            view.run_command('format_file')
+
+
+class FormatSelectionCommand(TextCommand):
+    def run(self, edit: Edit) -> None:
         formatter = registry.by_view(self.view)
         if formatter:
             for region in self.view.sel():
@@ -45,12 +74,12 @@ class FormatSelectionCommand(sublime_plugin.TextCommand):
         else:
             log_error('No formatter for source file')
 
+    def is_enabled(self) -> bool:
+        return any(not region.empty() for region in self.view.sel())
 
-class FormatFileCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        return registry.by_view(self.view) is not None
 
-    def run(self, edit):
+class FormatFileCommand(TextCommand):
+    def run(self, edit: Edit) -> None:
         formatter = registry.by_view(self.view)
         if formatter:
             region = sublime.Region(0, self.view.size())
@@ -58,22 +87,12 @@ class FormatFileCommand(sublime_plugin.TextCommand):
         else:
             log_error('No formatter for source file')
 
-
-class FormatListener(sublime_plugin.EventListener):
-    def on_pre_save(self, view):
-        formatter = registry.by_view(view)
-        if formatter and formatter.format_on_save:
-            view.run_command('format_file')
+    def is_enabled(self) -> bool:
+        return not Region(0, self.view.size()).empty()
 
 
-class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
-    def is_checked(self, name=None):
-        if name:
-            formatter = registry.by_name(name)
-            return formatter and formatter.format_on_save
-        return all(f.format_on_save for f in registry.all)
-
-    def run(self, name=None):
+class ToggleFormatOnSaveCommand(ApplicationCommand):
+    def run(self, name: Optional[str] = None) -> None:
         if name:
             formatter = registry.by_name(name)
             if formatter:
@@ -83,9 +102,15 @@ class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
             for formatter in registry.all:
                 formatter.format_on_save = enable
 
+    def is_checked(self, name: Optional[str] = None) -> bool:
+        if name:
+            formatter = registry.by_name(name)
+            return formatter and formatter.format_on_save
+        return all(f.format_on_save for f in registry.all)
 
-class ManageFormatOnSaveCommand(sublime_plugin.WindowCommand):
-    def run(self, which=None):
+
+class ManageFormatOnSaveCommand(WindowCommand):
+    def run(self, which=None) -> None:
         enabled = which == 'enabled'
         items = [[x.name]
                  for x in registry.by(lambda f: f.format_on_save == enabled)]
