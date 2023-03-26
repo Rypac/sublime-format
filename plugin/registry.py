@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from sublime import Settings, View
 
+from .configuration import Configuration
 from .formatter import Formatter
+from .settings import edit_settings
+from .view import view_scope
 
 
 class FormatterRegistry:
@@ -15,6 +18,7 @@ class FormatterRegistry:
     def startup(self) -> None:
         self._settings = sublime.load_settings("Format.sublime-settings")
         self._settings.add_on_change("reload_settings", self.update)
+        self.update()
 
     def teardown(self) -> None:
         self._settings.clear_on_change("reload_settings")
@@ -43,7 +47,7 @@ class FormatterRegistry:
         self._configurations.clear()
         self._configurations.update(
             {
-                name: create_configuration(settings, formatter_settings)
+                name: Configuration.create(settings, formatter_settings)
                 for name, formatter_settings in formatters.items()
             }
         )
@@ -58,17 +62,17 @@ class FormatterRegistry:
         self._formatters[window_id] = {}
 
         if project_settings := (window.project_data() or {}).get("settings", {}).get("Format"):
-            project_config = create_configuration(settings, project_settings)
+            project_config = Configuration.create(settings, project_settings)
 
             project_formatter_settings = project_settings.get("formatters", {})
 
             for name, config in self._configurations.items():
                 formatter_settings = project_formatter_settings.pop(name, {})
-                project_config = create_configuration(project_config, formatter_settings)
+                project_config = Configuration.create(project_config, formatter_settings)
                 self._formatters[window_id][name] = Formatter(name, project_config)
 
-            for name, config in project_formatter_settings.items():
-                project_config = create_configuration(project_config, {})
+            for name, formatter_settings in project_formatter_settings.items():
+                project_config = Configuration.create(project_config, formatter_settings)
                 self._formatters[window_id][name] = Formatter(name, project_config)
         else:
             for name, config in self._configurations.items():
@@ -78,10 +82,14 @@ class FormatterRegistry:
         if (window := view.window()) is None or not window.is_valid():
             return None
 
-        if (formatters := self._formatters.get(window.id())) is None:
+        if not (formatters := self._formatters.get(window.id())):
             return None
 
-        return formatter_for_scope(formatters, scope or view_scope(view))
+        formatter_scope = score or view_scope(view)
+
+        formatter = max(formatters, key=lambda f: f.score(formatter_scope))
+
+        return formatter if formatter.score(formatter_scope) > 0 else None
 
     def by_name(self, view: View, name: str) -> Optional[Formatter]:
         if (window := view.window()) is None or not window.is_valid():
@@ -126,18 +134,4 @@ class FormatterRegistry:
                 settings["formatters"] = formatters
             else:
                 settings["format_on_save"] = is_enabled
-
-
-def view_scope(view: View) -> str:
-    scopes = view.scope_name(0)
-    return scopes[0 : scopes.find(" ")]
-
-
-def formatter_for_scope(formatters: List[Formatter], scope: str) -> Optional[Formatter]:
-    if not formatters:
-        return None
-
-    formatter = max(formatters, key=lambda f: f.score(scope))
-
-    return formatter if formatter.score(scope) > 0 else None
 

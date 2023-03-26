@@ -54,10 +54,12 @@ class FormatListener(ViewEventListener):
 
 class FormatFileCommand(TextCommand):
     def run(self, edit: Edit) -> None:
-        if formatter := registry.lookup(self.view):
-            region = Region(0, self.view.size())
+        region = Region(0, self.view.size())
+        if region.empty():
+            return
 
-            if not region.empty() and formatter.enabled:
+        if formatter := registry.lookup(self.view):
+            if formatter.enabled:
                 formatter.format(self.view, edit, region)
         else:
             print("[Format]", "No formatter for file")
