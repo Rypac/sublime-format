@@ -1,32 +1,33 @@
 from __future__ import annotations
 
-from sublime import View
+from sublime import Settings, View
 
 from .formatter import Formatter
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
+        self._settings = None  # type: Settings
         self._configurations = {}  # type: Dict[str, Configuration]
         self._windows = {}  # type: Dict[int, Window]
-        self._window_configurations = {}  # type: Dict[int, Dict[str, Configuration]]
         self._formatters = {}  # type: Dict[int, Dict[str, Formatter]]
 
     def startup(self) -> None:
-        settings = load_settings("RyTest.sublime-settings")
-        settings.add_on_change("reload_settings", self.update)
-        for window in sublime.windows():
-            pass
+        self._settings = sublime.load_settings("Format.sublime-settings")
+        self._settings.add_on_change("reload_settings", self.update)
 
     def teardown(self) -> None:
-        settings = load_settings("RyTest.sublime-settings")
-        settings.clear_on_change("reload_settings")
+        self._settings.clear_on_change("reload_settings")
+        self._settings = None
 
-        self._configurations = {}
-        self._window_configurations = {}
+        self._configurations.clear()
+        self._windows.clear()
+        self._formatters.clear()
 
     def register(self, window: Window) -> None:
-        pass
+        if window.is_valid():
+            self._windows[window.id()] = window
+            self.update_window(window)
 
     def unregister(self, window: Window) -> None:
         window_id = window.id()
@@ -34,42 +35,62 @@ class FormatterRegistry:
         if window_id in self._windows:
             del self._windows[window_id]
 
-        if window_id in self._window_configurations:
-            del self._window_configurations[window_id]
+        if window_id in self._formatters:
+            del self._formatters[window_id]
 
     def update(self) -> None:
-        settings = load_settings("RyTest.sublime-settings")
-        formatters = settings.get("formatters", {})
+        formatters = self._settings.get("formatters", {})
         self._configurations.clear()
         self._configurations.update(
             {
-                name: create_configuration(settings, name)
-                for name, d in formatters.get().items()
+                name: create_configuration(settings, formatter_settings)
+                for name, formatter_settings in formatters.items()
             }
         )
 
-        project_settings = (
-            (self._window.project_data() or {}).get("settings", {}).get(PLUGIN_NAME, {})
-        )
-        self._formatter_configurations.clear()
+        self._formatters.clear()
+        for window in self._windows.values():
+            self.update_window(window)
 
-        for name, config in self._global_configs.items():
-            overrides = project_settings.pop(name, {})
-            self._formatter_configurations[name] = GlobalConfiguration.from_config(
-                config, overrides
-            )
+    def update_window(self, window: Window) -> None:
+        window_id = window.id()
 
-        for name, config in project_settings.items():
-            self._formatter_configurations[name] = GlobalConfiguration.from_dict(name, config)
+        self._formatters[window_id] = {}
 
-    def lookup(self, view: View, scope: Optional[str] = None) -> Optional[Configuration]:
+        if project_settings := (window.project_data() or {}).get("settings", {}).get("Format"):
+            project_config = create_configuration(settings, project_settings)
+
+            project_formatter_settings = project_settings.get("formatters", {})
+
+            for name, config in self._configurations.items():
+                formatter_settings = project_formatter_settings.pop(name, {})
+                project_config = create_configuration(project_config, formatter_settings)
+                self._formatters[window_id][name] = Formatter(name, project_config)
+
+            for name, config in project_formatter_settings.items():
+                project_config = create_configuration(project_config, {})
+                self._formatters[window_id][name] = Formatter(name, project_config)
+        else:
+            for name, config in self._configurations.items():
+                self._formatters[window_id][name] = Formatter(name, config)
+
+    def lookup(self, view: View, scope: Optional[str] = None) -> Optional[Formatter]:
         if (window := view.window()) is None or not window.is_valid():
             return None
 
-        if (formatters := self._window_configurations.get(window.id())) is None:
+        if (formatters := self._formatters.get(window.id())) is None:
             return None
 
-        pass
+        return formatter_for_scope(formatters, scope or view_scope(view))
+
+    def by_name(self, view: View, name: str) -> Optional[Formatter]:
+        if (window := view.window()) is None or not window.is_valid():
+            return None
+
+        return formatters.get(name) if (formatters := self._formatters.get(window.id())) else None
+
+    def is_enabled(self, name: Optional[str] = None) -> bool:
+        return self._settings.get("enabled", default=True)
 
     def enable(self, name: Optional[str] = None) -> None:
         self._set_enabled(name, True)
@@ -78,7 +99,7 @@ class FormatterRegistry:
         self._set_enabled(name, False)
 
     def _set_enabled(self, name: Optional[str], is_enabled: bool) -> None:
-        with edit_settings("RyTest.sublime-settings") as settings:
+        with edit_settings("Format.sublime-settings") as settings:
             if name:
                 formatters = settings.get("formatters")
                 config = formatters.setdefault(name, {})
@@ -87,6 +108,9 @@ class FormatterRegistry:
             else:
                 settings["enabled"] = is_enabled
 
+    def is_format_on_save_enabled(self, name: Optional[str] = None) -> bool:
+        return self._settings.get("format_on_save", default=False)
+
     def enable_format_on_save(self, name: Optional[str] = None) -> None:
         self._set_format_on_save_enabled(name, True)
 
@@ -94,7 +118,7 @@ class FormatterRegistry:
         self._set_format_on_save_enabled(name, False)
 
     def _set_format_on_save_enabled(self, name: Optional[str], is_enabled: bool) -> None:
-        with edit_settings("RyTest.sublime-settings") as settings:
+        with edit_settings("Format.sublime-settings") as settings:
             if name:
                 formatters = settings.get("formatters")
                 config = formatters.setdefault(name, {})
@@ -102,3 +126,18 @@ class FormatterRegistry:
                 settings["formatters"] = formatters
             else:
                 settings["format_on_save"] = is_enabled
+
+
+def view_scope(view: View) -> str:
+    scopes = view.scope_name(0)
+    return scopes[0 : scopes.find(" ")]
+
+
+def formatter_for_scope(formatters: List[Formatter], scope: str) -> Optional[Formatter]:
+    if not formatters:
+        return None
+
+    formatter = max(formatters, key=lambda f: f.score(scope))
+
+    return formatter if formatter.score(scope) > 0 else None
+
