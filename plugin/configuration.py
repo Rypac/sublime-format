@@ -29,12 +29,10 @@ class Configuration(dict):
         return self.get("timeout", 60)
 
     @staticmethod
-    def create(settings: Dict[str, Any], overrides: Dict[str, Any]) -> Configuration:
+    def create(*args: Dict[str, Any]) -> Configuration:
         merged = Configuration()
-        for key, value in settings.items():
-            if key != "formatters":
-                merged[key] = value
-        for key, value in overrides.items():
-            if key != "formatters":
-                merged[key] = value
+        for settings in args:
+            for key, value in settings.items():
+                if key != "formatters":
+                    merged[key] = value
         return merged
