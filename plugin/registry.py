@@ -20,10 +20,11 @@ class FormatterRegistry:
         self.update()
 
     def teardown(self) -> None:
+        if settings := self._settings:
+            settings.clear_on_change("reload_settings")
+            self._settings = None
         self._configurations.clear()
         self._window_registries.clear()
-        self._settings.clear_on_change("reload_settings")
-        self._settings = None
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
@@ -49,6 +50,10 @@ class FormatterRegistry:
         )
 
         for window_registry in self._window_registries.values():
+            window_registry.update(self._settings, self._configurations)
+
+    def update_window(self, window: Window) -> None:
+        if (window_registry := self._window_registries.get(window.id())):
             window_registry.update(self._settings, self._configurations)
 
     def lookup(self, view: View, scope: Optional[str] = None) -> Optional[Formatter]:

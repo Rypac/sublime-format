@@ -35,14 +35,20 @@ class FormatListener(EventListener):
                 window_ids.add(window.id())
                 registry.register(window)
 
+    def on_exit(self) -> None:
+        registry.teardown()
+
+    def on_new_window_async(self, window: Window) -> None:
+        registry.register(window)
+
+    def on_pre_close_window(self, window: Window) -> None:
+        registry.unregister(window)
+
     def on_load_project_async(self, window: Window) -> None:
         registry.update_window(window)
 
     def on_post_save_project_async(self, window: Window) -> None:
         registry.update_window(window)
-
-    def on_pre_close_window(self, window: Window) -> None:
-        registry.unregister(window)
 
     def on_pre_save(self, view: View) -> None:
         formatter = registry.lookup(view)
