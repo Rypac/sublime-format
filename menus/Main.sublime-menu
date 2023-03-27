@@ -7,19 +7,24 @@
                 "id": "formatter",
                 "children": [
                     {
-                        "caption": "Format Selection",
-                        "command": "format_selection"
-                    },
-                    {
                         "caption": "Format File",
                         "command": "format_file"
+                    },
+                    {
+                        "caption": "Format Selection",
+                        "command": "format_selection"
                     },
                     {
                         "caption": "-",
                     },
                     {
+                        "caption": "Enabled",
+                        "command": "format_toggle_enabled",
+                        "checkbox": true
+                    },
+                    {
                         "caption": "Format on Save",
-                        "command": "toggle_format_on_save",
+                        "command": "format_toggle_format_on_save",
                         "checkbox": true
                     }
                 ]

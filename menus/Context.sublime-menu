@@ -3,10 +3,10 @@
         "caption": "Format",
         "children": [
             {
-                "command": "format_selection"
+                "command": "format_file"
             },
             {
-                "command": "format_file"
+                "command": "format_selection"
             }
         ]
     }

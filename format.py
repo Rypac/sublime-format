@@ -1,12 +1,7 @@
 from __future__ import annotations
 
 from sublime import Edit, Region, View, Window
-from sublime_plugin import (
-    ApplicationCommand,
-    EventListener,
-    TextCommand,
-    ViewEventListener,
-)
+from sublime_plugin import ApplicationCommand, EventListener, TextCommand, WindowCommand
 from typing import Optional
 
 from .plugin import FormatterRegistry
@@ -94,33 +89,55 @@ class FormatSelectionCommand(TextCommand):
         return any(not region.empty() for region in self.view.sel())
 
 
-class FormatEnableCommand(ApplicationCommand):
+class FormatToggleEnabledCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
-        registry.enable(name)
+        settings = registry.settings()
+        if settings.is_enabled(name):
+            settings.disable(name)
+        else:
+            settings.enable(name)
 
-    def is_enabled(self, name: Optional[str] = None) -> bool:
-        return not registry.is_enabled(name)
+    def is_checked(self, name: Optional[str] = None) -> bool:
+        return registry.settings().is_enabled(name)
 
 
-class FormatDisableCommand(ApplicationCommand):
+class FormatManageEnabledCommand(WindowCommand):
+    def run(self, enabled: bool) -> None:
+        settings = registry.settings()
+        formatters = settings.all_enabled() if enabled else settings.all_disabled()
+        items = [[formatter_name] for formatter_name in formatters]
+
+        def toggle_enabled(selection) -> None:
+            if selection > 0 and selection < len(items):
+                name = items[selection][0]
+                self.window.run_command("format_toggle_enabled", {"name": name})
+
+        if items:
+            self.window.show_quick_panel(items, toggle_enabled)
+
+
+class FormatToggleFormatOnSaveCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
-        registry.disable(name)
+        settings = registry.settings()
+        if settings.is_format_on_save_enabled(name):
+            settings.disable_format_on_save(name)
+        else:
+            settings.enable_format_on_save(name)
 
-    def is_enabled(self, name: Optional[str] = None) -> bool:
-        return registry.is_enabled(name)
-
-
-class FormatEnableFormatOnSaveCommand(ApplicationCommand):
-    def run(self, name: Optional[str] = None) -> None:
-        registry.enable_format_on_save(name)
-
-    def is_enabled(self, name: Optional[str] = None) -> bool:
-        return not registry.is_format_on_save_enabled(name)
+    def is_checked(self, name: Optional[str] = None) -> bool:
+        return registry.settings().is_format_on_save_enabled(name)
 
 
-class FormatDisableFormatOnSaveCommand(ApplicationCommand):
-    def run(self, name: Optional[str] = None) -> None:
-        registry.disable_format_on_save(name)
+class FormatManageFormatOnSaveCommand(WindowCommand):
+    def run(self, enabled: bool) -> None:
+        settings = registry.settings()
+        formatters = settings.all_enabled() if enabled else settings.all_disabled()
+        items = [[formatter_name] for formatter_name in formatters]
 
-    def is_enabled(self, name: Optional[str] = None) -> bool:
-        return registry.is_format_on_save_enabled(name)
+        def toggle_format_on_save(selection) -> None:
+            if selection > 0 and selection < len(items):
+                name = items[selection][0]
+                self.window.run_command("format_toggle_format_on_save", {"name": name})
+
+        if items:
+            self.window.show_quick_panel(items, toggle_format_on_save)

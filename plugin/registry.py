@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-from sublime import load_settings, Settings, View, Window
+from sublime import View, Window
 
 from .configuration import Configuration
 from .formatter import Formatter
-from .settings import edit_settings
+from .settings import FormatterSettings
 from .view import view_scope
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
-        self._settings: Optional[Settings] = None
+        self._settings: FormatterSettings = None
         self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self._settings = load_settings("Format.sublime-settings")
+        self._settings = FormatterSettings()
         self._settings.add_on_change("reload_settings", self.update)
         self.update()
 
@@ -23,6 +23,9 @@ class FormatterRegistry:
             settings.clear_on_change("reload_settings")
             self._settings = None
         self._window_registries.clear()
+
+    def settings(self) -> FormatterSettings:
+        return self._settings
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
@@ -41,7 +44,7 @@ class FormatterRegistry:
             window_registry.update()
 
     def update_window(self, window: Window) -> None:
-        if (window_registry := self._window_registries.get(window.id())):
+        if window_registry := self._window_registries.get(window.id()):
             window_registry.update()
 
     def lookup(self, view: View, scope: Optional[str] = None) -> Optional[Formatter]:
@@ -62,49 +65,11 @@ class FormatterRegistry:
 
         return window_registry.by_name(name)
 
-    def is_enabled(self, name: Optional[str] = None) -> bool:
-        return self._settings.get("enabled", default=True)
-
-    def enable(self, name: Optional[str] = None) -> None:
-        self._set_enabled(name, True)
-
-    def disable(self, name: Optional[str] = None) -> None:
-        self._set_enabled(name, False)
-
-    def _set_enabled(self, name: Optional[str], is_enabled: bool) -> None:
-        with edit_settings("Format.sublime-settings") as settings:
-            if name:
-                formatters = settings.get("formatters")
-                formatter = formatters.setdefault(name, {})
-                formatter["enabled"] = is_enabled
-                settings["formatters"] = formatters
-            else:
-                settings["enabled"] = is_enabled
-
-    def is_format_on_save_enabled(self, name: Optional[str] = None) -> bool:
-        return self._settings.get("format_on_save", default=False)
-
-    def enable_format_on_save(self, name: Optional[str] = None) -> None:
-        self._set_format_on_save_enabled(name, True)
-
-    def disable_format_on_save(self, name: Optional[str] = None) -> None:
-        self._set_format_on_save_enabled(name, False)
-
-    def _set_format_on_save_enabled(self, name: Optional[str], is_enabled: bool) -> None:
-        with edit_settings("Format.sublime-settings") as settings:
-            if name:
-                formatters = settings.get("formatters")
-                formatter = formatters.setdefault(name, {})
-                formatter["format_on_save"] = is_enabled
-                settings["formatters"] = formatters
-            else:
-                settings["format_on_save"] = is_enabled
-
 
 class WindowFormatterRegistry:
-    def __init__(self, window: Window, settings: Settings) -> None:
+    def __init__(self, window: Window, settings: FormatterSettings) -> None:
         self._window: Window = window
-        self._settings: Settings = settings
+        self._settings: FormatterSettings = settings
         self._formatters: Dict[str, Formatter] = {}
 
     def update(self) -> None:
