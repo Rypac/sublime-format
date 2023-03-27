@@ -12,7 +12,7 @@ from typing import Optional
 from .plugin import FormatterRegistry
 
 
-registry = None  # type: Optional[FormatterRegistry]
+registry: Optional[FormatterRegistry] = None
 
 
 def plugin_loaded():

@@ -12,8 +12,8 @@ from .view import extract_variables
 
 class Formatter:
     def __init__(self, name: str, config: Configuration):
-        self._name = name
-        self._config = config
+        self._name: str = name
+        self._config: Configuration = config
 
     @property
     def name(self) -> str:

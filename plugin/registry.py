@@ -10,8 +10,8 @@ from .view import view_scope
 
 class FormatterRegistry:
     def __init__(self) -> None:
-        self._settings = None  # type: Settings
-        self._window_registries = {}  # type: Dict[int, WindowFormatterRegistry]
+        self._settings: Optional[Settings] = None
+        self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
         self._settings = load_settings("Format.sublime-settings")
@@ -103,9 +103,9 @@ class FormatterRegistry:
 
 class WindowFormatterRegistry:
     def __init__(self, window: Window, settings: Settings) -> None:
-        self._window = window  # type: Window
-        self._settings = settings  # type: Settings
-        self._formatters = {}  # type: Dict[str, Formatter]
+        self._window: Window = window
+        self._settings: Settings = settings
+        self._formatters: Dict[str, Formatter] = {}
 
     def update(self) -> None:
         project_settings = self._merged_project_settings()
