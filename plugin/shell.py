@@ -35,12 +35,12 @@ def shell(args: List[str], input: str, cwd: str, paths: List[str] = [], timeout:
         process.kill()
         stdout, stderr = process.communicate()
 
-    if process.returncode != 0 or len(stderr) > 0:
+    if process.returncode != 0:
         msg = str(subprocess.CalledProcessError(process.returncode, args))
         if len(stderr) > 0:
-            msg += f":\n${stderr}"
+            msg += f"\n${stderr}"
         elif len(stdout) > 0:
-            msg += f":\n${stdout}"
+            msg += f"\n${stdout}"
         raise Exception(msg)
 
     return stdout
