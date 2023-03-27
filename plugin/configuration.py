@@ -35,5 +35,6 @@ class Configuration(dict):
             if key != "formatters":
                 merged[key] = value
         for key, value in overrides.items():
-            merged[key] = value
+            if key != "formatters":
+                merged[key] = value
         return merged
