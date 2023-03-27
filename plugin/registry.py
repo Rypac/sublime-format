@@ -133,7 +133,7 @@ class WindowFormatterRegistry:
         if (
             not (project_data := self._window.project_data())
             or not (project_settings := project_data.get("settings"))
-            or not (format_settings := project_settings.get("Format"))
+            or not (project_format_settings := project_settings.get("Format"))
         ):
             return settings
 
@@ -141,11 +141,11 @@ class WindowFormatterRegistry:
 
         for key, value in settings.to_dict().items():
             if key == "formatters":
-                if (formatter_settings := format_settings.get(key)):
+                if formatter_settings := project_format_settings.get(key):
                     merged_settings[key] = {**value, **formatter_settings}
                 else:
                     merged_settings[key] = value
             else:
-                merged_settings[key] = format_settings.get(key, value)
+                merged_settings[key] = project_format_settings.get(key, value)
 
         return merged_settings
