@@ -6,7 +6,7 @@ import os
 import subprocess
 
 
-def shell(args: List[str], input: str, paths: List[str] = [], timeout: int = 60) -> str:
+def shell(args: List[str], input: str, cwd: str, paths: List[str] = [], timeout: int = 60) -> str:
     startupinfo = None
     if os.name == "nt":
         startupinfo = subprocess.STARTUPINFO()
@@ -24,6 +24,7 @@ def shell(args: List[str], input: str, paths: List[str] = [], timeout: int = 60)
         stderr=subprocess.PIPE,
         startupinfo=startupinfo,
         env=env,
+        cwd=cwd,
         shell=False,
         text=True,
     )
@@ -35,7 +36,7 @@ def shell(args: List[str], input: str, paths: List[str] = [], timeout: int = 60)
         stdout, stderr = process.communicate()
 
     if process.returncode != 0 or len(stderr) > 0:
-        msg = str(subprocess.CalledProcessError(process.returncode, cmd))
+        msg = str(subprocess.CalledProcessError(process.returncode, args))
         if len(stderr) > 0:
             msg += f":\n${stderr}"
         elif len(stdout) > 0:

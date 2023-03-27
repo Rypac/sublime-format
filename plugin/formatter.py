@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sublime import expand_variables, score_selector, Region, View
+from sublime import expand_variables, score_selector, Edit, Region, View
+
+import os
 
 from .configuration import Configuration
 from .shell import shell
@@ -36,7 +38,13 @@ class Formatter:
         variables = extract_variables(view)
         args = [expand_variables(arg, variables) for arg in self._config.cmd]
 
-        formatted = shell(args=args, input=text, timeout=self._config.timeout)
+        cwd = (
+            os.path.dirname(file_name)
+            if (file_name := view.file_name())
+            else next(iter(view.window().folders()), None)
+        )
+
+        formatted = shell(args=args, input=text, cwd=cwd, timeout=self._config.timeout)
 
         position = view.viewport_position()
         view.replace(edit, region, formatted)

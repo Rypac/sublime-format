@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import Edit, View, Window
+from sublime import Edit, Region, View, Window
 from sublime_plugin import (
     ApplicationCommand,
     EventListener,
@@ -18,7 +18,7 @@ registry = None  # type: Optional[FormatterRegistry]
 def plugin_loaded():
     global registry
     registry = FormatterRegistry()
-    registry.setup()
+    registry.startup()
 
 
 def plugin_unloaded():
@@ -27,7 +27,7 @@ def plugin_unloaded():
     registry = None
 
 
-class RegistryListener(EventListener):
+class FormatListener(EventListener):
     def on_init(self, views: list[View]) -> None:
         window_ids = set()
         for view in views:
@@ -44,8 +44,6 @@ class RegistryListener(EventListener):
     def on_pre_close_window(self, window: Window) -> None:
         registry.unregister(window)
 
-
-class FormatListener(ViewEventListener):
     def on_pre_save(self, view: View) -> None:
         formatter = registry.lookup(view)
         if formatter and formatter.enabled and formatter.format_on_save:
@@ -60,7 +58,10 @@ class FormatFileCommand(TextCommand):
 
         if formatter := registry.lookup(self.view):
             if formatter.enabled:
-                formatter.format(self.view, edit, region)
+                try:
+                    formatter.format(self.view, edit, region)
+                except Exception as err:
+                    print("[Format]", err)
         else:
             print("[Format]", "No formatter for file")
 
@@ -76,7 +77,10 @@ class FormatSelectionCommand(TextCommand):
 
             if formatter := registry.lookup(self.view):
                 if formatter.enabled:
-                    formatter.format(self.view, edit, region)
+                    try:
+                        formatter.format(self.view, edit, region)
+                    except Exception as err:
+                        print("[Format]", err)
             else:
                 print("[Format]", "No formatter for selection")
 

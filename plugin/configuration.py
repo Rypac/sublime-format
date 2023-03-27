@@ -1,34 +1,39 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from sublime import Settings
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 
-@dataclass
-class Configuration:
-    selector: str
-    cmd: List[str]
-    enabled: bool
-    format_on_save: bool
-    error_style: str
-    timeout: int
+class Configuration(dict):
+    @property
+    def selector(self) -> str:
+        return self.get("selector")
+
+    @property
+    def cmd(self) -> List[str]:
+        return self.get("cmd")
+
+    @property
+    def enabled(self) -> bool:
+        return self.get("enabled", True)
+
+    @property
+    def format_on_save(self) -> bool:
+        return self.get("format_on_save", False)
+
+    @property
+    def error_style(self) -> str:
+        return self.get("error_style", "panel")
+
+    @property
+    def timeout(self) -> int:
+        return self.get("timeout", 60)
 
     @staticmethod
-    def create(
-        settings: Union[Settings, Dict[str, Any]],
-        overrides: Dict[str, Any] = {},
-    ) -> Configuration:
-        def setting(key: str, default: Optional[Any] = None):
-            return (
-                overrides.get(key) if key in overrides else settings.get(key, default)
-            )
-
-        return Configuration(
-            selector=setting("selector"),
-            cmd=setting("cmd"),
-            enabled=setting("enabled", default=True),
-            format_on_save=setting("format_on_save", default=False),
-            error_style=setting("error_style", default="panel"),
-            timeout=setting("timeout", default=60),
-        )
+    def create(settings: Dict[str, Any], overrides: Dict[str, Any]) -> Configuration:
+        merged = Configuration()
+        for key, value in settings.items():
+            if key != "formatters":
+                merged[key] = value
+        for key, value in overrides.items():
+            merged[key] = value
+        return merged
