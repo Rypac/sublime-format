@@ -4,74 +4,40 @@ Because you have better things to worry about than formatting your code.
 
 ## Contents
 
-- [Supported Languages](#supported-languages)
-- [Prerequisites](#prerequisites)
+- [Usage](#usage)
 - [Installation](#installation)
 - [Commands](#commands)
 - [Keybindings](#keybindings)
 
-## Supported Languages
+## Usage
 
-- [Clang](#clang-clang-format)
-- [Elm](#elm-elm-format)
-- [Go](#go-gofmt)
-- [Haskell](#haskell-hindent)
-- [JavaScript](#javascript-prettier)
-- [JSON](#json-json)
-- [Python](#python-yapf)
-- [Rust](#rust-rustfmt)
-- [Swift](#swift-swiftformat)
-- [Terraform](#terraform-terraform-fmt)
+As this plugin merely acts as a for a CLI program, each formatter will require its own tool and options for code formatting.
 
-## Prerequisites
+There are no default formatters included in the plugin, and each formatter must be manually enabled in the plugin preferences.
+For example, this is the configuration for the formatting of Haskell and Rust source code:
 
-As this plugin merely acts as a proxy, each formatter will require it's own tool and options for code formatting.
+```json
+{
+    "formatters": {
+        "Haskell": {
+            "selector": "source.haskell",
+            "cmd": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"]
+        },
+        "Rust": {
+            "selector": "source.rust",
+            "cmd": ["rustfmt"],
+            "format_on_save": true
+        }
+    }
+}
+```
 
-#### Clang ([`clang-format`](http://clang.llvm.org/docs/ClangFormat.html))
-
-Supports the C family of languages (C, C++, Objective-C, Objective-C++).
-
-Download `clang-format` via you package manager or from [the LLVM website](http://releases.llvm.org/download.html).
-
-#### Elm ([`elm-format`](https://github.com/avh4/elm-format))
-
-    npm install -g elm-format
-
-#### Go ([`gofmt`](https://golang.org/cmd/gofmt))
-
-Installed with `Go` by default. Download `go` via your package manager or from [the website](https://golang.org/dl).
-
-#### Haskell ([`hindent`](https://github.com/commercialhaskell/hindent))
-
-    stack install hindent
-
-#### JavaScript ([`prettier`](https://github.com/jlongster/prettier))
-
-    npm install -g prettier
-
-#### JSON ([`json`](https://docs.python.org/3.3/library/json.html))
-
-Uses the JSON encoder and decoder from the Python standard library.
-
-#### Python ([`yapf`](https://github.com/google/yapf))
-
-    pip install yapf
-
-#### Rust ([`rustfmt`](https://github.com/rust-lang-nursery/rustfmt))
-
-    cargo install rustfmt
-
-#### Swift ([`swiftformat`](https://github.com/nicklockwood/SwiftFormat))
-
-    brew install swiftformat
-
-#### Terraform ([`terraform fmt`](https://github.com/hashicorp/terraform))
-
-Visit [the website](https://www.terraform.io/downloads.html) and follow the instructions to download and install.
+The [Sublime Text documentation](https://www.sublimetext.com/docs/selectors.html) describes the concept of scopes and selector matching.
+To find the scope at a given position, go to: Menu → Tools → Developer → Show Scope Name.
 
 ## Installation
 
-#### Package Control (coming soon...)
+#### Package Control (coming soon…)
 
 1. Install [Package Control](https://packagecontrol.io)
 2. Run `Package Control: Install Package` in the Command Palette (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>)
@@ -85,24 +51,28 @@ Visit [the website](https://www.terraform.io/downloads.html) and follow the inst
 4. Run `Package Control: Install Package` in the Command Palette
 5. Install `sublime-format`
 
-#### Manual
+#### Manual (via `git`)
 
 1. Navigate to the Sublime Text package directory
-2. Clone the repository
+2. Clone the repository:
 
-        git clone https://github.com/Rypac/sublime-format.git Format
+    ```
+    git clone https://github.com/Rypac/sublime-format.git Format
+    ```
 
 ## Commands
 
-- `Format: Format Selection`
-    + Format the current selection
 - `Format: Format File`
     + Format the current file
-- `Format: Toggle Format on Save`
-    + Toggle formatting on save for all supported source file types
-- `Format: Enable Format on Save...`
+- `Format: Format Selection`
+    + Format the current selection
+- `Format: Enable Formatter…`
+    + Select source file types to enable formatting for
+- `Format: Disable Formatter…`
+    + Select source file types to disable formatting for
+- `Format: Enable Format on Save…`
     + Select source file types to enable automatic formatting on save
-- `Format: Disable Format on Save...`
+- `Format: Disable Format on Save…`
     + Select source file types to disable automatic formatting on save
 
 ## Keybindings
