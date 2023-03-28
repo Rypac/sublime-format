@@ -8,8 +8,9 @@ from .configuration import Configuration
 
 
 class FormatterSettings:
-    def __init__(self) -> None:
+    def __init__(self, formatter_name: Optional[str] = None) -> None:
         self._settings_name = "Format.sublime-settings"
+        self._formatter_name = formatter_name
 
     def load(self) -> Settings:
         return load_settings(self._settings_name)
@@ -40,38 +41,32 @@ class FormatterSettings:
             if not settings.get("enabled", False)
         )
 
-    def enabled(self, formatter: Optional[str] = None) -> bool:
-        return self.get("enabled", formatter, default=True)
+    def formatter(self, name: str) -> FormatterSettings:
+        return FormatterSettings(formatter_name = name)
 
-    def set_enabled(self, enabled: bool, formatter: Optional[str] = None) -> None:
-        self.set("enabled", enabled, formatter)
+    def enabled(self) -> bool:
+        return self.get("enabled", default=True)
 
-    def format_on_save(self, formatter: Optional[str] = None) -> bool:
-        return self.get("format_on_save", formatter, default=False)
+    def set_enabled(self, enabled: bool) -> None:
+        self.set("enabled", enabled)
 
-    def set_format_on_save(
-        self,
-        enabled: bool,
-        formatter: Optional[str] = None,
-    ) -> None:
-        self.set("format_on_save", enabled, formatter)
+    def format_on_save(self) -> bool:
+        return self.get("format_on_save", default=False)
 
-    def get(
-        self,
-        key: str,
-        formatter: Optional[str] = None,
-        default: Any = None,
-    ) -> Optional[Any]:
+    def set_format_on_save(self, enabled: bool) -> None:
+        self.set("format_on_save", enabled)
+
+    def get(self, key: str, default: Optional[Any] = None) -> Optional[Any]:
         settings = self.load()
         return (
             settings.get("formatters", {}).get(formatter, {}).get(key, default)
-            if formatter is not None
+            if (formatter := self._formatter_name) is not None
             else settings.get(key, default)
         )
 
-    def set(self, key: str, value: Any, formatter: Optional[str] = None) -> None:
+    def set(self, key: str, value: Any) -> None:
         settings = self.load()
-        if formatter:
+        if (formatter := self._formatter_name) is not None:
             formatters = settings.setdefault("formatters", {})
             formatter_settings = formatters.setdefault(formatter, {})
             formatter_settings[key] = value

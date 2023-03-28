@@ -24,15 +24,14 @@ class FormatterRegistry:
             self._settings = None
         self._window_registries.clear()
 
-    def settings(self) -> FormatterSettings:
-        return self._settings
+    def settings(self, formatter: Optional[str] = None) -> FormatterSettings:
+        return self._settings.formatter(name=formatter) if formatter else self._settings
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
             return
 
         window_registry = WindowFormatterRegistry(window, self._settings)
-        window_registry.update()
         self._window_registries[window.id()] = window_registry
 
     def unregister(self, window: Window) -> None:
@@ -71,6 +70,7 @@ class WindowFormatterRegistry:
         self._window: Window = window
         self._settings: FormatterSettings = settings
         self._formatters: Dict[str, Formatter] = {}
+        self.update()
 
     def update(self) -> None:
         project_settings = self._merged_project_settings()
