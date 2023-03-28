@@ -3,9 +3,11 @@
         "caption": "Format",
         "children": [
             {
+                "caption": "Format File",
                 "command": "format_file"
             },
             {
+                "caption": "Format Selection",
                 "command": "format_selection"
             }
         ]
