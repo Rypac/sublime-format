@@ -101,15 +101,17 @@ class FormatToggleEnabledCommand(ApplicationCommand):
 
 
 class FormatManageEnabledCommand(WindowCommand):
-    def run(self, enabled: bool) -> None:
-        settings = registry.settings()
-        formatters = settings.all_enabled() if enabled else settings.all_disabled()
-        items = [[formatter_name] for formatter_name in formatters]
+    def run(self, enable: bool) -> None:
+        items = [
+            formatter.name
+            for formatter in registry.settings().formatters()
+            if formatter.enabled() != enable
+        ]
 
-        def toggle_enabled(selection) -> None:
+        def toggle_enabled(selection: int) -> None:
             if selection > 0 and selection < len(items):
-                name = items[selection][0]
-                self.window.run_command("format_toggle_enabled", {"name": name})
+                formatter = items[selection]
+                registry.settings(formatter).set_enabled(enable)
 
         if items:
             self.window.show_quick_panel(items, toggle_enabled)
@@ -126,15 +128,17 @@ class FormatToggleFormatOnSaveCommand(ApplicationCommand):
 
 
 class FormatManageFormatOnSaveCommand(WindowCommand):
-    def run(self, enabled: bool) -> None:
-        settings = registry.settings()
-        formatters = settings.all_enabled() if enabled else settings.all_disabled()
-        items = [[formatter_name] for formatter_name in formatters]
+    def run(self, enable: bool) -> None:
+        items = [
+            formatter.name
+            for formatter in registry.settings().formatters()
+            if formatter.format_on_save() != enable
+        ]
 
-        def toggle_format_on_save(selection) -> None:
+        def toggle_format_on_save(selection: int) -> None:
             if selection > 0 and selection < len(items):
-                name = items[selection][0]
-                self.window.run_command("format_toggle_format_on_save", {"name": name})
+                formatter = items[selection]
+                registry.settings(formatter).set_format_on_save(enable)
 
         if items:
             self.window.show_quick_panel(items, toggle_format_on_save)

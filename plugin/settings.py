@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sublime import Settings
 from sublime import load_settings, save_settings
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from .configuration import Configuration
 
@@ -19,7 +19,14 @@ class FormatterSettings:
         save_settings(self._settings_name)
 
     def to_dict(self) -> Dict[str, Any]:
-        return self.load().to_dict()
+        settings = self.load().to_dict()
+        if not (formatter := self._formatter_name):
+            return settings
+
+        return {
+            **{key: value for key, value in settings.items() if key != "formatters"},
+            **settings.get("formatters", {}).get(formatter, {}),
+        }
 
     def add_on_change(self, tag: str, callback: Callable[[], None]) -> None:
         self.load().add_on_change(tag, callback)
@@ -27,22 +34,15 @@ class FormatterSettings:
     def clear_on_change(self, tag: str) -> None:
         self.load().clear_on_change(tag)
 
-    def all_enabled(self) -> List[str]:
-        return (
-            name
-            for name, settings in self.load().get("formatters", {}).items()
-            if settings.get("enabled", False)
-        )
+    @property
+    def name(self) -> Optional[str]:
+        return self._formatter_name
 
-    def all_disabled(self) -> List[str]:
-        return (
-            name
-            for name, settings in self.load().get("formatters", {}).items()
-            if not settings.get("enabled", False)
-        )
+    def formatters(self) -> List[FormatterSettings]:
+        return [self.formatter(name) for name in self.load().get("formatters", {})]
 
     def formatter(self, name: str) -> FormatterSettings:
-        return FormatterSettings(formatter_name = name)
+        return FormatterSettings(formatter_name=name)
 
     def enabled(self) -> bool:
         return self.get("enabled", default=True)
@@ -60,13 +60,13 @@ class FormatterSettings:
         settings = self.load()
         return (
             settings.get("formatters", {}).get(formatter, {}).get(key, default)
-            if (formatter := self._formatter_name) is not None
+            if (formatter := self._formatter_name)
             else settings.get(key, default)
         )
 
     def set(self, key: str, value: Any) -> None:
         settings = self.load()
-        if (formatter := self._formatter_name) is not None:
+        if formatter := self._formatter_name:
             formatters = settings.setdefault("formatters", {})
             formatter_settings = formatters.setdefault(formatter, {})
             formatter_settings[key] = value
