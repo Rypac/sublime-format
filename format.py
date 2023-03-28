@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from sublime import active_window
 from sublime import Edit, Region, View, Window
-from sublime_plugin import ApplicationCommand, EventListener, TextCommand, WindowCommand
+from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import Optional
 
 from .plugin import FormatterRegistry
@@ -100,7 +101,7 @@ class FormatToggleEnabledCommand(ApplicationCommand):
         return registry.settings(name).enabled()
 
 
-class FormatManageEnabledCommand(WindowCommand):
+class FormatManageEnabledCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
             formatter.name
@@ -114,7 +115,7 @@ class FormatManageEnabledCommand(WindowCommand):
                 registry.settings(formatter).set_enabled(enable)
 
         if items:
-            self.window.show_quick_panel(items, toggle_enabled)
+            active_window().show_quick_panel(items, toggle_enabled)
 
 
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
@@ -127,7 +128,7 @@ class FormatToggleFormatOnSaveCommand(ApplicationCommand):
         return registry.settings(name).format_on_save()
 
 
-class FormatManageFormatOnSaveCommand(WindowCommand):
+class FormatManageFormatOnSaveCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
             formatter.name
@@ -141,4 +142,4 @@ class FormatManageFormatOnSaveCommand(WindowCommand):
                 registry.settings(formatter).set_format_on_save(enable)
 
         if items:
-            self.window.show_quick_panel(items, toggle_format_on_save)
+            active_window().show_quick_panel(items, toggle_format_on_save)
