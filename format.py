@@ -93,13 +93,11 @@ class FormatSelectionCommand(TextCommand):
 class FormatToggleEnabledCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
         settings = registry.settings()
-        if settings.is_enabled(name):
-            settings.disable(name)
-        else:
-            settings.enable(name)
+        enabled = settings.enabled(name)
+        settings.set_enabled(not enabled, name)
 
     def is_checked(self, name: Optional[str] = None) -> bool:
-        return registry.settings().is_enabled(name)
+        return registry.settings().enabled(name)
 
 
 class FormatManageEnabledCommand(WindowCommand):
@@ -120,13 +118,11 @@ class FormatManageEnabledCommand(WindowCommand):
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
         settings = registry.settings()
-        if settings.is_format_on_save_enabled(name):
-            settings.disable_format_on_save(name)
-        else:
-            settings.enable_format_on_save(name)
+        enabled = settings.format_on_save(name)
+        settings.set_format_on_save(not enabled, name)
 
     def is_checked(self, name: Optional[str] = None) -> bool:
-        return registry.settings().is_format_on_save_enabled(name)
+        return registry.settings().format_on_save(name)
 
 
 class FormatManageFormatOnSaveCommand(WindowCommand):

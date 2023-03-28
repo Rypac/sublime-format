@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
 from sublime import Settings
 from sublime import load_settings, save_settings
 from typing import Any, Callable, Dict, Optional
@@ -15,10 +14,7 @@ class FormatterSettings:
     def load(self) -> Settings:
         return load_settings(self._settings_name)
 
-    @contextmanager
-    def edit(self) -> Settings:
-        settings = self.load()
-        yield settings
+    def save(self) -> None:
         save_settings(self._settings_name)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -29,9 +25,6 @@ class FormatterSettings:
 
     def clear_on_change(self, tag: str) -> None:
         self.load().clear_on_change(tag)
-
-    def is_enabled(self, name: Optional[str] = None) -> bool:
-        return self.get("enabled", formatter=name, default=True)
 
     def all_enabled(self) -> List[str]:
         return (
@@ -47,51 +40,42 @@ class FormatterSettings:
             if not settings.get("enabled", False)
         )
 
-    def enable(self, name: Optional[str] = None) -> None:
-        self._set_enabled(name, True)
+    def enabled(self, formatter: Optional[str] = None) -> bool:
+        return self.get("enabled", formatter, default=True)
 
-    def disable(self, name: Optional[str] = None) -> None:
-        self._set_enabled(name, False)
+    def set_enabled(self, enabled: bool, formatter: Optional[str] = None) -> None:
+        self.set("enabled", enabled, formatter)
 
-    def _set_enabled(self, name: Optional[str], is_enabled: bool) -> None:
-        with self.edit() as settings:
-            if name:
-                formatters = settings.get("formatters", {})
-                formatter = formatters.setdefault(name, {})
-                formatter["enabled"] = is_enabled
-                settings["formatters"] = formatters
-            else:
-                settings["enabled"] = is_enabled
+    def format_on_save(self, formatter: Optional[str] = None) -> bool:
+        return self.get("format_on_save", formatter, default=False)
 
-    def is_format_on_save_enabled(self, name: Optional[str] = None) -> bool:
-        return self.get("format_on_save", formatter=name, default=False)
-
-    def enable_format_on_save(self, name: Optional[str] = None) -> None:
-        self._set_format_on_save_enabled(name, True)
-
-    def disable_format_on_save(self, name: Optional[str] = None) -> None:
-        self._set_format_on_save_enabled(name, False)
-
-    def _set_format_on_save_enabled(
+    def set_format_on_save(
         self,
-        name: Optional[str],
-        is_enabled: bool,
+        enabled: bool,
+        formatter: Optional[str] = None,
     ) -> None:
-        with self.edit() as settings:
-            if name:
-                formatters = settings.get("formatters", {})
-                formatter = formatters.setdefault(name, {})
-                formatter["format_on_save"] = is_enabled
-                settings["formatters"] = formatters
-            else:
-                settings["format_on_save"] = is_enabled
+        self.set("format_on_save", enabled, formatter)
 
     def get(
         self,
         key: str,
         formatter: Optional[str] = None,
-        default: Optional[Any] = None,
+        default: Any = None,
     ) -> Optional[Any]:
-        if not formatter:
-            return self.load().get(key, default)
-        return self.load().get("formatters", {}).get(formatter, {}).get(key, default)
+        settings = self.load()
+        return (
+            settings.get("formatters", {}).get(formatter, {}).get(key, default)
+            if formatter is not None
+            else settings.get(key, default)
+        )
+
+    def set(self, key: str, value: Any, formatter: Optional[str] = None) -> None:
+        settings = self.load()
+        if formatter:
+            formatters = settings.setdefault("formatters", {})
+            formatter_settings = formatters.setdefault(formatter, {})
+            formatter_settings[key] = value
+            settings["formatters"] = formatters
+        else:
+            settings[key] = value
+        self.save()
