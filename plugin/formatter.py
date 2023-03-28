@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import expand_variables, score_selector, set_timeout
+from sublime import expand_variables, score_selector
 from sublime import Edit, Region, View
 
 import os
@@ -49,4 +49,4 @@ class Formatter:
 
         position = view.viewport_position()
         view.replace(edit, region, formatted)
-        set_timeout(lambda: view.set_viewport_position(position, animate=False), 0)
+        view.set_viewport_position(position, animate=False)
