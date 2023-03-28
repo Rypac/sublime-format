@@ -104,7 +104,7 @@ class WindowFormatterRegistry:
 
         merged_settings = {}
 
-        for key, value in settings.to_dict().items():
+        for key, value in settings.items():
             if key == "formatters":
                 if formatter_settings := project_format_settings.get(key):
                     merged_settings[key] = {**value, **formatter_settings}
