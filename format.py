@@ -76,7 +76,8 @@ class FormatSelectionCommand(TextCommand):
             if region.empty():
                 continue
 
-            if formatter := registry.lookup(self.view):
+            scope = self.view.scope_name(region.begin())
+            if formatter := registry.lookup(self.view, scope):
                 if formatter.enabled:
                     try:
                         formatter.format(self.view, edit, region)
