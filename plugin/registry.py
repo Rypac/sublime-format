@@ -49,14 +49,14 @@ class FormatterRegistry:
         if window_registry := self._window_registries.get(window.id()):
             window_registry.update()
 
-    def lookup(self, view: View, scope: Optional[str] = None) -> Optional[Formatter]:
+    def lookup(self, view: View, scope: str) -> Optional[Formatter]:
         if (window := view.window()) is None or not window.is_valid():
             return None
 
         if (window_registry := self._window_registries.get(window.id())) is None:
             return None
 
-        return window_registry.by_scope(scope or view_scope(view))
+        return window_registry.by_scope(scope)
 
     def by_name(self, view: View, name: str) -> Optional[Formatter]:
         if (window := view.window()) is None or not window.is_valid():

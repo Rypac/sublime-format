@@ -5,7 +5,7 @@ from sublime import Edit, Region, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import Optional
 
-from .plugin import FormatterRegistry
+from .plugin import FormatterRegistry, view_region, view_scope
 
 
 registry: Optional[FormatterRegistry] = None
@@ -47,18 +47,17 @@ class FormatListener(EventListener):
         registry.update_window(window)
 
     def on_pre_save(self, view: View) -> None:
-        formatter = registry.lookup(view)
+        formatter = registry.lookup(view, view_scope(view))
         if formatter and formatter.enabled and formatter.format_on_save:
             view.run_command("format_file")
 
 
 class FormatFileCommand(TextCommand):
     def run(self, edit: Edit) -> None:
-        region = Region(0, self.view.size())
-        if region.empty():
+        if (region := view_region(self.view)).empty():
             return
 
-        if formatter := registry.lookup(self.view):
+        if formatter := registry.lookup(self.view, view_scope(self.view)):
             if formatter.enabled:
                 try:
                     formatter.format(self.view, edit, region)
@@ -68,7 +67,7 @@ class FormatFileCommand(TextCommand):
             print("[Format]", "No formatter for file")
 
     def is_enabled(self) -> bool:
-        return not Region(0, self.view.size()).empty()
+        return not view_region(self.view).empty()
 
 
 class FormatSelectionCommand(TextCommand):
