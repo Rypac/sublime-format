@@ -76,12 +76,10 @@ class WindowFormatterRegistry:
         self.update()
 
     def update(self) -> None:
-        project_settings = self._merged_project_settings()
-        project_formatters = project_settings.get("formatters", {})
+        formatter_configurations = self.project_configurations()
 
         self._formatters.clear()
-        for name, formatter_settings in project_formatters.items():
-            config = Configuration.create(project_settings, formatter_settings)
+        for name, config in formatter_configurations.items():
             self._formatters[name] = Formatter(name, config)
 
     def by_name(self, name: str) -> Optional[Formatter]:
@@ -95,25 +93,26 @@ class WindowFormatterRegistry:
 
         return formatter if formatter.score(scope) > 0 else None
 
-    def _merged_project_settings(self) -> Dict[str, Any]:
+    def project_configurations(self) -> Dict[str, Configuration]:
         settings = self._settings.to_dict()
+        project_settings = (
+            (self._window.project_data() or {}).get("settings", {}).get("Format", {})
+        )
+        config = Configuration.create(settings, project_settings)
 
-        if (
-            not (project_data := self._window.project_data())
-            or not (project_settings := project_data.get("settings"))
-            or not (project_format_settings := project_settings.get("Format"))
-        ):
-            return settings
+        formatters = settings.get("formatters", {})
+        project_formatters = project_settings.get("formatters", {})
 
-        merged_settings = {}
+        formatters_config = {}
 
-        for key, value in settings.items():
-            if key == "formatters":
-                if formatter_settings := project_format_settings.get(key):
-                    merged_settings[key] = {**value, **formatter_settings}
-                else:
-                    merged_settings[key] = value
-            else:
-                merged_settings[key] = project_format_settings.get(key, value)
+        for name, formatter_settings in formatters.items():
+            formatters_config[name] = (
+                Configuration.create(config, project_overrides)
+                if (project_overrides := project_formatters.pop(name, None))
+                else Configuration.create(config, formatter_settings)
+            )
 
-        return merged_settings
+        for name, formatter_settings in project_formatters.items():
+            formatters_config[name] = Configuration.create(config, formatter_settings)
+
+        return formatters_config
