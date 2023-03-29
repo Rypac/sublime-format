@@ -5,15 +5,15 @@ from sublime import Edit, Region, View
 
 import os
 
-from .configuration import Configuration
+from .settings import SettingsInterface
 from .shell import shell
 from .view import extract_variables
 
 
 class Formatter:
-    def __init__(self, name: str, config: Configuration):
-        self._name: str = name
-        self._config: Configuration = config
+    def __init__(self, name: str, settings: SettingsInterface):
+        self._name = name
+        self._settings = settings
 
     @property
     def name(self) -> str:
@@ -21,23 +21,23 @@ class Formatter:
 
     @property
     def enabled(self) -> bool:
-        return self._config.enabled
+        return self._settings.enabled
 
     @property
     def format_on_save(self) -> bool:
-        return self._config.format_on_save
+        return self._settings.format_on_save
 
     def score(self, scope: str) -> int:
         return (
             score_selector(scope, selector)
-            if (selector := self._config.selector) is not None
+            if (selector := self._settings.selector) is not None
             else -1
         )
 
     def format(self, view: View, edit: Edit, region: Region) -> None:
         text = view.substr(region)
         variables = extract_variables(view)
-        args = [expand_variables(arg, variables) for arg in self._config.cmd]
+        args = [expand_variables(arg, variables) for arg in self._settings.cmd]
 
         cwd = (
             os.path.dirname(file_name)
@@ -45,7 +45,12 @@ class Formatter:
             else next(iter(view.window().folders()), None)
         )
 
-        formatted = shell(args=args, input=text, cwd=cwd, timeout=self._config.timeout)
+        formatted = shell(
+            args=args,
+            input=text,
+            cwd=cwd,
+            timeout=self._settings.timeout,
+        )
 
         position = view.viewport_position()
         view.replace(edit, region, formatted)

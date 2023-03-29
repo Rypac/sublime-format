@@ -6,7 +6,13 @@ import os
 import subprocess
 
 
-def shell(args: List[str], input: str, cwd: str, paths: List[str] = [], timeout: int = 60) -> str:
+def shell(
+    args: List[str],
+    input: str,
+    cwd: str,
+    paths: List[str] = [],
+    timeout: int = 60,
+) -> str:
     startupinfo = None
     if os.name == "nt":
         startupinfo = subprocess.STARTUPINFO()

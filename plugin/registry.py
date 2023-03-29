@@ -1,40 +1,37 @@
 from __future__ import annotations
 
 from sublime import View, Window
+from typing import Any, Dict, Optional
 
-from .configuration import Configuration
 from .formatter import Formatter
-from .settings import FormatSettings
+from .settings import (
+    FormatSettings,
+    FormatterSettings,
+    PluginSettings,
+    ProjectFormatSettings,
+    WindowFormatterSettings,
+)
 from .view import view_scope
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
-        self._settings: FormatSettings = None
         self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self._settings = FormatSettings()
-        self._settings.add_on_change("reload_settings", self.update)
+        PluginSettings.load().add_on_change("reload_settings", self.update)
         self.update()
 
     def teardown(self) -> None:
-        if settings := self._settings:
-            settings.clear_on_change("reload_settings")
-            self._settings = None
+        PluginSettings.load().clear_on_change("reload_settings")
         self._window_registries.clear()
-
-    def settings(self) -> FormatSettings:
-        return self._settings
-
-    def formatter_settings(self, name: str) -> FormatterSettings:
-        return self._settings.formatter(name=formatter)
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
             return
 
-        window_registry = WindowFormatterRegistry(window, self._settings)
+        window_registry = WindowFormatterRegistry(window)
+        window_registry.update()
         self._window_registries[window.id()] = window_registry
 
     def unregister(self, window: Window) -> None:
@@ -58,20 +55,35 @@ class FormatterRegistry:
 
         return window_registry.lookup(scope)
 
+    def settings(self) -> FormatSettings:
+        return FormatSettings()
+
+    def formatter_settings(self, name: str) -> FormatterSettings:
+        return self.settings().formatter(name)
+
 
 class WindowFormatterRegistry:
-    def __init__(self, window: Window, settings: FormatSettings) -> None:
-        self._window: Window = window
-        self._settings: FormatSettings = settings
+    def __init__(self, window: Window) -> None:
+        self._window = window
+        self._settings = FormatSettings()
+        self._project_settings = ProjectFormatSettings(window)
         self._formatters: Dict[str, Formatter] = {}
-        self.update()
 
     def update(self) -> None:
-        formatter_configurations = self.project_configurations()
+        formatters = self._settings.get("formatters", {}).keys()
+        project_formatters = self._project_settings.get("formatters", {}).keys()
+        latest_formatters = formatters | project_formatters
 
-        self._formatters.clear()
-        for name, config in formatter_configurations.items():
-            self._formatters[name] = Formatter(name, config)
+        current_formatters = self._formatters.keys()
+
+        for formatter in latest_formatters - current_formatters:
+            self._formatters[formatter] = Formatter(
+                name=formatter,
+                settings=WindowFormatterSettings(formatter, self._window),
+            )
+
+        for formatter in current_formatters - latest_formatters:
+            del self._formatters[formatter]
 
     def lookup(self, scope: str) -> Optional[Formatter]:
         if not (formatters := self._formatters):
@@ -80,27 +92,3 @@ class WindowFormatterRegistry:
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
         return formatter if formatter.score(scope) > 0 else None
-
-    def project_configurations(self) -> Dict[str, Configuration]:
-        settings = self._settings.to_dict()
-        project_settings = (
-            (self._window.project_data() or {}).get("settings", {}).get("Format", {})
-        )
-        config = Configuration.create(settings, project_settings)
-
-        formatters = settings.get("formatters", {})
-        project_formatters = project_settings.get("formatters", {})
-
-        formatters_config = {}
-
-        for name, formatter_settings in formatters.items():
-            formatters_config[name] = (
-                Configuration.create(config, project_overrides)
-                if (project_overrides := project_formatters.pop(name, None))
-                else Configuration.create(config, formatter_settings)
-            )
-
-        for name, formatter_settings in project_formatters.items():
-            formatters_config[name] = Configuration.create(config, formatter_settings)
-
-        return formatters_config

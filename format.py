@@ -93,12 +93,11 @@ class FormatSelectionCommand(TextCommand):
 class FormatToggleEnabledCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
         settings = registry.formatter_settings(name) if name else registry.settings()
-        enabled = settings.enabled()
-        settings.set_enabled(not enabled)
+        settings.set_enabled(not settings.enabled)
 
     def is_checked(self, name: Optional[str] = None) -> bool:
         settings = registry.formatter_settings(name) if name else registry.settings()
-        return settings.enabled()
+        return settings.enabled
 
 
 class FormatManageEnabledCommand(ApplicationCommand):
@@ -106,7 +105,7 @@ class FormatManageEnabledCommand(ApplicationCommand):
         items = [
             formatter.name
             for formatter in registry.settings().formatters()
-            if formatter.enabled() != enable
+            if formatter.enabled != enable
         ]
 
         def toggle_enabled(selection: int) -> None:
@@ -121,12 +120,11 @@ class FormatManageEnabledCommand(ApplicationCommand):
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
         settings = registry.formatter_settings(name) if name else registry.settings()
-        enabled = settings.format_on_save()
-        settings.set_format_on_save(not enabled)
+        settings.set_format_on_save(not settings.format_on_save)
 
     def is_checked(self, name: Optional[str] = None) -> bool:
         settings = registry.formatter_settings(name) if name else registry.settings()
-        return settings.format_on_save()
+        return settings.format_on_save
 
 
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
@@ -134,7 +132,7 @@ class FormatManageFormatOnSaveCommand(ApplicationCommand):
         items = [
             formatter.name
             for formatter in registry.settings().formatters()
-            if formatter.format_on_save() != enable
+            if formatter.format_on_save != enable
         ]
 
         def toggle_format_on_save(selection: int) -> None:
