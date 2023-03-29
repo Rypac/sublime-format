@@ -4,17 +4,17 @@ from sublime import View, Window
 
 from .configuration import Configuration
 from .formatter import Formatter
-from .settings import FormatterSettings
+from .settings import FormatSettings
 from .view import view_scope
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
-        self._settings: FormatterSettings = None
+        self._settings: FormatSettings = None
         self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self._settings = FormatterSettings()
+        self._settings = FormatSettings()
         self._settings.add_on_change("reload_settings", self.update)
         self.update()
 
@@ -24,8 +24,11 @@ class FormatterRegistry:
             self._settings = None
         self._window_registries.clear()
 
-    def settings(self, formatter: Optional[str] = None) -> FormatterSettings:
-        return self._settings.formatter(name=formatter) if formatter else self._settings
+    def settings(self) -> FormatSettings:
+        return self._settings
+
+    def formatter_settings(self, name: str) -> FormatterSettings:
+        return self._settings.formatter(name=formatter)
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
@@ -66,9 +69,9 @@ class FormatterRegistry:
 
 
 class WindowFormatterRegistry:
-    def __init__(self, window: Window, settings: FormatterSettings) -> None:
+    def __init__(self, window: Window, settings: FormatSettings) -> None:
         self._window: Window = window
-        self._settings: FormatterSettings = settings
+        self._settings: FormatSettings = settings
         self._formatters: Dict[str, Formatter] = {}
         self.update()
 

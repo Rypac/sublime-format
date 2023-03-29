@@ -93,12 +93,13 @@ class FormatSelectionCommand(TextCommand):
 
 class FormatToggleEnabledCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
-        settings = registry.settings(name)
+        settings = registry.formatter_settings(name) if name else registry.settings()
         enabled = settings.enabled()
         settings.set_enabled(not enabled)
 
     def is_checked(self, name: Optional[str] = None) -> bool:
-        return registry.settings(name).enabled()
+        settings = registry.formatter_settings(name) if name else registry.settings()
+        return settings.enabled()
 
 
 class FormatManageEnabledCommand(ApplicationCommand):
@@ -112,7 +113,7 @@ class FormatManageEnabledCommand(ApplicationCommand):
         def toggle_enabled(selection: int) -> None:
             if selection > 0 and selection < len(items):
                 formatter = items[selection]
-                registry.settings(formatter).set_enabled(enable)
+                registry.formatter_settings(formatter).set_enabled(enable)
 
         if items:
             active_window().show_quick_panel(items, toggle_enabled)
@@ -120,12 +121,13 @@ class FormatManageEnabledCommand(ApplicationCommand):
 
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
     def run(self, name: Optional[str] = None) -> None:
-        settings = registry.settings(name)
+        settings = registry.formatter_settings(name) if name else registry.settings()
         enabled = settings.format_on_save()
         settings.set_format_on_save(not enabled)
 
     def is_checked(self, name: Optional[str] = None) -> bool:
-        return registry.settings(name).format_on_save()
+        settings = registry.formatter_settings(name) if name else registry.settings()
+        return settings.format_on_save()
 
 
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
@@ -139,7 +141,7 @@ class FormatManageFormatOnSaveCommand(ApplicationCommand):
         def toggle_format_on_save(selection: int) -> None:
             if selection > 0 and selection < len(items):
                 formatter = items[selection]
-                registry.settings(formatter).set_format_on_save(enable)
+                registry.formatter_settings(formatter).set_format_on_save(enable)
 
         if items:
             active_window().show_quick_panel(items, toggle_format_on_save)
