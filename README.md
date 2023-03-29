@@ -1,6 +1,6 @@
-# Format
+# Sublime Format
 
-Because you have better things to worry about than formatting your code.
+A code formatting plugin for Sublime Text… because you have better things to worry about than manually formatting your code.
 
 ## Contents
 
@@ -37,13 +37,13 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 
 ## Installation
 
-#### Package Control (coming soon…)
+### Package Control (coming soon…)
 
 1. Install [Package Control](https://packagecontrol.io)
 2. Run `Package Control: Install Package` in the Command Palette (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>)
 3. Install `Format`
 
-#### Manual (via Package Control)
+### Manual (via Package Control)
 
 1. Install [Package Control](https://packagecontrol.io)
 2. Run `Package Control: Add Repository` in the Command Palette
@@ -51,7 +51,7 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 4. Run `Package Control: Install Package` in the Command Palette
 5. Install `sublime-format`
 
-#### Manual (via `git`)
+### Manual (via `git`)
 
 1. Navigate to the Sublime Text package directory
 2. Clone the repository:
