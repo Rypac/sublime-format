@@ -15,7 +15,7 @@ class PluginSettings:
 
     @staticmethod
     def save() -> None:
-        return save_settings("Format.sublime-settings")
+        save_settings("Format.sublime-settings")
 
 
 class SettingsInterface:
