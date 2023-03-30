@@ -1,98 +1,144 @@
-import sublime
-import sublime_plugin
+from __future__ import annotations
 
-from .plugin import FormatterRegistry
+from sublime import active_window
+from sublime import Edit, Region, View, Window
+from sublime_plugin import ApplicationCommand, EventListener, TextCommand
+from typing import Optional
 
-
-def queue_command(callback, timeout=100):
-    sublime.set_timeout(callback, timeout)
-
-
-def log_error(output, error):
-    print('Format:', output, error)
+from .plugin import FormatterRegistry, view_region, view_scope
 
 
-registry = FormatterRegistry()
+registry: Optional[FormatterRegistry] = None
 
 
 def plugin_loaded():
-    registry.populate()
+    global registry
+    registry = FormatterRegistry()
+    registry.startup()
 
 
 def plugin_unloaded():
-    registry.clear()
+    global registry
+    registry.teardown()
+    registry = None
 
 
-def format_region(formatter, view, region, edit):
-    selection = view.substr(region)
-    ok, output, error = formatter.format(selection, settings=view.settings())
-    if ok:
-        view.replace(edit, region, output)
-    else:
-        log_error(output, error)
+class FormatListener(EventListener):
+    def on_init(self, views: list[View]) -> None:
+        window_ids = set()
+        for view in views:
+            if (window := view.window()) and window.id() not in window_ids:
+                window_ids.add(window.id())
+                registry.register(window)
+
+    def on_exit(self) -> None:
+        registry.teardown()
+
+    def on_new_window_async(self, window: Window) -> None:
+        registry.register(window)
+
+    def on_pre_close_window(self, window: Window) -> None:
+        registry.unregister(window)
+
+    def on_load_project_async(self, window: Window) -> None:
+        registry.update_window(window)
+
+    def on_post_save_project_async(self, window: Window) -> None:
+        registry.update_window(window)
+
+    def on_pre_save(self, view: View) -> None:
+        formatter = registry.lookup(view, view_scope(view))
+        if formatter and formatter.enabled and formatter.format_on_save:
+            view.run_command("format_file")
 
 
-class FormatSelectionCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        return registry.by_view(self.view) is not None
+class FormatFileCommand(TextCommand):
+    def run(self, edit: Edit) -> None:
+        if (region := view_region(self.view)).empty():
+            return
 
-    def run(self, edit):
-        formatter = registry.by_view(self.view)
-        if formatter:
-            for region in self.view.sel():
-                if not region.empty():
-                    format_region(formatter, self.view, region, edit)
+        if formatter := registry.lookup(self.view, view_scope(self.view)):
+            if formatter.enabled:
+                try:
+                    formatter.format(self.view, edit, region)
+                except Exception as err:
+                    print("[Format]", err)
         else:
-            log_error('No formatter for source file')
+            print("[Format]", "No formatter for file")
+
+    def is_enabled(self) -> bool:
+        return not view_region(self.view).empty()
 
 
-class FormatFileCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        return registry.by_view(self.view) is not None
+class FormatSelectionCommand(TextCommand):
+    def run(self, edit: Edit) -> None:
+        for region in self.view.sel():
+            if region.empty():
+                continue
 
-    def run(self, edit):
-        formatter = registry.by_view(self.view)
-        if formatter:
-            region = sublime.Region(0, self.view.size())
-            format_region(formatter, self.view, region, edit)
-        else:
-            log_error('No formatter for source file')
+            scope = self.view.scope_name(region.begin())
+            if formatter := registry.lookup(self.view, scope):
+                if formatter.enabled:
+                    try:
+                        formatter.format(self.view, edit, region)
+                    except Exception as err:
+                        print("[Format]", err)
+            else:
+                print("[Format]", "No formatter for selection")
 
-
-class FormatListener(sublime_plugin.EventListener):
-    def on_pre_save(self, view):
-        formatter = registry.by_view(view)
-        if formatter and formatter.format_on_save:
-            view.run_command('format_file')
-
-
-class ToggleFormatOnSaveCommand(sublime_plugin.ApplicationCommand):
-    def is_checked(self, name=None):
-        if name:
-            formatter = registry.by_name(name)
-            return formatter and formatter.format_on_save
-        return all(f.format_on_save for f in registry.all)
-
-    def run(self, name=None):
-        if name:
-            formatter = registry.by_name(name)
-            if formatter:
-                formatter.format_on_save = not formatter.format_on_save
-        else:
-            enable = any(not f.format_on_save for f in registry.all)
-            for formatter in registry.all:
-                formatter.format_on_save = enable
+    def is_enabled(self) -> bool:
+        return any(not region.empty() for region in self.view.sel())
 
 
-class ManageFormatOnSaveCommand(sublime_plugin.WindowCommand):
-    def run(self, which=None):
-        enabled = which == 'enabled'
-        items = [[x.name]
-                 for x in registry.by(lambda f: f.format_on_save == enabled)]
+class FormatToggleEnabledCommand(ApplicationCommand):
+    def run(self, name: Optional[str] = None) -> None:
+        settings = registry.formatter_settings(name) if name else registry.settings()
+        settings.set_enabled(not settings.enabled)
 
-        def callback(selection):
-            if selection >= 0 and selection < len(items):
-                self.window.run_command('toggle_format_on_save',
-                                        {'name': items[selection][0]})
+    def is_checked(self, name: Optional[str] = None) -> bool:
+        settings = registry.formatter_settings(name) if name else registry.settings()
+        return settings.enabled
 
-        queue_command(lambda: self.window.show_quick_panel(items, callback))
+
+class FormatManageEnabledCommand(ApplicationCommand):
+    def run(self, enable: bool) -> None:
+        items = [
+            formatter.name
+            for formatter in registry.settings().formatters()
+            if formatter.enabled != enable
+        ]
+
+        def toggle_enabled(selection: int) -> None:
+            if selection > 0 and selection < len(items):
+                formatter = items[selection]
+                registry.formatter_settings(formatter).set_enabled(enable)
+
+        if items:
+            active_window().show_quick_panel(items, toggle_enabled)
+
+
+class FormatToggleFormatOnSaveCommand(ApplicationCommand):
+    def run(self, name: Optional[str] = None) -> None:
+        settings = registry.formatter_settings(name) if name else registry.settings()
+        settings.set_format_on_save(not settings.format_on_save)
+
+    def is_checked(self, name: Optional[str] = None) -> bool:
+        settings = registry.formatter_settings(name) if name else registry.settings()
+        return settings.format_on_save
+
+
+class FormatManageFormatOnSaveCommand(ApplicationCommand):
+    def run(self, enable: bool) -> None:
+        items = [
+            formatter.name
+            for formatter in registry.settings().formatters()
+            if formatter.format_on_save != enable
+        ]
+
+        def toggle_format_on_save(selection: int) -> None:
+            if selection > 0 and selection < len(items):
+                formatter = items[selection]
+                registry.formatter_settings(formatter).set_format_on_save(enable)
+
+        if items:
+            active_window().show_quick_panel(items, toggle_format_on_save)

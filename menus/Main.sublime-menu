@@ -7,101 +7,25 @@
                 "id": "formatter",
                 "children": [
                     {
-                        "caption": "Format Selection",
-                        "command": "format_selection"
-                    },
-                    {
                         "caption": "Format File",
                         "command": "format_file"
+                    },
+                    {
+                        "caption": "Format Selection",
+                        "command": "format_selection"
                     },
                     {
                         "caption": "-",
                     },
                     {
+                        "caption": "Enabled",
+                        "command": "format_toggle_enabled",
+                        "checkbox": true
+                    },
+                    {
                         "caption": "Format on Save",
-                        "id": "tools",
-                        "children": [
-                            {
-                                "caption": "All",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true
-                            },
-                            {
-                                "caption": "-",
-                            },
-                            {
-                                "caption": "C++",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Clang"
-                                }
-                            },
-                            {
-                                "caption": "Elm",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Elm"
-                                }
-                            },
-                            {
-                                "caption": "Go",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Go"
-                                }
-                            },
-                            {
-                                "caption": "Haskell",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Haskell"
-                                }
-                            },
-                            {
-                                "caption": "JavaScript",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "JavaScript"
-                                }
-                            },
-                            {
-                                "caption": "JSON",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "JSON"
-                                }
-                            },
-                            {
-                                "caption": "Python",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Python"
-                                }
-                            },
-                            {
-                                "caption": "Rust",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Rust"
-                                }
-                            },
-                            {
-                                "caption": "Terraform",
-                                "command": "toggle_format_on_save",
-                                "checkbox": true,
-                                "args": {
-                                    "name": "Terraform"
-                                }
-                            }
-                        ]
+                        "command": "format_toggle_format_on_save",
+                        "checkbox": true
                     }
                 ]
             }

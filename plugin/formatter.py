@@ -1,43 +1,57 @@
-from .command import shell
-from .settings import FormatterSettings, Settings
+from __future__ import annotations
+
+from sublime import expand_variables, score_selector
+from sublime import Edit, Region, View
+
+import os
+
+from .settings import SettingsInterface
+from .shell import shell
+from .view import extract_variables
 
 
 class Formatter:
-    def __init__(self, name, sources=None, formatter=None, settings=None):
-        self.__name = name
-        self.__sources = sources
-        self.__settings = settings or FormatterSettings(name.lower())
-        self.__format = formatter
+    def __init__(self, name: str, settings: SettingsInterface):
+        self._name = name
+        self._settings = settings
 
     @property
-    def name(self):
-        return self.__name
+    def name(self) -> str:
+        return self._name
 
     @property
-    def settings(self):
-        return self.__settings
+    def enabled(self) -> bool:
+        return self._settings.enabled
 
     @property
-    def sources(self):
-        return self.__sources or self.settings.sources
+    def format_on_save(self) -> bool:
+        return self._settings.format_on_save
 
-    @property
-    def format_on_save(self):
-        return self.settings.format_on_save
+    def score(self, scope: str) -> int:
+        return (
+            score_selector(scope, selector)
+            if (selector := self._settings.selector) is not None
+            else -1
+        )
 
-    @format_on_save.setter
-    def format_on_save(self, value):
-        self.__settings.format_on_save = value
+    def format(self, view: View, edit: Edit, region: Region) -> None:
+        text = view.substr(region)
+        variables = extract_variables(view)
+        args = [expand_variables(arg, variables) for arg in self._settings.cmd]
 
-    def format(self, input, *args, **kwargs):
-        return self.__format(input, *args, **kwargs)
+        cwd = (
+            os.path.dirname(file_name)
+            if (file_name := view.file_name())
+            else next(iter(view.window().folders()), None)
+        )
 
+        formatted = shell(
+            args=args,
+            input=text,
+            cwd=cwd,
+            timeout=self._settings.timeout,
+        )
 
-class ExternalFormatter(Formatter):
-    def __init__(self, name, command='', args='', settings=None):
-        command = command.split(' ') if command else []
-        args = args.split(' ') if args else []
-        settings = settings or FormatterSettings(name.lower())
-        opts = settings.options or []
-        formatter = shell(command + opts + args, paths=Settings().paths())
-        super().__init__(name, formatter=formatter, settings=settings)
+        position = view.viewport_position()
+        view.replace(edit, region, formatted)
+        view.set_viewport_position(position, animate=False)
