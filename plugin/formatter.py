@@ -20,17 +20,14 @@ class Formatter:
         return self._name
 
     @property
-    def enabled(self) -> bool:
-        return self._settings.enabled
-
-    @property
     def format_on_save(self) -> bool:
         return self._settings.format_on_save
 
     def score(self, scope: str) -> int:
         return (
             score_selector(scope, selector)
-            if (selector := self._settings.selector) is not None
+            if self._settings.enabled
+            and (selector := self._settings.selector) is not None
             else -1
         )
 
