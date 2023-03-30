@@ -48,7 +48,7 @@ class FormatListener(EventListener):
 
     def on_pre_save(self, view: View) -> None:
         formatter = registry.lookup(view, view_scope(view))
-        if formatter and formatter.enabled and formatter.format_on_save:
+        if formatter and formatter.format_on_save:
             view.run_command("format_file")
 
 
@@ -58,11 +58,10 @@ class FormatFileCommand(TextCommand):
             return
 
         if formatter := registry.lookup(self.view, view_scope(self.view)):
-            if formatter.enabled:
-                try:
-                    formatter.format(self.view, edit, region)
-                except Exception as err:
-                    print("[Format]", err)
+            try:
+                formatter.format(self.view, edit, region)
+            except Exception as err:
+                print("[Format]", err)
         else:
             print("[Format]", "No formatter for file")
 
@@ -78,11 +77,10 @@ class FormatSelectionCommand(TextCommand):
 
             scope = self.view.scope_name(region.begin())
             if formatter := registry.lookup(self.view, scope):
-                if formatter.enabled:
-                    try:
-                        formatter.format(self.view, edit, region)
-                    except Exception as err:
-                        print("[Format]", err)
+                try:
+                    formatter.format(self.view, edit, region)
+                except Exception as err:
+                    print("[Format]", err)
             else:
                 print("[Format]", "No formatter for selection")
 
