@@ -11,7 +11,7 @@ A code formatting plugin for Sublime Text… because you have better things to w
 
 ## Usage
 
-As this plugin merely acts as a for a CLI program, each formatter will require its own tool and options for code formatting.
+As this plugin merely acts as proxy for external formatters, each formatter will require its own tool and options for code formatting.
 
 There are no default formatters included in the plugin, and each formatter must be manually enabled in the plugin preferences.
 For example, this is the configuration for the formatting of Haskell and Rust source code:
