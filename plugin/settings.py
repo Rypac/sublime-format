@@ -62,11 +62,6 @@ class SettingsInterface:
         return self.get("timeout", 60)
 
 
-class EmptySettings(SettingsInterface):
-    def get(self, key: str, default: Any = None) -> Any:
-        return default
-
-
 class FormatSettings(SettingsInterface):
     def get(self, key: str, default: Any = None) -> Any:
         return PluginSettings.load().get(key, default)
@@ -77,35 +72,24 @@ class FormatSettings(SettingsInterface):
         PluginSettings.save()
 
     def formatters(self) -> List[FormatterSettings]:
-        return [
-            FormatterSettings(name, fallback=self)
-            for name in self.get("formatters", {})
-        ]
+        return [FormatterSettings(name) for name in self.get("formatters", {})]
 
     def formatter(self, name: str) -> Optional[FormatterSettings]:
-        return (
-            FormatterSettings(name, fallback=self)
-            if name in self.get("formatters", {})
-            else None
-        )
+        return FormatterSettings(name) if name in self.get("formatters", {}) else None
 
 
 class FormatterSettings(SettingsInterface):
-    def __init__(
-        self,
-        name: str,
-        fallback: SettingsInterface = EmptySettings(),
-    ) -> None:
+    def __init__(self, name: str) -> None:
         self._name = name
-        self._fallback = fallback
 
     @property
     def name(self) -> str:
         return self._name
 
     def get(self, key: str, default: Any = None) -> Any:
-        value = PluginSettings.load().get("formatters", {}).get(self._name, {}).get(key)
-        return value if value is not None else self._fallback.get(key, default)
+        settings = PluginSettings.load()
+        value = settings.get("formatters", {}).get(self._name, {}).get(key)
+        return value if value is not None else settings.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         settings = PluginSettings.load()
@@ -115,36 +99,22 @@ class FormatterSettings(SettingsInterface):
         settings["formatters"] = formatters
         PluginSettings.save()
 
-    def reload(self) -> None:
-        self._fallback.reload()
-
 
 class ProjectFormatSettings(SettingsInterface):
-    def __init__(
-        self,
-        window: Window,
-        fallback: SettingsInterface = EmptySettings(),
-    ) -> None:
+    def __init__(self, window: Window) -> None:
         self._window = window
-        self._fallback = fallback
 
     def get(self, key: str, default: Any = None) -> Any:
-        value = (
-            (self._window.project_data() or {})
-            .get("settings", {})
-            .get("Format", {})
-            .get(key)
-        )
-        return value if value is not None else self._fallback.get(key, default)
+        if not (project := self._window.project_data()):
+            return default
+
+        return project.get("settings", {}).get("Format", {}).get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         project = self._window.project_data() or {}
         settings = project.setdefault("settings", {}).setdefault("Format", {})
         settings[key] = value
         self._window.set_project_data(project)
-
-    def reload(self) -> None:
-        self._fallback.reload()
 
     def formatters(self) -> List[ProjectFormatterSettings]:
         return [
@@ -161,30 +131,21 @@ class ProjectFormatSettings(SettingsInterface):
 
 
 class ProjectFormatterSettings(SettingsInterface):
-    def __init__(
-        self,
-        name: str,
-        window: Window,
-        fallback: SettingsInterface = EmptySettings(),
-    ) -> None:
+    def __init__(self, name: str, window: Window) -> None:
         self._name = name
         self._window = window
-        self._fallback = fallback
 
     @property
     def name(self) -> str:
         return self._name
 
     def get(self, key: str, default: Any = None) -> Any:
-        value = (
-            (self._window.project_data() or {})
-            .get("settings", {})
-            .get("Format", {})
-            .get("formatters", {})
-            .get(self._name, {})
-            .get(key)
-        )
-        return value if value is not None else self._fallback.get(key, default)
+        if not (project := self._window.project_data()):
+            return default
+
+        settings = project.get("settings", {}).get("Format", {})
+        value = settings.get("formatters", {}).get(self._name, {}).get(key)
+        return value if value is not None else project.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         project = self._window.project_data() or {}
@@ -196,9 +157,6 @@ class ProjectFormatterSettings(SettingsInterface):
         )
         formatter_settings[key] = value
         self._window.set_project_data(project)
-
-    def reload(self) -> None:
-        self._fallback.reload()
 
 
 class WindowFormatterSettings(SettingsInterface):
