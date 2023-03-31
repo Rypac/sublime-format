@@ -101,9 +101,9 @@ class FormatToggleEnabledCommand(ApplicationCommand):
 class FormatManageEnabledCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
-            formatter.name
-            for formatter in registry.settings().formatters()
-            if formatter.enabled != enable
+            formatter_settings.name
+            for formatter_settings in registry.settings().formatters()
+            if formatter_settings.enabled != enable
         ]
 
         def toggle_enabled(selection: int) -> None:
@@ -128,9 +128,9 @@ class FormatToggleFormatOnSaveCommand(ApplicationCommand):
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
-            formatter.name
-            for formatter in registry.settings().formatters()
-            if formatter.format_on_save != enable
+            formatter_settings.name
+            for formatter_settings in registry.settings().formatters()
+            if formatter_settings.format_on_save != enable
         ]
 
         def toggle_format_on_save(selection: int) -> None:
