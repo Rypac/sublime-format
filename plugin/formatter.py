@@ -20,8 +20,8 @@ class Formatter:
         return self._name
 
     @property
-    def format_on_save(self) -> bool:
-        return self._settings.format_on_save
+    def settings(self) -> SettingsInterface:
+        return self._settings
 
     def score(self, scope: str) -> int:
         return (

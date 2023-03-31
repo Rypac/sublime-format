@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from sublime import active_window
+from sublime import active_window, status_message
 from sublime import Edit, Region, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
-from typing import Optional
+from typing import List, Optional
 
 from .plugin import FormatterRegistry, view_region, view_scope
 
@@ -24,11 +24,9 @@ def plugin_unloaded():
 
 
 class FormatListener(EventListener):
-    def on_init(self, views: list[View]) -> None:
-        window_ids = set()
+    def on_init(self, views: List[View]) -> None:
         for view in views:
-            if (window := view.window()) and window.id() not in window_ids:
-                window_ids.add(window.id())
+            if window := view.window():
                 registry.register(window)
 
     def on_exit(self) -> None:
@@ -48,7 +46,7 @@ class FormatListener(EventListener):
 
     def on_pre_save(self, view: View) -> None:
         formatter = registry.lookup(view, view_scope(view))
-        if formatter and formatter.format_on_save:
+        if formatter and formatter.settings.format_on_save:
             view.run_command("format_file")
 
 
@@ -101,18 +99,21 @@ class FormatToggleEnabledCommand(ApplicationCommand):
 class FormatManageEnabledCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
-            formatter.name
-            for formatter in registry.settings().formatters()
-            if formatter.enabled != enable
+            formatter_settings.name
+            for formatter_settings in registry.settings().formatters()
+            if formatter_settings.enabled != enable
         ]
 
         def toggle_enabled(selection: int) -> None:
-            if selection > 0 and selection < len(items):
+            if selection >= 0 and selection < len(items):
                 formatter = items[selection]
                 registry.formatter_settings(formatter).set_enabled(enable)
 
         if items:
             active_window().show_quick_panel(items, toggle_enabled)
+        else:
+            action = "enabled" if enable else "disabled"
+            status_message(f"All formatters {action}.")
 
 
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
@@ -128,15 +129,18 @@ class FormatToggleFormatOnSaveCommand(ApplicationCommand):
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
-            formatter.name
-            for formatter in registry.settings().formatters()
-            if formatter.format_on_save != enable
+            formatter_settings.name
+            for formatter_settings in registry.settings().formatters()
+            if formatter_settings.format_on_save != enable
         ]
 
         def toggle_format_on_save(selection: int) -> None:
-            if selection > 0 and selection < len(items):
+            if selection >= 0 and selection < len(items):
                 formatter = items[selection]
                 registry.formatter_settings(formatter).set_format_on_save(enable)
 
         if items:
             active_window().show_quick_panel(items, toggle_format_on_save)
+        else:
+            action = "enabled" if enable else "disabled"
+            status_message(f"All formatters have format on save {action}.")

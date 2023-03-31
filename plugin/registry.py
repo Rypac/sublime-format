@@ -76,14 +76,16 @@ class WindowFormatterRegistry:
 
         current_formatters = self._formatters.keys()
 
-        for formatter in latest_formatters - current_formatters:
-            self._formatters[formatter] = Formatter(
-                name=formatter,
-                settings=WindowFormatterSettings(formatter, self._window),
-            )
-
-        for formatter in current_formatters - latest_formatters:
-            del self._formatters[formatter]
+        for formatter in latest_formatters | current_formatters:
+            if formatter not in current_formatters:
+                self._formatters[formatter] = Formatter(
+                    name=formatter,
+                    settings=WindowFormatterSettings(formatter, self._window),
+                )
+            elif formatter not in latest_formatters:
+                del self._formatters[formatter]
+            else:
+                self._formatters[formatter].settings.reload()
 
     def lookup(self, scope: str) -> Optional[Formatter]:
         if not (formatters := self._formatters):
