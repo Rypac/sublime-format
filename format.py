@@ -3,7 +3,7 @@ from __future__ import annotations
 from sublime import active_window
 from sublime import Edit, Region, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
-from typing import Optional
+from typing import List, Optional
 
 from .plugin import FormatterRegistry, view_region, view_scope
 
@@ -24,11 +24,9 @@ def plugin_unloaded():
 
 
 class FormatListener(EventListener):
-    def on_init(self, views: list[View]) -> None:
-        window_ids = set()
+    def on_init(self, views: List[View]) -> None:
         for view in views:
-            if (window := view.window()) and window.id() not in window_ids:
-                window_ids.add(window.id())
+            if window := view.window():
                 registry.register(window)
 
     def on_exit(self) -> None:
