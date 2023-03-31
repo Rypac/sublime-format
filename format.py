@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import active_window
+from sublime import active_window, status_message
 from sublime import Edit, Region, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import List, Optional
@@ -111,6 +111,9 @@ class FormatManageEnabledCommand(ApplicationCommand):
 
         if items:
             active_window().show_quick_panel(items, toggle_enabled)
+        else:
+            action = "enabled" if enable else "disabled"
+            status_message(f"All formatters {action}.")
 
 
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
@@ -138,3 +141,6 @@ class FormatManageFormatOnSaveCommand(ApplicationCommand):
 
         if items:
             active_window().show_quick_panel(items, toggle_format_on_save)
+        else:
+            action = "enabled" if enable else "disabled"
+            status_message(f"All formatters have format on save {action}.")
