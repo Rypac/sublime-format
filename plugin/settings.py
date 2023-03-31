@@ -27,6 +27,10 @@ class SettingsInterface:
         """Stores a value in settings for the given key."""
         pass
 
+    def reload(self) -> None:
+        """Reloads settings if invalidated."""
+        pass
+
     @property
     def selector(self) -> str:
         return self.get("selector")
@@ -111,6 +115,9 @@ class FormatterSettings(SettingsInterface):
         settings["formatters"] = formatters
         PluginSettings.save()
 
+    def reload(self) -> None:
+        self._fallback.reload()
+
 
 class ProjectFormatSettings(SettingsInterface):
     def __init__(
@@ -135,6 +142,9 @@ class ProjectFormatSettings(SettingsInterface):
         settings = project.setdefault("settings", {}).setdefault("Format", {})
         settings[key] = value
         self._window.set_project_data(project)
+
+    def reload(self) -> None:
+        self._fallback.reload()
 
     def formatters(self) -> List[ProjectFormatterSettings]:
         return [
@@ -187,28 +197,32 @@ class ProjectFormatterSettings(SettingsInterface):
         formatter_settings[key] = value
         self._window.set_project_data(project)
 
+    def reload(self) -> None:
+        self._fallback.reload()
+
 
 class WindowFormatterSettings(SettingsInterface):
     def __init__(self, name: str, window: Window):
         self._name = name
         self._window = window
+        self._settings = {}  # type: Dict[str, Any]
+        self.reload()
 
     def get(self, key: str, default: Any = None) -> Any:
-        project = PluginSettings.load_project(self._window)
-        if formatter := project.get("formatters", {}).get(self._name):
-            if (value := formatter.get(key)) is not None:
-                return value
-
-        settings = PluginSettings.load()
-        if formatter := settings.get("formatters", {}).get(self._name):
-            if (value := formatter.get(key)) is not None:
-                return value
-
-        return (
-            project_value
-            if (project_value := project.get(key)) is not None
-            else settings.get(key, default)
-        )
+        return self._settings.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
-        raise Exception("WindowSettings are read-only.")
+        raise Exception("WindowFormatterSettings are read-only.")
+
+    def reload(self) -> None:
+        settings = PluginSettings.load().to_dict()
+        formatter = settings.get("formatters", {}).get(self._name, {})
+
+        project = PluginSettings.load_project(self._window)
+        project_formatter = project.get("formatters", {}).get(self._name, {})
+
+        self._settings.clear()
+        for source in (settings, project, formatter, project_formatter):
+            for key, value in source.items():
+                if key != "formatters":
+                    self._settings[key] = value
