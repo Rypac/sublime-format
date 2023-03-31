@@ -48,7 +48,7 @@ class FormatListener(EventListener):
 
     def on_pre_save(self, view: View) -> None:
         formatter = registry.lookup(view, view_scope(view))
-        if formatter and formatter.format_on_save:
+        if formatter and formatter.settings.format_on_save:
             view.run_command("format_file")
 
 
