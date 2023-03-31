@@ -107,7 +107,7 @@ class FormatManageEnabledCommand(ApplicationCommand):
         ]
 
         def toggle_enabled(selection: int) -> None:
-            if selection > 0 and selection < len(items):
+            if selection >= 0 and selection < len(items):
                 formatter = items[selection]
                 registry.formatter_settings(formatter).set_enabled(enable)
 
@@ -134,7 +134,7 @@ class FormatManageFormatOnSaveCommand(ApplicationCommand):
         ]
 
         def toggle_format_on_save(selection: int) -> None:
-            if selection > 0 and selection < len(items):
+            if selection >= 0 and selection < len(items):
                 formatter = items[selection]
                 registry.formatter_settings(formatter).set_format_on_save(enable)
 
