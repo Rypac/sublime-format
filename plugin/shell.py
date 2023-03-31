@@ -23,30 +23,25 @@ def shell(
     if paths:
         env["PATH"] = os.pathsep.join(paths) + os.pathsep + env["PATH"]
 
-    process = subprocess.Popen(
-        args=args,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        startupinfo=startupinfo,
-        env=env,
-        cwd=cwd,
-        shell=False,
-        text=True,
-    )
-
     try:
-        stdout, stderr = process.communicate(input=input, timeout=timeout)
-    except TimeoutExpired:
-        process.kill()
-        stdout, stderr = process.communicate()
+        completed_process = subprocess.run(
+            args=args,
+            input=input,
+            capture_output=True,
+            shell=False,
+            cwd=cwd,
+            timeout=timeout,
+            check=True,
+            text=True,
+            env=env,
+            startupinfo=startupinfo,
+        )
+    except subprocess.CalledProcessError as error:
+        message = str(error)
+        if stderr := error.stderr:
+            message += f"\n${stderr}"
+        elif stdout := error.stdout:
+            message += f"\n${stdout}"
+        raise Exception(message)
 
-    if process.returncode != 0:
-        msg = str(subprocess.CalledProcessError(process.returncode, args))
-        if len(stderr) > 0:
-            msg += f"\n${stderr}"
-        elif len(stdout) > 0:
-            msg += f"\n${stdout}"
-        raise Exception(msg)
-
-    return stdout
+    return completed_process.stdout
