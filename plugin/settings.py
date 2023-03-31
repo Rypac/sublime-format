@@ -73,11 +73,14 @@ class FormatSettings(SettingsInterface):
         PluginSettings.save()
 
     def formatters(self) -> List[FormatterSettings]:
-        return [FormatterSettings(name, self) for name in self.get("formatters", {})]
+        return [
+            FormatterSettings(name, fallback=self)
+            for name in self.get("formatters", {})
+        ]
 
     def formatter(self, name: str) -> Optional[FormatterSettings]:
         return (
-            FormatterSettings(name, self)
+            FormatterSettings(name, fallback=self)
             if name in self.get("formatters", {})
             else None
         )
