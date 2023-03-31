@@ -62,9 +62,6 @@ class EmptySettings(SettingsInterface):
     def get(self, key: str, default: Any = None) -> Any:
         return default
 
-    def set(self, key: str, value: Any) -> None:
-        pass
-
 
 class FormatSettings(SettingsInterface):
     def get(self, key: str, default: Any = None) -> Any:
