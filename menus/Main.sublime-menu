@@ -15,7 +15,7 @@
                         "command": "format_selection"
                     },
                     {
-                        "caption": "-",
+                        "caption": "-"
                     },
                     {
                         "caption": "Enabled",
@@ -43,17 +43,11 @@
                         "caption": "Format",
                         "children": [
                             {
-                                "caption": "Settings - Default",
-                                "command": "open_file",
+                                "caption": "Settings",
+                                "command": "edit_settings",
                                 "args": {
-                                    "file": "${packages}/Format/settings/Format.sublime-settings"
-                                }
-                            },
-                            {
-                                "caption": "Settings - User",
-                                "command": "open_file",
-                                "args": {
-                                    "file": "${packages}/User/Format.sublime-settings"
+                                    "base_file": "${packages}/Format/settings/Format.sublime-settings",
+                                    "default": "{\n\t$0\n}\n"
                                 }
                             }
                         ]
