@@ -15,7 +15,7 @@
         }
     },
     {
-        "caption": "Format: Disable Formatter….",
+        "caption": "Format: Disable Formatter…",
         "command": "format_manage_enabled",
         "args": {
             "enable": false
