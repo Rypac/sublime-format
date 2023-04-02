@@ -31,6 +31,17 @@ class SettingsInterface:
         """Reloads settings if invalidated."""
         pass
 
+    @staticmethod
+    def keys() -> List[str]:
+        return [
+            "selector",
+            "cmd",
+            "enabled",
+            "format_on_save",
+            "error_style",
+            "timeout",
+        ]
+
     @property
     def selector(self) -> str:
         return self.get("selector")
@@ -163,7 +174,7 @@ class WindowFormatterSettings(SettingsInterface):
     def __init__(self, name: str, window: Window):
         self._name = name
         self._window = window
-        self._settings = {}  # type: Dict[str, Any]
+        self._settings = {key: None for key in self.keys()}
         self.reload()
 
     def get(self, key: str, default: Any = None) -> Any:
@@ -173,14 +184,16 @@ class WindowFormatterSettings(SettingsInterface):
         raise Exception("WindowFormatterSettings are read-only.")
 
     def reload(self) -> None:
-        settings = PluginSettings.load().to_dict()
+        settings = PluginSettings.load()
         formatter = settings.get("formatters", {}).get(self._name, {})
 
         project = PluginSettings.load_project(self._window)
         project_formatter = project.get("formatters", {}).get(self._name, {})
 
-        self._settings.clear()
-        for source in (settings, project, formatter, project_formatter):
-            for key, value in source.items():
-                if key != "formatters":
+        for key in self._settings:
+            for source in (project_formatter, formatter, project, settings):
+                if (value := source.get(key)) is not None:
                     self._settings[key] = value
+                    break
+            else:
+                self._settings[key] = None
