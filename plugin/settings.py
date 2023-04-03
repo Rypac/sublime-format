@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from sublime import load_settings, save_settings, Settings, Window
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Protocol
 
 
 class PluginSettings:
@@ -32,14 +32,14 @@ class Setting(Enum):
         self.default = default
 
 
-class SettingsInterface:
+class SettingsInterface(Protocol):
     def get(self, key: str, default: Any = None) -> Any:
         """Retrieves a value from settings for the given key, with an optional default."""
-        pass
+        ...
 
     def set(self, key: str, value: Any) -> None:
         """Stores a value in settings for the given key."""
-        pass
+        ...
 
     def reload(self) -> None:
         """Reloads settings if invalidated."""
