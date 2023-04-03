@@ -67,12 +67,12 @@ class WindowFormatterRegistry:
     def __init__(self, window: Window) -> None:
         self._window = window
         self._settings = FormatSettings()
-        self._project_settings = ProjectFormatSettings(window)
+        self._project = ProjectFormatSettings(window)
         self._formatters: Dict[str, Formatter] = {}
 
     def update(self) -> None:
         formatters = self._settings.get("formatters", {}).keys()
-        project_formatters = self._project_settings.get("formatters", {}).keys()
+        project_formatters = self._project.get("formatters", {}).keys()
         latest_formatters = formatters | project_formatters
 
         current_formatters = self._formatters.keys()
@@ -81,7 +81,11 @@ class WindowFormatterRegistry:
             if formatter not in current_formatters:
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=WindowFormatterSettings(formatter, self._window),
+                    settings=WindowFormatterSettings(
+                        name=formatter,
+                        settings=self._settings,
+                        project=self._project,
+                    ),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
@@ -98,26 +102,37 @@ class WindowFormatterRegistry:
 
 
 class WindowFormatterSettings(SettingsInterface):
-    def __init__(self, name: str, window: Window):
+    def __init__(
+        self,
+        name: str,
+        settings: FormatSettings,
+        project: ProjectFormatSettings,
+    ):
         self._name = name
-        self._window = window
-        self._settings: Dict[str, Any] = {}
+        self._settings = settings
+        self._project = project
+        self._merged_settings: Dict[str, Any] = {}
         self.reload()
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._settings.get(key, default)
+        return self._merged_settings.get(key, default)
 
     def reload(self) -> None:
-        settings = PluginSettings.load()
-        formatter = settings.get("formatters", {}).get(self._name, {})
-
-        project = PluginSettings.load_project(self._window)
-        project_formatter = project.get("formatters", {}).get(self._name, {})
+        sources = [
+            source
+            for source in (
+                self._project.formatter(self._name),
+                self._settings.formatter(self._name),
+                self._project,
+                self._settings,
+            )
+            if source is not None
+        ]
 
         for setting in Setting:
-            for source in (project_formatter, formatter, project, settings):
+            for source in sources:
                 if (value := source.get(setting.key)) is not None:
-                    self._settings[setting.key] = value
+                    self._merged_settings[setting.key] = value
                     break
             else:
-                self._settings[setting.key] = setting.default
+                self._merged_settings[setting.key] = setting.default

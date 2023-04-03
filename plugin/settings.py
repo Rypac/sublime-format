@@ -11,10 +11,6 @@ class PluginSettings:
         return load_settings("Format.sublime-settings")
 
     @staticmethod
-    def load_project(window: Window) -> Dict[str, Any]:
-        return (window.project_data() or {}).get("settings", {}).get("Format", {})
-
-    @staticmethod
     def save() -> None:
         save_settings("Format.sublime-settings")
 
