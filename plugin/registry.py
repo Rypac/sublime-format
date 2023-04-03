@@ -9,7 +9,8 @@ from .settings import (
     FormatterSettings,
     PluginSettings,
     ProjectFormatSettings,
-    WindowFormatterSettings,
+    Setting,
+    SettingsInterface,
 )
 from .view import view_scope
 
@@ -94,3 +95,29 @@ class WindowFormatterRegistry:
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
         return formatter if formatter.score(scope) > 0 else None
+
+
+class WindowFormatterSettings(SettingsInterface):
+    def __init__(self, name: str, window: Window):
+        self._name = name
+        self._window = window
+        self._settings: Dict[str, Any] = {}
+        self.reload()
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self._settings.get(key, default)
+
+    def reload(self) -> None:
+        settings = PluginSettings.load()
+        formatter = settings.get("formatters", {}).get(self._name, {})
+
+        project = PluginSettings.load_project(self._window)
+        project_formatter = project.get("formatters", {}).get(self._name, {})
+
+        for setting in Setting:
+            for source in (project_formatter, formatter, project, settings):
+                if (value := source.get(setting.key)) is not None:
+                    self._settings[setting.key] = value
+                    break
+            else:
+                self._settings[setting.key] = setting.default

@@ -41,10 +41,6 @@ class SettingsInterface(Protocol):
         """Stores a value in settings for the given key."""
         ...
 
-    def reload(self) -> None:
-        """Reloads settings if invalidated."""
-        pass
-
     @property
     def selector(self) -> str:
         return self.get(*Setting.SELECTOR.value)
@@ -171,32 +167,3 @@ class ProjectFormatterSettings(SettingsInterface):
         )
         formatter_settings[key] = value
         self._window.set_project_data(project)
-
-
-class WindowFormatterSettings(SettingsInterface):
-    def __init__(self, name: str, window: Window):
-        self._name = name
-        self._window = window
-        self._settings: Dict[str, Any] = {}
-        self.reload()
-
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._settings.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        raise Exception("WindowFormatterSettings are read-only.")
-
-    def reload(self) -> None:
-        settings = PluginSettings.load()
-        formatter = settings.get("formatters", {}).get(self._name, {})
-
-        project = PluginSettings.load_project(self._window)
-        project_formatter = project.get("formatters", {}).get(self._name, {})
-
-        for setting in Setting:
-            for source in (project_formatter, formatter, project, settings):
-                if (value := source.get(setting.key)) is not None:
-                    self._settings[setting.key] = value
-                    break
-            else:
-                self._settings[setting.key] = setting.default
