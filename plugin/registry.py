@@ -11,7 +11,6 @@ from .settings import (
     Setting,
     Settings,
 )
-from .view import view_scope
 
 
 class FormatterRegistry:
