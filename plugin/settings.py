@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from sublime import load_settings, save_settings, Settings, Window
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Callable, Dict, List, Optional, Protocol
 
 
 class PluginSettings:
@@ -82,6 +82,12 @@ class FormatSettings(SettingsInterface):
 
     def formatter(self, name: str) -> Optional[FormatterSettings]:
         return FormatterSettings(name) if name in self.get("formatters", {}) else None
+
+    def add_on_change(self, key: str, listener: Callable[[], None]) -> None:
+        PluginSettings.load().add_on_change(key, listener)
+
+    def clear_on_change(self, key: str) -> None:
+        PluginSettings.load().clear_on_change(key)
 
 
 class FormatterSettings(SettingsInterface):

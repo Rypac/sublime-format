@@ -7,7 +7,6 @@ from .formatter import Formatter
 from .settings import (
     FormatSettings,
     FormatterSettings,
-    PluginSettings,
     ProjectFormatSettings,
     Setting,
     SettingsInterface,
@@ -17,21 +16,22 @@ from .view import view_scope
 
 class FormatterRegistry:
     def __init__(self) -> None:
+        self._settings = FormatSettings()
         self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        PluginSettings.load().add_on_change("reload_settings", self.update)
+        self._settings.add_on_change("reload_settings", self.update)
         self.update()
 
     def teardown(self) -> None:
-        PluginSettings.load().clear_on_change("reload_settings")
+        self._settings.clear_on_change("reload_settings")
         self._window_registries.clear()
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
             return
 
-        window_registry = WindowFormatterRegistry(window)
+        window_registry = WindowFormatterRegistry(window, self._settings)
         window_registry.update()
         self._window_registries[window.id()] = window_registry
 
@@ -57,16 +57,16 @@ class FormatterRegistry:
         return window_registry.lookup(scope)
 
     def settings(self) -> FormatSettings:
-        return FormatSettings()
+        return self._settings
 
     def formatter_settings(self, name: str) -> FormatterSettings:
-        return self.settings().formatter(name)
+        return self._settings.formatter(name)
 
 
 class WindowFormatterRegistry:
-    def __init__(self, window: Window) -> None:
+    def __init__(self, window: Window, settings: FormatSettings) -> None:
         self._window = window
-        self._settings = FormatSettings()
+        self._settings = settings
         self._project = ProjectFormatSettings(window)
         self._formatters: Dict[str, Formatter] = {}
 
