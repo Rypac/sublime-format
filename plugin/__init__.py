@@ -1,5 +1,3 @@
-from . import formatter, registry, settings, shell, view
-
 from .formatter import Formatter
 from .registry import FormatterRegistry, WindowFormatterRegistry
 from .settings import (
@@ -10,4 +8,5 @@ from .settings import (
     Setting,
     Settings,
 )
-from .view import view_region, view_scope
+from .shell import shell
+from .view import extract_variables, view_region, view_scope
