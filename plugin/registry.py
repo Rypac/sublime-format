@@ -67,7 +67,7 @@ class WindowFormatterRegistry:
     def __init__(self, window: Window, settings: FormatSettings) -> None:
         self._window = window
         self._settings = settings
-        self._project = ProjectFormatSettings(window)
+        self._project = ProjectFormatSettings(window, settings)
         self._formatters: Dict[str, Formatter] = {}
 
     def update(self) -> None:
@@ -79,13 +79,14 @@ class WindowFormatterRegistry:
 
         for formatter in latest_formatters | current_formatters:
             if formatter not in current_formatters:
+                project = ProjectFormatSettings(
+                    window=self._window,
+                    settings=self._settings.formatter(name=formatter),
+                )
+
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=WindowFormatterSettings(
-                        name=formatter,
-                        settings=self._settings,
-                        project=self._project,
-                    ),
+                    settings=CachedSettings(settings=project.formatter(name=formatter)),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
@@ -101,34 +102,21 @@ class WindowFormatterRegistry:
         return formatter if formatter.score(scope) > 0 else None
 
 
-class WindowFormatterSettings(Settings):
-    def __init__(
-        self,
-        name: str,
-        settings: FormatSettings,
-        project: ProjectFormatSettings,
-    ):
-        self._name = name
+class CachedSettings(Settings):
+    def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._project = project
-        self._merged_settings: Dict[str, Any] = {}
-        self.reload()
+        self._cached_settings = {
+            setting.key: settings.get(*setting.value) for setting in Setting
+        }
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._merged_settings.get(key, default)
+        return self._cached_settings.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        self._settings.set(key, value)
+        self.reload()
 
     def reload(self) -> None:
-        sources = (
-            self._project.formatter(self._name),
-            self._settings.formatter(self._name),
-            self._project,
-            self._settings,
+        self._cached_settings.update(
+            {setting.key: self._settings.get(*setting.value) for setting in Setting}
         )
-
-        for setting in Setting:
-            for source in sources:
-                if (value := source.get(setting.key)) is not None:
-                    self._merged_settings[setting.key] = value
-                    break
-            else:
-                self._merged_settings[setting.key] = setting.default

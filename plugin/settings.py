@@ -103,14 +103,14 @@ class FormatterSettings(Settings):
 
 
 class ProjectFormatSettings(Settings):
-    def __init__(self, window: Window) -> None:
+    def __init__(self, window: Window, settings: Settings) -> None:
         self._window = window
+        self._settings = settings
 
     def get(self, key: str, default: Any = None) -> Any:
-        if not (project := self._window.project_data()):
-            return default
-
-        return project.get("settings", {}).get("Format", {}).get(key, default)
+        project = self._window.project_data() or {}
+        value = project.get("settings", {}).get("Format", {}).get(key)
+        return value if value is not None else self._settings.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         project = self._window.project_data() or {}
