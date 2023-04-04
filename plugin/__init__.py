@@ -8,6 +8,6 @@ from .settings import (
     ProjectFormatSettings,
     ProjectFormatterSettings,
     Setting,
-    SettingsInterface,
+    Settings,
 )
 from .view import view_region, view_scope

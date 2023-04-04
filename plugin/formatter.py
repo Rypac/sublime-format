@@ -5,13 +5,13 @@ from sublime import Edit, Region, View
 
 import os
 
-from .settings import SettingsInterface
+from .settings import Settings
 from .shell import shell
 from .view import extract_variables
 
 
 class Formatter:
-    def __init__(self, name: str, settings: SettingsInterface):
+    def __init__(self, name: str, settings: Settings):
         self._name = name
         self._settings = settings
 
@@ -20,7 +20,7 @@ class Formatter:
         return self._name
 
     @property
-    def settings(self) -> SettingsInterface:
+    def settings(self) -> Settings:
         return self._settings
 
     def score(self, scope: str) -> int:

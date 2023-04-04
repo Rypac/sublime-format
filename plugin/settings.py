@@ -18,7 +18,7 @@ class Setting(Enum):
         self.default = default
 
 
-class SettingsInterface(Protocol):
+class Settings(Protocol):
     def get(self, key: str, default: Any = None) -> Any:
         """Retrieves a value from settings for the given key, with an optional default."""
         ...
@@ -58,7 +58,7 @@ class SettingsInterface(Protocol):
         return self.get(*Setting.TIMEOUT.value)
 
 
-class FormatSettings(SettingsInterface):
+class FormatSettings(Settings):
     def __init__(self) -> None:
         self._sublime_settings = load_settings("Format.sublime-settings")
 
@@ -89,7 +89,7 @@ class FormatSettings(SettingsInterface):
         )
 
 
-class FormatterSettings(SettingsInterface):
+class FormatterSettings(Settings):
     def __init__(self, name: str, settings: FormatSettings) -> None:
         self._name = name
         self._settings = settings
@@ -109,7 +109,7 @@ class FormatterSettings(SettingsInterface):
         self._settings.set("formatters", formatters)
 
 
-class ProjectFormatSettings(SettingsInterface):
+class ProjectFormatSettings(Settings):
     def __init__(self, window: Window) -> None:
         self._window = window
 
@@ -139,7 +139,7 @@ class ProjectFormatSettings(SettingsInterface):
         )
 
 
-class ProjectFormatterSettings(SettingsInterface):
+class ProjectFormatterSettings(Settings):
     def __init__(self, name: str, project: ProjectFormatSettings) -> None:
         self._name = name
         self._project = project

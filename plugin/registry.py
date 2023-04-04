@@ -9,7 +9,7 @@ from .settings import (
     FormatterSettings,
     ProjectFormatSettings,
     Setting,
-    SettingsInterface,
+    Settings,
 )
 from .view import view_scope
 
@@ -101,7 +101,7 @@ class WindowFormatterRegistry:
         return formatter if formatter.score(scope) > 0 else None
 
 
-class WindowFormatterSettings(SettingsInterface):
+class WindowFormatterSettings(Settings):
     def __init__(
         self,
         name: str,
