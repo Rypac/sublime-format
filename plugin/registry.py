@@ -19,11 +19,11 @@ class FormatterRegistry:
         self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self._settings.add_on_change("reload_settings", self.update)
+        self._settings.add_on_change("update_registry", self.update)
         self.update()
 
     def teardown(self) -> None:
-        self._settings.clear_on_change("reload_settings")
+        self._settings.clear_on_change("update_registry")
         self._window_registries.clear()
 
     def register(self, window: Window) -> None:
