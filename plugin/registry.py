@@ -118,16 +118,12 @@ class WindowFormatterSettings(Settings):
         return self._merged_settings.get(key, default)
 
     def reload(self) -> None:
-        sources = [
-            source
-            for source in (
-                self._project.formatter(self._name),
-                self._settings.formatter(self._name),
-                self._project,
-                self._settings,
-            )
-            if source is not None
-        ]
+        sources = (
+            self._project.formatter(self._name),
+            self._settings.formatter(self._name),
+            self._project,
+            self._settings,
+        )
 
         for setting in Setting:
             for source in sources:

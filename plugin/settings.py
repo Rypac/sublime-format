@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from sublime import load_settings, save_settings, Window
-from typing import Any, Callable, List, Optional, Protocol
+from typing import Any, Callable, List, Protocol
 
 
 class Setting(Enum):
@@ -76,17 +76,10 @@ class FormatSettings(Settings):
         self._sublime_settings.clear_on_change(key)
 
     def formatters(self) -> List[FormatterSettings]:
-        return [
-            FormatterSettings(name, settings=self)
-            for name in self.get("formatters", {})
-        ]
+        return [self.formatter(name) for name in self.get("formatters", {})]
 
-    def formatter(self, name: str) -> Optional[FormatterSettings]:
-        return (
-            FormatterSettings(name, settings=self)
-            if name in self.get("formatters", {})
-            else None
-        )
+    def formatter(self, name: str) -> FormatterSettings:
+        return FormatterSettings(name, settings=self)
 
 
 class FormatterSettings(Settings):
@@ -126,17 +119,10 @@ class ProjectFormatSettings(Settings):
         self._window.set_project_data(project)
 
     def formatters(self) -> List[ProjectFormatterSettings]:
-        return [
-            ProjectFormatterSettings(name, project=self)
-            for name in self.get("formatters", {})
-        ]
+        return [self.formatter(name) for name in self.get("formatters", {})]
 
-    def formatter(self, name: str) -> Optional[ProjectFormatterSettings]:
-        return (
-            ProjectFormatterSettings(name, project=self)
-            if name in self.get("formatters", {})
-            else None
-        )
+    def formatter(self, name: str) -> ProjectFormatterSettings:
+        return ProjectFormatterSettings(name, project=self)
 
 
 class ProjectFormatterSettings(Settings):
