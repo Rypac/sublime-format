@@ -9,7 +9,8 @@ from .settings import (
     FormatterSettings,
     PluginSettings,
     ProjectFormatSettings,
-    WindowFormatterSettings,
+    Setting,
+    SettingsInterface,
 )
 from .view import view_scope
 
@@ -66,12 +67,12 @@ class WindowFormatterRegistry:
     def __init__(self, window: Window) -> None:
         self._window = window
         self._settings = FormatSettings()
-        self._project_settings = ProjectFormatSettings(window)
+        self._project = ProjectFormatSettings(window)
         self._formatters: Dict[str, Formatter] = {}
 
     def update(self) -> None:
         formatters = self._settings.get("formatters", {}).keys()
-        project_formatters = self._project_settings.get("formatters", {}).keys()
+        project_formatters = self._project.get("formatters", {}).keys()
         latest_formatters = formatters | project_formatters
 
         current_formatters = self._formatters.keys()
@@ -80,7 +81,11 @@ class WindowFormatterRegistry:
             if formatter not in current_formatters:
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=WindowFormatterSettings(formatter, self._window),
+                    settings=WindowFormatterSettings(
+                        name=formatter,
+                        settings=self._settings,
+                        project=self._project,
+                    ),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
@@ -94,3 +99,40 @@ class WindowFormatterRegistry:
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
         return formatter if formatter.score(scope) > 0 else None
+
+
+class WindowFormatterSettings(SettingsInterface):
+    def __init__(
+        self,
+        name: str,
+        settings: FormatSettings,
+        project: ProjectFormatSettings,
+    ):
+        self._name = name
+        self._settings = settings
+        self._project = project
+        self._merged_settings: Dict[str, Any] = {}
+        self.reload()
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self._merged_settings.get(key, default)
+
+    def reload(self) -> None:
+        sources = [
+            source
+            for source in (
+                self._project.formatter(self._name),
+                self._settings.formatter(self._name),
+                self._project,
+                self._settings,
+            )
+            if source is not None
+        ]
+
+        for setting in Setting:
+            for source in sources:
+                if (value := source.get(setting.key)) is not None:
+                    self._merged_settings[setting.key] = value
+                    break
+            else:
+                self._merged_settings[setting.key] = setting.default

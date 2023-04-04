@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from enum import Enum
 from sublime import load_settings, save_settings, Settings, Window
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Protocol
 
 
 class PluginSettings:
@@ -10,67 +11,61 @@ class PluginSettings:
         return load_settings("Format.sublime-settings")
 
     @staticmethod
-    def load_project(window: Window) -> Dict[str, Any]:
-        return (window.project_data() or {}).get("settings", {}).get("Format", {})
-
-    @staticmethod
     def save() -> None:
         save_settings("Format.sublime-settings")
 
 
-class SettingsInterface:
+class Setting(Enum):
+    SELECTOR = "selector", None
+    CMD = "cmd", None
+    ENABLED = "enabled", True
+    FORMAT_ON_SAVE = "format_on_save", False
+    ERROR_STYLE = "error_style", "panel"
+    TIMEOUT = "timeout", 60
+
+    def __init__(self, key: str, default: Any):
+        self.key = key
+        self.default = default
+
+
+class SettingsInterface(Protocol):
     def get(self, key: str, default: Any = None) -> Any:
         """Retrieves a value from settings for the given key, with an optional default."""
-        pass
+        ...
 
     def set(self, key: str, value: Any) -> None:
         """Stores a value in settings for the given key."""
-        pass
-
-    def reload(self) -> None:
-        """Reloads settings if invalidated."""
-        pass
-
-    @staticmethod
-    def keys() -> List[str]:
-        return [
-            "selector",
-            "cmd",
-            "enabled",
-            "format_on_save",
-            "error_style",
-            "timeout",
-        ]
+        ...
 
     @property
     def selector(self) -> str:
-        return self.get("selector")
+        return self.get(*Setting.SELECTOR.value)
 
     @property
     def cmd(self) -> List[str]:
-        return self.get("cmd")
+        return self.get(*Setting.CMD.value)
 
     @property
     def enabled(self) -> bool:
-        return self.get("enabled", True)
+        return self.get(*Setting.ENABLED.value)
 
     def set_enabled(self, enabled: bool) -> None:
-        return self.set("enabled", enabled)
+        return self.set(Setting.ENABLED.key, enabled)
 
     @property
     def format_on_save(self) -> bool:
-        return self.get("format_on_save", False)
+        return self.get(*Setting.FORMAT_ON_SAVE.value)
 
     def set_format_on_save(self, enabled: bool) -> None:
-        return self.set("format_on_save", enabled)
+        return self.set(Setting.FORMAT_ON_SAVE.key, enabled)
 
     @property
     def error_style(self) -> str:
-        return self.get("error_style", "panel")
+        return self.get(*Setting.ERROR_STYLE.value)
 
     @property
     def timeout(self) -> int:
-        return self.get("timeout", 60)
+        return self.get(*Setting.TIMEOUT.value)
 
 
 class FormatSettings(SettingsInterface):
@@ -168,32 +163,3 @@ class ProjectFormatterSettings(SettingsInterface):
         )
         formatter_settings[key] = value
         self._window.set_project_data(project)
-
-
-class WindowFormatterSettings(SettingsInterface):
-    def __init__(self, name: str, window: Window):
-        self._name = name
-        self._window = window
-        self._settings = {key: None for key in self.keys()}
-        self.reload()
-
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._settings.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        raise Exception("WindowFormatterSettings are read-only.")
-
-    def reload(self) -> None:
-        settings = PluginSettings.load()
-        formatter = settings.get("formatters", {}).get(self._name, {})
-
-        project = PluginSettings.load_project(self._window)
-        project_formatter = project.get("formatters", {}).get(self._name, {})
-
-        for key in self._settings:
-            for source in (project_formatter, formatter, project, settings):
-                if (value := source.get(key)) is not None:
-                    self._settings[key] = value
-                    break
-            else:
-                self._settings[key] = None

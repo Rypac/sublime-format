@@ -7,7 +7,7 @@ from .settings import (
     FormatterSettings,
     ProjectFormatSettings,
     ProjectFormatterSettings,
+    Setting,
     SettingsInterface,
-    WindowFormatterSettings,
 )
 from .view import view_region, view_scope
