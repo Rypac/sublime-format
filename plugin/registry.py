@@ -7,31 +7,30 @@ from .formatter import Formatter
 from .settings import (
     FormatSettings,
     FormatterSettings,
-    PluginSettings,
     ProjectFormatSettings,
     Setting,
-    SettingsInterface,
+    Settings,
 )
-from .view import view_scope
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
+        self._settings = FormatSettings()
         self._window_registries: Dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        PluginSettings.load().add_on_change("reload_settings", self.update)
+        self._settings.add_on_change("update_registry", self.update)
         self.update()
 
     def teardown(self) -> None:
-        PluginSettings.load().clear_on_change("reload_settings")
+        self._settings.clear_on_change("update_registry")
         self._window_registries.clear()
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
             return
 
-        window_registry = WindowFormatterRegistry(window)
+        window_registry = WindowFormatterRegistry(window, self._settings)
         window_registry.update()
         self._window_registries[window.id()] = window_registry
 
@@ -57,17 +56,17 @@ class FormatterRegistry:
         return window_registry.lookup(scope)
 
     def settings(self) -> FormatSettings:
-        return FormatSettings()
+        return self._settings
 
     def formatter_settings(self, name: str) -> FormatterSettings:
-        return self.settings().formatter(name)
+        return self._settings.formatter(name)
 
 
 class WindowFormatterRegistry:
-    def __init__(self, window: Window) -> None:
+    def __init__(self, window: Window, settings: FormatSettings) -> None:
         self._window = window
-        self._settings = FormatSettings()
-        self._project = ProjectFormatSettings(window)
+        self._settings = settings
+        self._project = ProjectFormatSettings(window, settings)
         self._formatters: Dict[str, Formatter] = {}
 
     def update(self) -> None:
@@ -79,13 +78,14 @@ class WindowFormatterRegistry:
 
         for formatter in latest_formatters | current_formatters:
             if formatter not in current_formatters:
+                project = ProjectFormatSettings(
+                    window=self._window,
+                    settings=self._settings.formatter(name=formatter),
+                )
+
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=WindowFormatterSettings(
-                        name=formatter,
-                        settings=self._settings,
-                        project=self._project,
-                    ),
+                    settings=CachedSettings(settings=project.formatter(name=formatter)),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
@@ -101,38 +101,21 @@ class WindowFormatterRegistry:
         return formatter if formatter.score(scope) > 0 else None
 
 
-class WindowFormatterSettings(SettingsInterface):
-    def __init__(
-        self,
-        name: str,
-        settings: FormatSettings,
-        project: ProjectFormatSettings,
-    ):
-        self._name = name
+class CachedSettings(Settings):
+    def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._project = project
-        self._merged_settings: Dict[str, Any] = {}
-        self.reload()
+        self._cached_settings = {
+            setting.key: settings.get(*setting.value) for setting in Setting
+        }
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._merged_settings.get(key, default)
+        return self._cached_settings.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        self._settings.set(key, value)
+        self.reload()
 
     def reload(self) -> None:
-        sources = [
-            source
-            for source in (
-                self._project.formatter(self._name),
-                self._settings.formatter(self._name),
-                self._project,
-                self._settings,
-            )
-            if source is not None
-        ]
-
-        for setting in Setting:
-            for source in sources:
-                if (value := source.get(setting.key)) is not None:
-                    self._merged_settings[setting.key] = value
-                    break
-            else:
-                self._merged_settings[setting.key] = setting.default
+        self._cached_settings.update(
+            {setting.key: self._settings.get(*setting.value) for setting in Setting}
+        )
