@@ -19,7 +19,7 @@ def extract_variables(view: View) -> dict[str, str]:
     tab_size = settings.get("tab_size") or 0
     indent = " " * tab_size if settings.get("translate_tabs_to_spaces") else "\t"
 
-    variables = view.window().extract_variables()
+    variables = window.extract_variables() if (window := view.window()) else {}
     variables["tab_size"] = str(tab_size)
     variables["indent"] = indent
     variables.update(os.environ)
