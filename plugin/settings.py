@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from sublime import load_settings, save_settings, Window
-from typing import Any, Callable, List, Protocol
+from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
 
@@ -34,7 +34,7 @@ class Settings(Protocol):
         return self.get(*Setting.SELECTOR.value)
 
     @property
-    def cmd(self) -> List[str]:
+    def cmd(self) -> list[str]:
         return self.get(*Setting.CMD.value)
 
     @property
@@ -81,7 +81,7 @@ class FormatSettings(Settings):
     def clear_on_change(self, key: str) -> None:
         self._sublime_settings.clear_on_change(key)
 
-    def formatters(self) -> List[FormatterSettings]:
+    def formatters(self) -> list[FormatterSettings]:
         return [self.formatter(name) for name in self.get("formatters", {})]
 
     def formatter(self, name: str) -> FormatterSettings:
@@ -124,7 +124,7 @@ class ProjectFormatSettings(Settings):
         settings[key] = value
         self._window.set_project_data(project)
 
-    def formatters(self) -> List[ProjectFormatterSettings]:
+    def formatters(self) -> list[ProjectFormatterSettings]:
         return [self.formatter(name) for name in self.get("formatters", {})]
 
     def formatter(self, name: str) -> ProjectFormatterSettings:

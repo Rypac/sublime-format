@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from sublime import active_window, status_message
-from sublime import Edit, Region, View, Window
+from sublime import Edit, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
-from typing import List, Optional
+from typing import cast, Optional
 
 from .plugin import (
     FormatError,
@@ -15,7 +15,7 @@ from .plugin import (
 )
 
 
-registry: Optional[FormatterRegistry] = None
+registry: FormatterRegistry = cast(FormatterRegistry, None)
 
 
 def plugin_loaded():
@@ -27,11 +27,11 @@ def plugin_loaded():
 def plugin_unloaded():
     global registry
     registry.teardown()
-    registry = None
+    registry = cast(FormatterRegistry, None)
 
 
 class FormatListener(EventListener):
-    def on_init(self, views: List[View]) -> None:
+    def on_init(self, views: list[View]) -> None:
         for view in views:
             if window := view.window():
                 registry.register(window)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from sublime import Region, View
-from typing import Dict
 
 import os
 
@@ -15,7 +14,7 @@ def view_scope(view: View) -> str:
     return scopes[0 : scopes.find(" ")]
 
 
-def extract_variables(view: View) -> Dict[str, str]:
+def extract_variables(view: View) -> dict[str, str]:
     settings = view.settings()
     tab_size = settings.get("tab_size") or 0
     indent = " " * tab_size if settings.get("translate_tabs_to_spaces") else "\t"

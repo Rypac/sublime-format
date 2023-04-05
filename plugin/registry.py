@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sublime import View, Window
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from .formatter import Formatter
 from .settings import (
@@ -16,7 +16,7 @@ from .settings import (
 class FormatterRegistry:
     def __init__(self) -> None:
         self._settings = FormatSettings()
-        self._window_registries: Dict[int, WindowFormatterRegistry] = {}
+        self._window_registries: dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
         self._settings.add_on_change("update_registry", self.update)
@@ -67,7 +67,7 @@ class WindowFormatterRegistry:
         self._window = window
         self._settings = settings
         self._project = ProjectFormatSettings(window, settings)
-        self._formatters: Dict[str, Formatter] = {}
+        self._formatters: dict[str, Formatter] = {}
 
     def update(self) -> None:
         formatters = self._settings.get("formatters", {}).keys()
