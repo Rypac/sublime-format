@@ -5,6 +5,7 @@ from sublime import Edit, Region, View
 
 import os
 
+from .error import FormatError
 from .settings import Settings
 from .shell import shell
 from .view import extract_variables
@@ -26,15 +27,15 @@ class Formatter:
     def score(self, scope: str) -> int:
         return (
             score_selector(scope, selector)
-            if self._settings.enabled
-            and (selector := self._settings.selector) is not None
+            if self.settings.enabled
+            and (selector := self.settings.selector) is not None
             else -1
         )
 
     def format(self, view: View, edit: Edit, region: Region) -> None:
         text = view.substr(region)
         variables = extract_variables(view)
-        args = [expand_variables(arg, variables) for arg in self._settings.cmd]
+        args = [expand_variables(arg, variables) for arg in self.settings.cmd]
 
         cwd = (
             os.path.dirname(file_name)
@@ -42,12 +43,15 @@ class Formatter:
             else next(iter(view.window().folders()), None)
         )
 
-        formatted = shell(
-            args=args,
-            input=text,
-            cwd=cwd,
-            timeout=self._settings.timeout,
-        )
+        try:
+            formatted = shell(
+                args=args,
+                input=text,
+                cwd=cwd,
+                timeout=self.settings.timeout,
+            )
+        except Exception as err:
+            raise FormatError(message=str(err), style=self.settings.error_style)
 
         position = view.viewport_position()
         view.replace(edit, region, formatted)

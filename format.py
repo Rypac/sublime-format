@@ -6,6 +6,7 @@ from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import List, Optional
 
 from .plugin import (
+    FormatError,
     FormatterRegistry,
     display_error,
     clear_error,
@@ -68,12 +69,8 @@ class FormatFileCommand(TextCommand):
         if formatter := registry.lookup(self.view, scope):
             try:
                 formatter.format(self.view, edit, region)
-            except Exception as err:
-                display_error(
-                    message=str(err),
-                    window=self.view.window(),
-                    style=formatter.settings.error_style,
-                )
+            except FormatError as error:
+                display_error(error, self.view.window())
         else:
             status_message(f"No formatter for file with scope: {scope}")
 
@@ -94,13 +91,9 @@ class FormatSelectionCommand(TextCommand):
             if formatter := registry.lookup(self.view, scope):
                 try:
                     formatter.format(self.view, edit, region)
-                except Exception as err:
-                    display_error(
-                        message=str(err),
-                        window=self.view.window(),
-                        style=formatter.settings.error_style,
-                    )
-                    return
+                except FormatError as error:
+                    display_error(error, self.view.window())
+                    break
             else:
                 status_message(f"No formatter for selection with scope: {scope}")
 

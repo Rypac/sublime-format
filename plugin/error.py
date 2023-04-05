@@ -12,27 +12,32 @@ class ErrorStyle(Enum):
     DIALOG = "dialog"
 
 
-def display_error(
-    message: str,
-    window: Optional[Window] = None,
-    style: ErrorStyle = ErrorStyle.CONSOLE,
-) -> None:
+class FormatError(Exception):
+    def __init__(self, message: str, style: ErrorStyle) -> None:
+        self.message = message
+        self.style = style
+
+    def __str__(self) -> str:
+        return self.message
+
+
+def display_error(error: FormatError, window: Optional[Window] = None) -> None:
     window = window or active_window()
 
-    if style == ErrorStyle.NONE:
+    if error.style == ErrorStyle.NONE:
         return
 
-    elif style == ErrorStyle.CONSOLE:
-        print(message)
+    elif error.style == ErrorStyle.CONSOLE:
+        print(error)
 
-    elif style == ErrorStyle.PANEL:
+    elif error.style == ErrorStyle.PANEL:
         panel = window.create_output_panel("Format")
         panel.settings().update({"line_numbers": False})
-        panel.run_command("insert", {"characters": message})
+        panel.run_command("insert", {"characters": str(error)})
         window.run_command("show_panel", {"panel": "output.Format"})
 
-    elif style == ErrorStyle.DIALOG:
-        error_message(message)
+    elif error.style == ErrorStyle.DIALOG:
+        error_message(str(error))
 
 
 def clear_error(window: Optional[Window] = None) -> None:
