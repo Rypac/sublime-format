@@ -55,13 +55,15 @@ class FormatFileCommand(TextCommand):
         if (region := view_region(self.view)).empty():
             return
 
-        if formatter := registry.lookup(self.view, view_scope(self.view)):
+        scope = view_scope(self.view)
+
+        if formatter := registry.lookup(self.view, scope):
             try:
                 formatter.format(self.view, edit, region)
             except Exception as err:
                 print("[Format]", err)
         else:
-            print("[Format]", "No formatter for file")
+            status_message(f"No formatter for file with scope: {scope}")
 
     def is_enabled(self) -> bool:
         return not view_region(self.view).empty()
@@ -74,13 +76,14 @@ class FormatSelectionCommand(TextCommand):
                 continue
 
             scope = self.view.scope_name(region.begin())
+
             if formatter := registry.lookup(self.view, scope):
                 try:
                     formatter.format(self.view, edit, region)
                 except Exception as err:
                     print("[Format]", err)
             else:
-                print("[Format]", "No formatter for selection")
+                status_message(f"No formatter for selection with scope: {scope}")
 
     def is_enabled(self) -> bool:
         return any(not region.empty() for region in self.view.sel())
