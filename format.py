@@ -5,7 +5,13 @@ from sublime import Edit, Region, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import List, Optional
 
-from .plugin import FormatterRegistry, view_region, view_scope
+from .plugin import (
+    FormatterRegistry,
+    display_error,
+    clear_error,
+    view_region,
+    view_scope,
+)
 
 
 registry: Optional[FormatterRegistry] = None
@@ -52,6 +58,8 @@ class FormatListener(EventListener):
 
 class FormatFileCommand(TextCommand):
     def run(self, edit: Edit) -> None:
+        clear_error(self.view.window())
+
         if (region := view_region(self.view)).empty():
             return
 
@@ -61,7 +69,11 @@ class FormatFileCommand(TextCommand):
             try:
                 formatter.format(self.view, edit, region)
             except Exception as err:
-                print("[Format]", err)
+                display_error(
+                    message=str(err),
+                    window=self.view.window(),
+                    style=formatter.settings.error_style,
+                )
         else:
             status_message(f"No formatter for file with scope: {scope}")
 
@@ -71,6 +83,8 @@ class FormatFileCommand(TextCommand):
 
 class FormatSelectionCommand(TextCommand):
     def run(self, edit: Edit) -> None:
+        clear_error(self.view.window())
+
         for region in self.view.sel():
             if region.empty():
                 continue
@@ -81,7 +95,12 @@ class FormatSelectionCommand(TextCommand):
                 try:
                     formatter.format(self.view, edit, region)
                 except Exception as err:
-                    print("[Format]", err)
+                    display_error(
+                        message=str(err),
+                        window=self.view.window(),
+                        style=formatter.settings.error_style,
+                    )
+                    return
             else:
                 status_message(f"No formatter for selection with scope: {scope}")
 

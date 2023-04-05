@@ -4,6 +4,8 @@ from enum import Enum
 from sublime import load_settings, save_settings, Window
 from typing import Any, Callable, List, Protocol
 
+from .error import ErrorStyle
+
 
 class Setting(Enum):
     SELECTOR = "selector", None
@@ -50,8 +52,12 @@ class Settings(Protocol):
         return self.set(Setting.FORMAT_ON_SAVE.key, enabled)
 
     @property
-    def error_style(self) -> str:
-        return self.get(*Setting.ERROR_STYLE.value)
+    def error_style(self) -> ErrorStyle:
+        value = self.get(*Setting.ERROR_STYLE.value)
+        return next(
+            (style for style in ErrorStyle if style.value == value),
+            ErrorStyle.PANEL,
+        )
 
     @property
     def timeout(self) -> int:
