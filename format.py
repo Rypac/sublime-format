@@ -5,7 +5,14 @@ from sublime import Edit, Region, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import List, Optional
 
-from .plugin import FormatterRegistry, view_region, view_scope
+from .plugin import (
+    FormatError,
+    FormatterRegistry,
+    display_error,
+    clear_error,
+    view_region,
+    view_scope,
+)
 
 
 registry: Optional[FormatterRegistry] = None
@@ -52,16 +59,20 @@ class FormatListener(EventListener):
 
 class FormatFileCommand(TextCommand):
     def run(self, edit: Edit) -> None:
+        clear_error(self.view.window())
+
         if (region := view_region(self.view)).empty():
             return
 
-        if formatter := registry.lookup(self.view, view_scope(self.view)):
+        scope = view_scope(self.view)
+
+        if formatter := registry.lookup(self.view, scope):
             try:
                 formatter.format(self.view, edit, region)
-            except Exception as err:
-                print("[Format]", err)
+            except FormatError as error:
+                display_error(error, self.view.window())
         else:
-            print("[Format]", "No formatter for file")
+            status_message(f"No formatter for file with scope: {scope}")
 
     def is_enabled(self) -> bool:
         return not view_region(self.view).empty()
@@ -69,18 +80,22 @@ class FormatFileCommand(TextCommand):
 
 class FormatSelectionCommand(TextCommand):
     def run(self, edit: Edit) -> None:
+        clear_error(self.view.window())
+
         for region in self.view.sel():
             if region.empty():
                 continue
 
             scope = self.view.scope_name(region.begin())
+
             if formatter := registry.lookup(self.view, scope):
                 try:
                     formatter.format(self.view, edit, region)
-                except Exception as err:
-                    print("[Format]", err)
+                except FormatError as error:
+                    display_error(error, self.view.window())
+                    break
             else:
-                print("[Format]", "No formatter for selection")
+                status_message(f"No formatter for selection with scope: {scope}")
 
     def is_enabled(self) -> bool:
         return any(not region.empty() for region in self.view.sel())

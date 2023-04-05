@@ -1,4 +1,5 @@
 from .formatter import Formatter
+from .error import ErrorStyle, FormatError, display_error, clear_error
 from .registry import FormatterRegistry, WindowFormatterRegistry
 from .settings import (
     FormatSettings,
