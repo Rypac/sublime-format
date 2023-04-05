@@ -23,6 +23,10 @@
     //  - "dialog"     -- show obnoxious dialog windows
     "error_style": "panel",
 
+    // The timeout, in seconds, applied to the subprocess running the formatter.
+    // An error will be displayed if formatting exceeds the duration of this timeout.
+    "timeout": 60,
+
     // Formatting rules.
     //
     // Every rule is a dictionary, where the only required field is "selector": a
