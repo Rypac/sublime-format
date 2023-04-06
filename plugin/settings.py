@@ -1,19 +1,9 @@
 from __future__ import annotations
 
-from enum import Enum
 from sublime import load_settings, save_settings, Window
 from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
-
-
-class Setting(Enum):
-    SELECTOR = "selector"
-    CMD = "cmd"
-    ENABLED = "enabled"
-    FORMAT_ON_SAVE = "format_on_save"
-    ERROR_STYLE = "error_style"
-    TIMEOUT = "timeout"
 
 
 class Settings(Protocol):
@@ -27,34 +17,34 @@ class Settings(Protocol):
 
     @property
     def selector(self) -> str:
-        return self.get(Setting.SELECTOR.value)
+        return self.get("selector")
 
     @property
     def cmd(self) -> list[str]:
-        return self.get(Setting.CMD.value)
+        return self.get("cmd")
 
     @property
     def enabled(self) -> bool:
-        return self.get(Setting.ENABLED.value)
+        return self.get("enabled")
 
     def set_enabled(self, enabled: bool) -> None:
-        return self.set(Setting.ENABLED.value, enabled)
+        return self.set("enabled", enabled)
 
     @property
     def format_on_save(self) -> bool:
-        return self.get(Setting.FORMAT_ON_SAVE.value)
+        return self.get("format_on_save")
 
     def set_format_on_save(self, enabled: bool) -> None:
-        return self.set(Setting.FORMAT_ON_SAVE.value, enabled)
+        return self.set("format_on_save", enabled)
 
     @property
     def error_style(self) -> ErrorStyle:
-        value = self.get(Setting.ERROR_STYLE.value)
+        value = self.get("error_style")
         return next((style for style in ErrorStyle if style.value == value))
 
     @property
     def timeout(self) -> int:
-        return self.get(Setting.TIMEOUT.value)
+        return self.get("timeout")
 
 
 class TopLevelSettings(Settings, Protocol):

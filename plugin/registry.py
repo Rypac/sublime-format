@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sublime import View, Window
-from typing import Any, Optional
+from typing import Optional
 
 from .formatter import Formatter
 from .settings import (
@@ -9,8 +9,6 @@ from .settings import (
     FormatterSettings,
     MergedSettings,
     ProjectSettings,
-    Setting,
-    Settings,
 )
 
 
@@ -75,19 +73,15 @@ class WindowFormatterRegistry:
             if formatter not in current_formatters:
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=CachedSettings(
-                        MergedSettings(
-                            FormatterSettings(formatter, self.project),
-                            FormatterSettings(formatter, self.settings),
-                            self.project,
-                            self.settings,
-                        ),
+                    settings=MergedSettings(
+                        FormatterSettings(formatter, self.project),
+                        FormatterSettings(formatter, self.settings),
+                        self.project,
+                        self.settings,
                     ),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
-            else:
-                self._formatters[formatter].settings.reload()
 
     def lookup(self, scope: str) -> Optional[Formatter]:
         if not (formatters := self._formatters):
@@ -96,23 +90,3 @@ class WindowFormatterRegistry:
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
         return formatter if formatter.score(scope) > 0 else None
-
-
-class CachedSettings(Settings):
-    def __init__(self, settings: Settings) -> None:
-        self._settings = settings
-        self._cached_settings: dict[str, Any] = {
-            setting.value: settings.get(setting.value) for setting in Setting
-        }
-
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._cached_settings.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        self._settings.set(key, value)
-        self.reload()
-
-    def reload(self) -> None:
-        self._cached_settings.update(
-            {setting.value: self._settings.get(setting.value) for setting in Setting}
-        )
