@@ -100,7 +100,7 @@ class CachedSettings(Settings):
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._cached_settings: dict[str, Any] = {
-            setting.key: settings.get(*setting.value) for setting in Setting
+            setting.value: settings.get(setting.value) for setting in Setting
         }
 
     def get(self, key: str, default: Any = None) -> Any:
@@ -112,5 +112,5 @@ class CachedSettings(Settings):
 
     def reload(self) -> None:
         self._cached_settings.update(
-            {setting.key: self._settings.get(*setting.value) for setting in Setting}
+            {setting.value: self._settings.get(setting.value) for setting in Setting}
         )
