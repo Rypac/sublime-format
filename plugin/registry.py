@@ -6,7 +6,6 @@ from typing import Any, Optional
 from .formatter import Formatter
 from .settings import (
     FormatSettings,
-    FormatterSettings,
     ProjectFormatSettings,
     Setting,
     Settings,
@@ -15,22 +14,22 @@ from .settings import (
 
 class FormatterRegistry:
     def __init__(self) -> None:
-        self._settings = FormatSettings()
+        self.settings = FormatSettings()
         self._window_registries: dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self._settings.add_on_change("update_registry", self.update)
+        self.settings.add_on_change("update_registry", self.update)
         self.update()
 
     def teardown(self) -> None:
-        self._settings.clear_on_change("update_registry")
+        self.settings.clear_on_change("update_registry")
         self._window_registries.clear()
 
     def register(self, window: Window) -> None:
         if not window.is_valid() or window.id() in self._window_registries:
             return
 
-        window_registry = WindowFormatterRegistry(window, self._settings)
+        window_registry = WindowFormatterRegistry(window, self.settings)
         window_registry.update()
         self._window_registries[window.id()] = window_registry
 
@@ -55,23 +54,17 @@ class FormatterRegistry:
 
         return window_registry.lookup(scope)
 
-    def settings(self) -> FormatSettings:
-        return self._settings
-
-    def formatter_settings(self, name: str) -> FormatterSettings:
-        return self._settings.formatter(name)
-
 
 class WindowFormatterRegistry:
     def __init__(self, window: Window, settings: FormatSettings) -> None:
-        self._window = window
-        self._settings = settings
-        self._project = ProjectFormatSettings(window, settings)
+        self.window = window
+        self.settings = settings
+        self.project = ProjectFormatSettings(window, settings)
         self._formatters: dict[str, Formatter] = {}
 
     def update(self) -> None:
-        formatters = self._settings.get("formatters", {}).keys()
-        project_formatters = self._project.get("formatters", {}).keys()
+        formatters = self.settings.get("formatters", {}).keys()
+        project_formatters = self.project.get("formatters", {}).keys()
         latest_formatters = formatters | project_formatters
 
         current_formatters = self._formatters.keys()
@@ -79,8 +72,8 @@ class WindowFormatterRegistry:
         for formatter in latest_formatters | current_formatters:
             if formatter not in current_formatters:
                 project = ProjectFormatSettings(
-                    window=self._window,
-                    settings=self._settings.formatter(name=formatter),
+                    window=self.window,
+                    settings=self.settings.formatter(name=formatter),
                 )
 
                 self._formatters[formatter] = Formatter(
@@ -102,9 +95,11 @@ class WindowFormatterRegistry:
 
 
 class CachedSettings(Settings):
+    __slots__ = ["_settings", "_cached_settings"]
+
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._cached_settings = {
+        self._cached_settings: dict[str, Any] = {
             setting.key: settings.get(*setting.value) for setting in Setting
         }
 

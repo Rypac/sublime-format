@@ -12,17 +12,11 @@ from .view import extract_variables
 
 
 class Formatter:
+    __slots__ = ["name", "settings"]
+
     def __init__(self, name: str, settings: Settings):
-        self._name = name
-        self._settings = settings
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def settings(self) -> Settings:
-        return self._settings
+        self.name: str = name
+        self.settings: Settings = settings
 
     def score(self, scope: str) -> int:
         return (

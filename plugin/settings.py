@@ -15,6 +15,8 @@ class Setting(Enum):
     ERROR_STYLE = "error_style", "panel"
     TIMEOUT = "timeout", 60
 
+    __slots__ = ["key", "default"]
+
     def __init__(self, key: str, default: Any):
         self.key = key
         self.default = default
@@ -90,20 +92,16 @@ class FormatSettings(Settings):
 
 class FormatterSettings(Settings):
     def __init__(self, name: str, settings: FormatSettings) -> None:
-        self._name = name
+        self.name = name
         self._settings = settings
 
-    @property
-    def name(self) -> str:
-        return self._name
-
     def get(self, key: str, default: Any = None) -> Any:
-        value = self._settings.get("formatters", {}).get(self._name, {}).get(key)
+        value = self._settings.get("formatters", {}).get(self.name, {}).get(key)
         return value if value is not None else self._settings.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         formatters = self._settings.get("formatters", {})
-        formatter = formatters.setdefault(self._name, {})
+        formatter = formatters.setdefault(self.name, {})
         formatter[key] = value
         self._settings.set("formatters", formatters)
 
@@ -133,19 +131,15 @@ class ProjectFormatSettings(Settings):
 
 class ProjectFormatterSettings(Settings):
     def __init__(self, name: str, project: ProjectFormatSettings) -> None:
-        self._name = name
+        self.name = name
         self._project = project
 
-    @property
-    def name(self) -> str:
-        return self._name
-
     def get(self, key: str, default: Any = None) -> Any:
-        value = self._project.get("formatters", {}).get(self._name, {}).get(key)
+        value = self._project.get("formatters", {}).get(self.name, {}).get(key)
         return value if value is not None else self._project.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         formatters = self._project.get("formatters", {})
-        formatter = formatters.setdefault(self._name, {})
+        formatter = formatters.setdefault(self.name, {})
         formatter[key] = value
         self._project.set("formatters", formatters)

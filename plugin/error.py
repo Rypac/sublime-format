@@ -13,6 +13,8 @@ class ErrorStyle(Enum):
 
 
 class FormatError(Exception):
+    __slots__ = ["message", "style"]
+
     def __init__(self, message: str, style: ErrorStyle) -> None:
         self.message = message
         self.style = style
