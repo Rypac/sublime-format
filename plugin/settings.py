@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from sublime import load_settings, save_settings, Window
-from typing import Any, Callable, List, Protocol
+from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
 
@@ -14,6 +14,8 @@ class Setting(Enum):
     FORMAT_ON_SAVE = "format_on_save", False
     ERROR_STYLE = "error_style", "panel"
     TIMEOUT = "timeout", 60
+
+    __slots__ = ["key", "default"]
 
     def __init__(self, key: str, default: Any):
         self.key = key
@@ -34,7 +36,7 @@ class Settings(Protocol):
         return self.get(*Setting.SELECTOR.value)
 
     @property
-    def cmd(self) -> List[str]:
+    def cmd(self) -> list[str]:
         return self.get(*Setting.CMD.value)
 
     @property
@@ -81,7 +83,7 @@ class FormatSettings(Settings):
     def clear_on_change(self, key: str) -> None:
         self._sublime_settings.clear_on_change(key)
 
-    def formatters(self) -> List[FormatterSettings]:
+    def formatters(self) -> list[FormatterSettings]:
         return [self.formatter(name) for name in self.get("formatters", {})]
 
     def formatter(self, name: str) -> FormatterSettings:
@@ -90,20 +92,16 @@ class FormatSettings(Settings):
 
 class FormatterSettings(Settings):
     def __init__(self, name: str, settings: FormatSettings) -> None:
-        self._name = name
+        self.name = name
         self._settings = settings
 
-    @property
-    def name(self) -> str:
-        return self._name
-
     def get(self, key: str, default: Any = None) -> Any:
-        value = self._settings.get("formatters", {}).get(self._name, {}).get(key)
+        value = self._settings.get("formatters", {}).get(self.name, {}).get(key)
         return value if value is not None else self._settings.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         formatters = self._settings.get("formatters", {})
-        formatter = formatters.setdefault(self._name, {})
+        formatter = formatters.setdefault(self.name, {})
         formatter[key] = value
         self._settings.set("formatters", formatters)
 
@@ -124,7 +122,7 @@ class ProjectFormatSettings(Settings):
         settings[key] = value
         self._window.set_project_data(project)
 
-    def formatters(self) -> List[ProjectFormatterSettings]:
+    def formatters(self) -> list[ProjectFormatterSettings]:
         return [self.formatter(name) for name in self.get("formatters", {})]
 
     def formatter(self, name: str) -> ProjectFormatterSettings:
@@ -133,19 +131,15 @@ class ProjectFormatSettings(Settings):
 
 class ProjectFormatterSettings(Settings):
     def __init__(self, name: str, project: ProjectFormatSettings) -> None:
-        self._name = name
+        self.name = name
         self._project = project
 
-    @property
-    def name(self) -> str:
-        return self._name
-
     def get(self, key: str, default: Any = None) -> Any:
-        value = self._project.get("formatters", {}).get(self._name, {}).get(key)
+        value = self._project.get("formatters", {}).get(self.name, {}).get(key)
         return value if value is not None else self._project.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         formatters = self._project.get("formatters", {})
-        formatter = formatters.setdefault(self._name, {})
+        formatter = formatters.setdefault(self.name, {})
         formatter[key] = value
         self._project.set("formatters", formatters)

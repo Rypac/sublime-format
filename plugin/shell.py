@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from typing import List
-
 import os
 import subprocess
 
 
 def shell(
-    args: List[str],
+    args: list[str],
     input: str,
     cwd: str,
-    paths: List[str] = [],
+    paths: list[str] = [],
     timeout: int = 60,
 ) -> str:
     startupinfo = None
