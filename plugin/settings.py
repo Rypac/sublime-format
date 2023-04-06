@@ -57,7 +57,15 @@ class Settings(Protocol):
         return self.get(Setting.TIMEOUT.value)
 
 
-class FormatSettings(Settings):
+class TopLevelSettings(Settings, Protocol):
+    def formatters(self) -> dict[str, Settings]:
+        return {name: self.formatter(name) for name in self.get("formatters", {})}
+
+    def formatter(self, name: str) -> Settings:
+        return MergedSettings(FormatterSettings(name, settings=self), self)
+
+
+class FormatSettings(TopLevelSettings):
     def __init__(self) -> None:
         self._sublime_settings = load_settings("Format.sublime-settings")
 
@@ -74,63 +82,53 @@ class FormatSettings(Settings):
     def clear_on_change(self, key: str) -> None:
         self._sublime_settings.clear_on_change(key)
 
-    def formatters(self) -> list[FormatterSettings]:
-        return [self.formatter(name) for name in self.get("formatters", {})]
 
-    def formatter(self, name: str) -> FormatterSettings:
-        return FormatterSettings(name, settings=self)
+class ProjectSettings(TopLevelSettings):
+    __slots__ = ["window"]
+
+    def __init__(self, window: Window) -> None:
+        self.window = window
+
+    def get(self, key: str, default: Any = None) -> Any:
+        project = self.window.project_data() or {}
+        return project.get("settings", {}).get("Format", {}).get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        project = self.window.project_data() or {}
+        settings = project.setdefault("settings", {}).setdefault("Format", {})
+        settings[key] = value
+        self.window.set_project_data(project)
 
 
 class FormatterSettings(Settings):
-    def __init__(self, name: str, settings: FormatSettings) -> None:
+    __slots__ = ["name", "settings"]
+
+    def __init__(self, name: str, settings: TopLevelSettings) -> None:
         self.name = name
-        self._settings = settings
+        self.settings = settings
 
     def get(self, key: str, default: Any = None) -> Any:
-        value = self._settings.get("formatters", {}).get(self.name, {}).get(key)
-        return value if value is not None else self._settings.get(key, default)
+        return self.settings.get("formatters", {}).get(self.name, {}).get(key, default)
 
     def set(self, key: str, value: Any) -> None:
-        formatters = self._settings.get("formatters", {})
+        formatters = self.settings.get("formatters", {})
         formatter = formatters.setdefault(self.name, {})
         formatter[key] = value
-        self._settings.set("formatters", formatters)
+        self.settings.set("formatters", formatters)
 
 
-class ProjectFormatSettings(Settings):
-    def __init__(self, window: Window, settings: Settings) -> None:
-        self._window = window
-        self._settings = settings
+class MergedSettings(Settings):
+    __slots__ = ["all"]
 
-    def get(self, key: str, default: Any = None) -> Any:
-        project = self._window.project_data() or {}
-        value = project.get("settings", {}).get("Format", {}).get(key)
-        return value if value is not None else self._settings.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        project = self._window.project_data() or {}
-        settings = project.setdefault("settings", {}).setdefault("Format", {})
-        settings[key] = value
-        self._window.set_project_data(project)
-
-    def formatters(self) -> list[ProjectFormatterSettings]:
-        return [self.formatter(name) for name in self.get("formatters", {})]
-
-    def formatter(self, name: str) -> ProjectFormatterSettings:
-        return ProjectFormatterSettings(name, project=self)
-
-
-class ProjectFormatterSettings(Settings):
-    def __init__(self, name: str, project: ProjectFormatSettings) -> None:
-        self.name = name
-        self._project = project
+    def __init__(self, *args: Settings) -> None:
+        self.all = args
 
     def get(self, key: str, default: Any = None) -> Any:
-        value = self._project.get("formatters", {}).get(self.name, {}).get(key)
-        return value if value is not None else self._project.get(key, default)
+        return next(
+            (value for source in self.all if (value := source.get(key)) is not None),
+            default,
+        )
 
     def set(self, key: str, value: Any) -> None:
-        formatters = self._project.get("formatters", {})
-        formatter = formatters.setdefault(self.name, {})
-        formatter[key] = value
-        self._project.set("formatters", formatters)
+        if (source := next((source for source in self.all))) is not None:
+            source.set(key, value)

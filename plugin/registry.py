@@ -6,7 +6,9 @@ from typing import Any, Optional
 from .formatter import Formatter
 from .settings import (
     FormatSettings,
-    ProjectFormatSettings,
+    FormatterSettings,
+    MergedSettings,
+    ProjectSettings,
     Setting,
     Settings,
 )
@@ -59,7 +61,7 @@ class WindowFormatterRegistry:
     def __init__(self, window: Window, settings: FormatSettings) -> None:
         self.window = window
         self.settings = settings
-        self.project = ProjectFormatSettings(window, settings)
+        self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
 
     def update(self) -> None:
@@ -71,14 +73,16 @@ class WindowFormatterRegistry:
 
         for formatter in latest_formatters | current_formatters:
             if formatter not in current_formatters:
-                project = ProjectFormatSettings(
-                    window=self.window,
-                    settings=self.settings.formatter(name=formatter),
-                )
-
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=CachedSettings(settings=project.formatter(name=formatter)),
+                    settings=CachedSettings(
+                        MergedSettings(
+                            FormatterSettings(formatter, self.project),
+                            FormatterSettings(formatter, self.settings),
+                            self.project,
+                            self.settings,
+                        ),
+                    ),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
@@ -95,8 +99,6 @@ class WindowFormatterRegistry:
 
 
 class CachedSettings(Settings):
-    __slots__ = ["_settings", "_cached_settings"]
-
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._cached_settings: dict[str, Any] = {
