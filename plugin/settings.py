@@ -50,7 +50,10 @@ class Settings(Protocol):
     @property
     def error_style(self) -> ErrorStyle:
         value = self.get(Setting.ERROR_STYLE.value)
-        return next((style for style in ErrorStyle if style.value == value))
+        return next(
+            (style for style in ErrorStyle if style.value == value),
+            ErrorStyle.PANEL,
+        )
 
     @property
     def timeout(self) -> int:
