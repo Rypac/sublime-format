@@ -120,5 +120,5 @@ class MergedSettings(Settings):
         )
 
     def set(self, key: str, value: Any) -> None:
-        if (source := next((source for source in self.all))) is not None:
+        if source := next(iter(self.all), None):
             source.set(key, value)
