@@ -62,6 +62,7 @@ class WindowFormatterRegistry:
         self.settings = settings
         self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
+        self._lookup_cache: dict[str, str] = {}
 
     def update(self) -> None:
         formatters = self.settings.get("formatters", {}).keys()
@@ -88,13 +89,21 @@ class WindowFormatterRegistry:
             else:
                 self._formatters[formatter].settings.reload()
 
+        self._lookup_cache.clear()
+
     def lookup(self, scope: str) -> Formatter | None:
         if not (formatters := self._formatters):
             return None
 
+        if cached_formatter := self._lookup_cache.get(scope):
+            return self._formatters[cached_formatter]
+
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
-        return formatter if formatter.score(scope) > 0 else None
+        if applies_to_scope := formatter.score(scope) > 0:
+            self._lookup_cache[scope] = formatter.name
+
+        return formatter if applies_to_scope else None
 
 
 class CachedSettings(Settings):
