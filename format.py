@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import active_window, status_message
+from sublime import active_window, status_message, windows
 from sublime import Edit, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import cast, Optional
@@ -21,7 +21,7 @@ registry: FormatterRegistry = cast(FormatterRegistry, None)
 def plugin_loaded():
     global registry
     registry = FormatterRegistry()
-    registry.startup()
+    registry.startup(windows=windows())
 
 
 def plugin_unloaded():
@@ -31,14 +31,6 @@ def plugin_unloaded():
 
 
 class FormatListener(EventListener):
-    def on_init(self, views: list[View]) -> None:
-        for view in views:
-            if window := view.window():
-                registry.register(window)
-
-    def on_exit(self) -> None:
-        registry.teardown()
-
     def on_new_window_async(self, window: Window) -> None:
         registry.register(window)
 

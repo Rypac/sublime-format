@@ -17,9 +17,10 @@ class FormatterRegistry:
         self.settings = FormatSettings()
         self._window_registries: dict[int, WindowFormatterRegistry] = {}
 
-    def startup(self) -> None:
+    def startup(self, windows: list[Window]) -> None:
         self.settings.add_on_change("update_registry", self.update)
-        self.update()
+        for window in windows:
+            self.register(window)
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
