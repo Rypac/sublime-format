@@ -9,7 +9,7 @@ from .settings import (
     FormatterSettings,
     MergedSettings,
     ProjectSettings,
-    Setting,
+    SettingKey,
     Settings,
 )
 
@@ -117,7 +117,7 @@ class CachedSettings(Settings):
         self._cached_settings.update(
             {
                 setting.value: value
-                for setting in Setting
+                for setting in SettingKey
                 if (value := self._settings.get(setting.value)) is not None
             }
         )
