@@ -4,10 +4,11 @@ from .registry import FormatterRegistry, WindowFormatterRegistry
 from .settings import (
     FormatSettings,
     FormatterSettings,
-    ProjectFormatSettings,
-    ProjectFormatterSettings,
-    Setting,
+    ProjectSettings,
+    MergedSettings,
+    SettingKey,
     Settings,
+    TopLevelSettings,
 )
 from .shell import shell
 from .view import extract_variables, view_region, view_scope

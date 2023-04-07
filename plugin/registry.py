@@ -6,8 +6,10 @@ from typing import Any, Optional
 from .formatter import Formatter
 from .settings import (
     FormatSettings,
-    ProjectFormatSettings,
-    Setting,
+    FormatterSettings,
+    MergedSettings,
+    ProjectSettings,
+    SettingKey,
     Settings,
 )
 
@@ -19,7 +21,6 @@ class FormatterRegistry:
 
     def startup(self) -> None:
         self.settings.add_on_change("update_registry", self.update)
-        self.update()
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
@@ -59,7 +60,7 @@ class WindowFormatterRegistry:
     def __init__(self, window: Window, settings: FormatSettings) -> None:
         self.window = window
         self.settings = settings
-        self.project = ProjectFormatSettings(window, settings)
+        self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
 
     def update(self) -> None:
@@ -71,14 +72,16 @@ class WindowFormatterRegistry:
 
         for formatter in latest_formatters | current_formatters:
             if formatter not in current_formatters:
-                project = ProjectFormatSettings(
-                    window=self.window,
-                    settings=self.settings.formatter(name=formatter),
-                )
-
                 self._formatters[formatter] = Formatter(
                     name=formatter,
-                    settings=CachedSettings(settings=project.formatter(name=formatter)),
+                    settings=CachedSettings(
+                        MergedSettings(
+                            FormatterSettings(formatter, self.project),
+                            FormatterSettings(formatter, self.settings),
+                            self.project,
+                            self.settings,
+                        ),
+                    ),
                 )
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
@@ -99,9 +102,8 @@ class CachedSettings(Settings):
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._cached_settings: dict[str, Any] = {
-            setting.key: settings.get(*setting.value) for setting in Setting
-        }
+        self._cached_settings: dict[str, Any] = {}
+        self.reload()
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._cached_settings.get(key, default)
@@ -111,6 +113,11 @@ class CachedSettings(Settings):
         self.reload()
 
     def reload(self) -> None:
+        self._cached_settings.clear()
         self._cached_settings.update(
-            {setting.key: self._settings.get(*setting.value) for setting in Setting}
+            {
+                setting.value: value
+                for setting in SettingKey
+                if (value := self._settings.get(setting.value)) is not None
+            }
         )
