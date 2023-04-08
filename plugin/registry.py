@@ -88,7 +88,7 @@ class WindowFormatterRegistry:
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
             else:
-                self._formatters[formatter].settings.reload()
+                self._formatters[formatter].settings.invalidate()
 
         self.lookup_cache.clear()
 
@@ -112,21 +112,17 @@ class CachedSettings(Settings):
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._cached_settings: dict[str, Any] = {}
-        self.reload()
 
+    @cached(
+        cache=lambda self: self._cached_settings,
+        key=lambda key: key,
+    )
     def get(self, key: str, default: Any = None) -> Any:
-        return self._cached_settings.get(key, default)
+        return self._settings.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         self._settings.set(key, value)
-        self.reload()
+        del self._cached_settings[key]
 
-    def reload(self) -> None:
+    def invalidate(self) -> None:
         self._cached_settings.clear()
-        self._cached_settings.update(
-            {
-                setting.value: value
-                for setting in SettingKey
-                if (value := self._settings.get(setting.value)) is not None
-            }
-        )
