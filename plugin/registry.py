@@ -10,7 +10,6 @@ from .settings import (
     FormatterSettings,
     MergedSettings,
     ProjectSettings,
-    SettingKey,
     Settings,
 )
 

@@ -7,7 +7,6 @@ from .settings import (
     FormatterSettings,
     ProjectSettings,
     MergedSettings,
-    SettingKey,
     Settings,
     TopLevelSettings,
 )
