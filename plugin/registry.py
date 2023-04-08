@@ -62,7 +62,7 @@ class WindowFormatterRegistry:
         self.settings = settings
         self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
-        self.lookup_cache: dict[str, str] = {}
+        self._lookup_cache: dict[str, str] = {}
 
     def update(self) -> None:
         formatters = self.settings.get("formatters", {}).keys()
@@ -89,10 +89,10 @@ class WindowFormatterRegistry:
             else:
                 self._formatters[formatter].settings.invalidate()
 
-        self.lookup_cache.clear()
+        self._lookup_cache.clear()
 
     @cached(
-        cache=lambda self: self.lookup_cache,
+        cache=lambda self: self._lookup_cache,
         key=lambda scope: scope,
         include=lambda scope, _: " " not in scope,
     )
@@ -106,14 +106,14 @@ class WindowFormatterRegistry:
 
 
 class CachedSettings(Settings):
-    __slots__ = ["_settings", "_cached_settings"]
+    __slots__ = ["_settings", "_settings_cache"]
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._cached_settings: dict[str, Any] = {}
+        self._settings_cache: dict[str, Any] = {}
 
     @cached(
-        cache=lambda self: self._cached_settings,
+        cache=lambda self: self._settings_cache,
         key=lambda key: key,
     )
     def get(self, key: str, default: Any = None) -> Any:
@@ -121,7 +121,7 @@ class CachedSettings(Settings):
 
     def set(self, key: str, value: Any) -> None:
         self._settings.set(key, value)
-        del self._cached_settings[key]
+        del self._settings_cache[key]
 
     def invalidate(self) -> None:
-        self._cached_settings.clear()
+        self._settings_cache.clear()
