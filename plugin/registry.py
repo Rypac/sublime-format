@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from sublime import View, Window
-from typing import Any
 
 from .cache import cached
 from .formatter import Formatter
 from .settings import (
+    CachedSettings,
     FormatSettings,
     FormatterSettings,
     MergedSettings,
     ProjectSettings,
-    Settings,
 )
 
 
@@ -103,25 +102,3 @@ class WindowFormatterRegistry:
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
         return formatter if formatter.score(scope) > 0 else None
-
-
-class CachedSettings(Settings):
-    __slots__ = ["_settings", "_settings_cache"]
-
-    def __init__(self, settings: Settings) -> None:
-        self._settings = settings
-        self._settings_cache: dict[str, Any] = {}
-
-    @cached(
-        cache=lambda self: self._settings_cache,
-        key=lambda key: key,
-    )
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._settings.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        self._settings.set(key, value)
-        del self._settings_cache[key]
-
-    def invalidate(self) -> None:
-        self._settings_cache.clear()

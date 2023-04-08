@@ -4,6 +4,7 @@ from sublime import load_settings, save_settings, Window
 from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
+from .cache import cached
 
 
 class Settings(Protocol):
@@ -125,3 +126,25 @@ class MergedSettings(Settings):
     def set(self, key: str, value: Any) -> None:
         if source := next(iter(self.all), None):
             source.set(key, value)
+
+
+class CachedSettings(Settings):
+    __slots__ = ["_settings", "_settings_cache"]
+
+    def __init__(self, settings: Settings) -> None:
+        self._settings = settings
+        self._settings_cache: dict[str, Any] = {}
+
+    @cached(
+        cache=lambda self: self._settings_cache,
+        key=lambda key: key,
+    )
+    def get(self, key: str, default: Any = None) -> Any:
+        return self._settings.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        self._settings.set(key, value)
+        del self._settings_cache[key]
+
+    def invalidate(self) -> None:
+        self._settings_cache.clear()
