@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sublime import View, Window
-from typing import Any, Optional
+from typing import Any
 
 from .formatter import Formatter
 from .settings import (
@@ -46,7 +46,7 @@ class FormatterRegistry:
         if window_registry := self._window_registries.get(window.id()):
             window_registry.update()
 
-    def lookup(self, view: View, scope: str) -> Optional[Formatter]:
+    def lookup(self, view: View, scope: str) -> Formatter | None:
         if (window := view.window()) is None or not window.is_valid():
             return None
 
@@ -88,7 +88,7 @@ class WindowFormatterRegistry:
             else:
                 self._formatters[formatter].settings.reload()
 
-    def lookup(self, scope: str) -> Optional[Formatter]:
+    def lookup(self, scope: str) -> Formatter | None:
         if not (formatters := self._formatters):
             return None
 
