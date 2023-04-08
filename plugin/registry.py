@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from functools import lru_cache
 from sublime import View, Window
 from typing import Any
 
+from .cache import cached
 from .formatter import Formatter
 from .settings import (
     FormatSettings,
@@ -63,6 +63,7 @@ class WindowFormatterRegistry:
         self.settings = settings
         self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
+        self.lookup_cache: dict[str, str] = {}
 
     def update(self) -> None:
         formatters = self.settings.get("formatters", {}).keys()
@@ -89,9 +90,13 @@ class WindowFormatterRegistry:
             else:
                 self._formatters[formatter].settings.reload()
 
-        self.lookup.cache_clear()
+        self.lookup_cache.clear()
 
-    @lru_cache
+    @cached(
+        cache=lambda self: self.lookup_cache,
+        key=lambda scope: scope,
+        include=lambda scope, _: " " not in scope,
+    )
     def lookup(self, scope: str) -> Formatter | None:
         if not (formatters := self._formatters):
             return None
