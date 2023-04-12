@@ -99,6 +99,11 @@ class WindowFormatterRegistry:
         if not (formatters := self._formatters):
             return None
 
-        formatter = max(formatters.values(), key=lambda f: f.score(scope))
+        max_score: int = -1
+        max_formatter: Formatter | None = None
+        for formatter in formatters.values():
+            if (score := formatter.score(scope)) > max_score:
+                max_score = score
+                max_formatter = formatter
 
-        return formatter if formatter.score(scope) > 0 else None
+        return max_formatter if max_score > 0 else None
