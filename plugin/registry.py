@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from sublime import View, Window
-from typing import Any
 
+from .cache import cached
 from .formatter import Formatter
 from .settings import (
+    CachedSettings,
     FormatSettings,
     FormatterSettings,
     MergedSettings,
     ProjectSettings,
-    SettingKey,
-    Settings,
 )
 
 
@@ -62,6 +61,7 @@ class WindowFormatterRegistry:
         self.settings = settings
         self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
+        self._lookup_cache: dict[str, str] = {}
 
     def update(self) -> None:
         formatters = self.settings.get("formatters", {}).keys()
@@ -86,8 +86,15 @@ class WindowFormatterRegistry:
             elif formatter not in latest_formatters:
                 del self._formatters[formatter]
             else:
-                self._formatters[formatter].settings.reload()
+                self._formatters[formatter].settings.invalidate()
 
+        self._lookup_cache.clear()
+
+    @cached(
+        cache=lambda self: self._lookup_cache,
+        key=lambda scope: scope,
+        include=lambda scope, _: " " not in scope,
+    )
     def lookup(self, scope: str) -> Formatter | None:
         if not (formatters := self._formatters):
             return None
@@ -95,29 +102,3 @@ class WindowFormatterRegistry:
         formatter = max(formatters.values(), key=lambda f: f.score(scope))
 
         return formatter if formatter.score(scope) > 0 else None
-
-
-class CachedSettings(Settings):
-    __slots__ = ["_settings", "_cached_settings"]
-
-    def __init__(self, settings: Settings) -> None:
-        self._settings = settings
-        self._cached_settings: dict[str, Any] = {}
-        self.reload()
-
-    def get(self, key: str, default: Any = None) -> Any:
-        return self._cached_settings.get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        self._settings.set(key, value)
-        self.reload()
-
-    def reload(self) -> None:
-        self._cached_settings.clear()
-        self._cached_settings.update(
-            {
-                setting.value: value
-                for setting in SettingKey
-                if (value := self._settings.get(setting.value)) is not None
-            }
-        )
