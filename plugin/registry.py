@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from sublime import set_timeout_async, View, Window
 
-from .cache import cached
 from .formatter import Formatter
 from .settings import (
     CachedSettings,
@@ -64,7 +63,7 @@ class WindowFormatterRegistry:
         self.settings = settings
         self.project = ProjectSettings(window)
         self._formatters: dict[str, Formatter] = {}
-        self._lookup_cache: dict[str, str] = {}
+        self._lookup_cache: dict[str, Formatter] = {}
 
     def update(self) -> None:
         formatters = self.settings.get("formatters", {}).keys()
@@ -93,20 +92,21 @@ class WindowFormatterRegistry:
 
         self._lookup_cache.clear()
 
-    @cached(
-        cache=lambda self: self._lookup_cache,
-        key=lambda scope: scope,
-        include=lambda scope, _: " " not in scope,
-    )
     def lookup(self, scope: str) -> Formatter | None:
-        if not (formatters := self._formatters):
-            return None
+        if scope in self._lookup_cache:
+            return self._lookup_cache[scope]
 
-        max_score: int = -1
+        max_score: int = 0
         max_formatter: Formatter | None = None
-        for formatter in formatters.values():
+        for formatter in self._formatters.values():
             if (score := formatter.score(scope)) > max_score:
                 max_score = score
                 max_formatter = formatter
 
-        return max_formatter if max_score > 0 else None
+        if max_score == 0:
+            return None
+
+        if max_formatter is not None and " " not in scope:
+            self._lookup_cache[scope] = max_formatter
+
+        return max_formatter
