@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from enum import Enum
 from sublime import active_window, error_message, Window
-from typing import Optional
 
 
 class ErrorStyle(Enum):
@@ -23,7 +22,7 @@ class FormatError(Exception):
         return self.message
 
 
-def display_error(error: FormatError, window: Optional[Window] = None) -> None:
+def display_error(error: FormatError, window: Window | None = None) -> None:
     window = window or active_window()
 
     if error.style == ErrorStyle.NONE:
@@ -42,7 +41,7 @@ def display_error(error: FormatError, window: Optional[Window] = None) -> None:
         error_message(str(error))
 
 
-def clear_error(window: Optional[Window] = None) -> None:
+def clear_error(window: Window | None = None) -> None:
     window = window or active_window()
 
     window.destroy_output_panel("Format")

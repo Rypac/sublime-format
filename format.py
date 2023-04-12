@@ -3,7 +3,7 @@ from __future__ import annotations
 from sublime import active_window, status_message
 from sublime import Edit, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
-from typing import cast, Optional
+from typing import cast
 
 from .plugin import (
     FormatError,
@@ -99,11 +99,11 @@ class FormatSelectionCommand(TextCommand):
 
 
 class FormatToggleEnabledCommand(ApplicationCommand):
-    def run(self, name: Optional[str] = None) -> None:
+    def run(self, name: str | None = None) -> None:
         settings = registry.settings.formatter(name) if name else registry.settings
         settings.set_enabled(not settings.enabled)
 
-    def is_checked(self, name: Optional[str] = None) -> bool:
+    def is_checked(self, name: str | None = None) -> bool:
         settings = registry.settings.formatter(name) if name else registry.settings
         return settings.enabled
 
@@ -129,11 +129,11 @@ class FormatManageEnabledCommand(ApplicationCommand):
 
 
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
-    def run(self, name: Optional[str] = None) -> None:
+    def run(self, name: str | None = None) -> None:
         settings = registry.settings.formatter(name) if name else registry.settings
         settings.set_format_on_save(not settings.format_on_save)
 
-    def is_checked(self, name: Optional[str] = None) -> bool:
+    def is_checked(self, name: str | None = None) -> bool:
         settings = registry.settings.formatter(name) if name else registry.settings
         return settings.format_on_save
 
