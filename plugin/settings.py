@@ -4,7 +4,6 @@ from sublime import load_settings, save_settings, Window
 from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
-from .cache import cached
 
 
 class Settings(Protocol):
@@ -14,6 +13,10 @@ class Settings(Protocol):
 
     def set(self, key: str, value: Any) -> None:
         """Stores a value in settings for the given key."""
+        ...
+
+    def to_dict(self) -> dict[str, Any]:
+        """Returns the settings as a dictionary."""
         ...
 
     @property
@@ -70,6 +73,13 @@ class FormatSettings(TopLevelSettings):
         self._sublime_settings[key] = value
         save_settings("Format.sublime-settings")
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in self._sublime_settings.to_dict().items()
+            if key != "formatters"
+        }
+
     def add_on_change(self, key: str, listener: Callable[[], None]) -> None:
         self._sublime_settings.add_on_change(key, listener)
 
@@ -93,6 +103,14 @@ class ProjectSettings(TopLevelSettings):
         settings[key] = value
         self.window.set_project_data(project)
 
+    def to_dict(self) -> dict[str, Any]:
+        project = self.window.project_data() or {}
+        return {
+            key: value
+            for key, value in project.get("settings", {}).get("Format", {}).items()
+            if key != "formatters"
+        }
+
 
 class FormatterSettings(Settings):
     __slots__ = ["name", "settings"]
@@ -109,6 +127,9 @@ class FormatterSettings(Settings):
         formatter = formatters.setdefault(self.name, {})
         formatter[key] = value
         self.settings.set("formatters", formatters)
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.settings.get("formatters", {}).get(self.name, {})
 
 
 class MergedSettings(Settings):
@@ -127,24 +148,32 @@ class MergedSettings(Settings):
         if source := next(iter(self.all), None):
             source.set(key, value)
 
+    def to_dict(self) -> dict[str, Any]:
+        merged_settings = {}
+        for source in self.all:
+            source_settings = source.to_dict()
+            for key, value in source_settings.items():
+                if not key in merged_settings:
+                    merged_settings[key] = value
+        return merged_settings
+
 
 class CachedSettings(Settings):
     __slots__ = ["_settings", "_settings_cache"]
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._settings_cache: dict[str, Any] = {}
+        self._settings_cache = settings.to_dict()
 
-    @cached(
-        cache=lambda self: self._settings_cache,
-        key=lambda key: key,
-    )
     def get(self, key: str, default: Any = None) -> Any:
-        return self._settings.get(key, default)
+        return self._settings_cache.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
         self._settings.set(key, value)
-        del self._settings_cache[key]
+        self._settings_cache[key] = value
+
+    def to_dict(self) -> dict[str, Any]:
+        return self._settings_cache
 
     def invalidate(self) -> None:
-        self._settings_cache.clear()
+        self._settings_cache = self._settings.to_dict()
