@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import View, Window
+from sublime import set_timeout_async, View, Window
 
 from .cache import cached
 from .formatter import Formatter
@@ -19,7 +19,10 @@ class FormatterRegistry:
         self._window_registries: dict[int, WindowFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self.settings.add_on_change("update_registry", self.update)
+        self.settings.add_on_change(
+            "update_registry",
+            lambda: set_timeout_async(self.update),
+        )
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
@@ -99,6 +102,11 @@ class WindowFormatterRegistry:
         if not (formatters := self._formatters):
             return None
 
-        formatter = max(formatters.values(), key=lambda f: f.score(scope))
+        max_score: int = -1
+        max_formatter: Formatter | None = None
+        for formatter in formatters.values():
+            if (score := formatter.score(scope)) > max_score:
+                max_score = score
+                max_formatter = formatter
 
-        return formatter if formatter.score(scope) > 0 else None
+        return max_formatter if max_score > 0 else None
