@@ -32,18 +32,17 @@ def plugin_unloaded():
 
 class FormatListener(EventListener):
     def on_init(self, views: list[View]) -> None:
-        def register_windows():
+        def register_views():
             for view in views:
-                if window := view.window():
-                    registry.register(window)
+                registry.register(view)
 
-        set_timeout_async(register_windows)
+        set_timeout_async(register_views)
 
-    def on_new_window_async(self, window: Window) -> None:
-        registry.register(window)
+    def on_new_async(self, view: View) -> None:
+        registry.register(view)
 
-    def on_pre_close_window(self, window: Window) -> None:
-        registry.unregister(window)
+    def on_close(self, view: View) -> None:
+        registry.unregister(view)
 
     def on_load_project_async(self, window: Window) -> None:
         registry.update_window(window)

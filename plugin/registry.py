@@ -3,18 +3,13 @@ from __future__ import annotations
 from sublime import score_selector, set_timeout_async, View, Window
 
 from .formatter import Formatter
-from .settings import (
-    FormatSettings,
-    MergedSettings,
-    ProjectSettings,
-    ViewSettings,
-)
+from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettings
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
         self.settings = FormatSettings()
-        self._window_registries: dict[int, WindowFormatterRegistry] = {}
+        self._view_registries: dict[int, ViewFormatterRegistry] = {}
 
     def startup(self) -> None:
         self.settings.add_on_change(
@@ -24,91 +19,83 @@ class FormatterRegistry:
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
-        self._window_registries.clear()
+        self._view_registries.clear()
 
-    def register(self, window: Window) -> None:
-        if not window.is_valid() or window.id() in self._window_registries:
-            return
+    def register(self, view: View) -> None:
+        if (view_id := view.id()) not in self._view_registries:
+            view_registry = ViewFormatterRegistry(view, self.settings)
+            self._view_registries[view_id] = view_registry
 
-        window_registry = WindowFormatterRegistry(window, self.settings)
-        window_registry.update()
-        self._window_registries[window.id()] = window_registry
-
-    def unregister(self, window: Window) -> None:
-        if (window_id := window.id()) in self._window_registries:
-            del self._window_registries[window_id]
+    def unregister(self, view: View) -> None:
+        if (view_id := view.id()) in self._view_registries:
+            del self._view_registries[view_id]
 
     def update(self) -> None:
-        for window_registry in self._window_registries.values():
-            window_registry.update()
+        for view_registry in self._view_registries.values():
+            view_registry.update()
 
     def update_window(self, window: Window) -> None:
-        if window_registry := self._window_registries.get(window.id()):
-            window_registry.update()
+        for view in window.views():
+            if view_registry := self._view_registries.get(view.id()):
+                view_registry.update()
 
     def lookup(self, view: View, scope: str) -> Formatter | None:
-        if (window := view.window()) is None or not window.is_valid():
-            return None
-
-        if (window_registry := self._window_registries.get(window.id())) is None:
-            return None
-
-        if (formatter_name := window_registry.lookup(scope)) is None:
-            return None
-
-        view_settings = ViewSettings(view)
-
-        return Formatter(
-            name=formatter_name,
-            settings=MergedSettings(
-                view_settings.formatter(formatter_name),
-                self.settings.formatter(formatter_name),
-                view_settings,
-                self.settings,
-            ),
+        return (
+            registry.lookup(scope)
+            if (registry := self._view_registries.get(view.id())) is not None
+            else None
         )
 
 
-class WindowFormatterRegistry:
-    def __init__(self, window: Window, settings: FormatSettings) -> None:
-        self.window = window
+class ViewFormatterRegistry:
+    def __init__(self, view: View, settings: FormatSettings) -> None:
         self.settings = settings
-        self.project = ProjectSettings(window)
-        self._enabled_in_settings = False
-        self._enabled_in_project = False
-        self._lookup_cache: dict[str, str] = {}
+        self.view_settings = ViewSettings(view)
+        self._lookup_cache: dict[str, Formatter] = {}
 
     def update(self) -> None:
-        self._enabled_in_settings = self.settings.get("enabled", False)
-        self._enabled_in_project = self.project.get("enabled", False)
         self._lookup_cache.clear()
 
-    def lookup(self, scope: str) -> str | None:
+    def lookup(self, scope: str) -> Formatter | None:
         if scope in self._lookup_cache:
             return self._lookup_cache[scope]
 
         merged_formatters = {
             **self.settings.get("formatters", {}),
-            **self.project.get("formatters", {}),
+            **self.view_settings.get("formatters", {}),
         }
 
+        if not merged_formatters:
+            return None
+
+        enabled_in_view = self.view_settings.enabled
+        enabled_in_settings = self.settings.enabled
+
         max_score: int = 0
-        max_formatter: str | None = None
+        matched_formatter: str | None = None
         for name, settings in merged_formatters.items():
-            if (
-                settings.get("enabled")
-                or self._enabled_in_project
-                or self._enabled_in_settings
-            ):
+            if settings.get("enabled") or enabled_in_view or enabled_in_settings:
                 score = score_selector(scope, settings.get("selector"))
                 if score > max_score:
                     max_score = score
-                    max_formatter = name
+                    matched_formatter = name
 
-        if max_score == 0:
+        if max_score == 0 or matched_formatter is None:
             return None
 
-        if max_formatter is not None and " " not in scope:
-            self._lookup_cache[scope] = max_formatter
+        formatter = Formatter(
+            name=matched_formatter,
+            settings=CachedSettings(
+                MergedSettings(
+                    self.view_settings.formatter(matched_formatter),
+                    self.settings.formatter(matched_formatter),
+                    self.view_settings,
+                    self.settings,
+                ),
+            ),
+        )
 
-        return max_formatter
+        if " " not in scope:
+            self._lookup_cache[scope] = formatter
+
+        return formatter
