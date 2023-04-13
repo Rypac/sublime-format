@@ -38,6 +38,9 @@ class FormatListener(EventListener):
     def on_new_async(self, view: View) -> None:
         registry.register(view)
 
+    def on_load_async(self, view: View) -> None:
+        registry.register(view)
+
     def on_close(self, view: View) -> None:
         registry.unregister(view)
 
