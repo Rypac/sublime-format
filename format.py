@@ -35,20 +35,20 @@ class FormatListener(EventListener):
         for view in views:
             registry.register(view)
 
-    def on_new_async(self, view: View) -> None:
+    def on_new(self, view: View) -> None:
         registry.register(view)
 
-    def on_load_async(self, view: View) -> None:
+    def on_load(self, view: View) -> None:
         registry.register(view)
 
     def on_close(self, view: View) -> None:
         registry.unregister(view)
 
-    def on_load_project_async(self, window: Window) -> None:
+    def on_load_project(self, window: Window) -> None:
         for view in window.views():
             registry.update(view)
 
-    def on_post_save_project_async(self, window: Window) -> None:
+    def on_post_save_project(self, window: Window) -> None:
         for view in window.views():
             registry.update(view)
 
