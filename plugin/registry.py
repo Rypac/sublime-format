@@ -44,6 +44,8 @@ class FormatterRegistry:
 
 
 class ViewFormatterRegistry:
+    __slots__ = ["settings", "view_settings", "_lookup_cache"]
+
     def __init__(self, view: View, settings: FormatSettings) -> None:
         self.settings = settings
         self.view_settings = ViewSettings(view)
