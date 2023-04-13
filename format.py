@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import active_window, set_timeout_async, status_message
+from sublime import active_window, status_message
 from sublime import Edit, View, Window
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import cast
@@ -32,11 +32,8 @@ def plugin_unloaded():
 
 class FormatListener(EventListener):
     def on_init(self, views: list[View]) -> None:
-        def register_views():
-            for view in views:
-                registry.register(view)
-
-        set_timeout_async(register_views)
+        for view in views:
+            registry.register(view)
 
     def on_new_async(self, view: View) -> None:
         registry.register(view)

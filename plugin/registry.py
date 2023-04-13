@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import score_selector, set_timeout_async, View, Window
+from sublime import score_selector, View, Window
 
 from .formatter import Formatter
 from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettings
@@ -12,10 +12,7 @@ class FormatterRegistry:
         self._view_registries: dict[int, ViewFormatterRegistry] = {}
 
     def startup(self) -> None:
-        self.settings.add_on_change(
-            "update_registry",
-            lambda: set_timeout_async(self.update),
-        )
+        self.settings.add_on_change("update_registry", self.update)
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
