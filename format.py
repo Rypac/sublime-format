@@ -1,18 +1,12 @@
 from __future__ import annotations
 
-from sublime import active_window, status_message
-from sublime import Edit, View, Window
+from sublime import Edit, View, Window, active_window, status_message
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import cast
 
-from .plugin import (
-    FormatError,
-    FormatterRegistry,
-    display_error,
-    clear_error,
-    view_region,
-    view_scope,
-)
+from .plugin.error import FormatError, clear_error, display_error
+from .plugin.registry import FormatterRegistry
+from .plugin.view import view_region, view_scope
 
 
 registry: FormatterRegistry = cast(FormatterRegistry, None)
