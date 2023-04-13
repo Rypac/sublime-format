@@ -50,6 +50,9 @@ class ViewFormatterRegistry:
         self._lookup_cache: dict[str, Formatter] = {}
 
     def update(self) -> None:
+        for formatter in self._lookup_cache.values():
+            formatter.settings.invalidate()
+
         self._lookup_cache.clear()
 
     def lookup(self, scope: str) -> Formatter | None:
