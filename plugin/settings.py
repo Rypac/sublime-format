@@ -27,14 +27,16 @@ class Settings(Protocol):
     def enabled(self) -> bool:
         return self.get("enabled")
 
-    def set_enabled(self, enabled: bool) -> None:
+    @enabled.setter
+    def enabled(self, enabled: bool) -> None:
         return self.set("enabled", enabled)
 
     @property
     def format_on_save(self) -> bool:
         return self.get("format_on_save")
 
-    def set_format_on_save(self, enabled: bool) -> None:
+    @format_on_save.setter
+    def format_on_save(self, enabled: bool) -> None:
         return self.set("format_on_save", enabled)
 
     @property

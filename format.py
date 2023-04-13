@@ -1,18 +1,12 @@
 from __future__ import annotations
 
-from sublime import active_window, status_message
-from sublime import Edit, View, Window
+from sublime import Edit, View, Window, active_window, status_message
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import cast
 
-from .plugin import (
-    FormatError,
-    FormatterRegistry,
-    display_error,
-    clear_error,
-    view_region,
-    view_scope,
-)
+from .plugin.error import FormatError, clear_error, display_error
+from .plugin.registry import FormatterRegistry
+from .plugin.view import view_region, view_scope
 
 
 registry: FormatterRegistry = cast(FormatterRegistry, None)
@@ -35,20 +29,20 @@ class FormatListener(EventListener):
         for view in views:
             registry.register(view)
 
-    def on_new_async(self, view: View) -> None:
+    def on_new(self, view: View) -> None:
         registry.register(view)
 
-    def on_load_async(self, view: View) -> None:
+    def on_load(self, view: View) -> None:
         registry.register(view)
 
     def on_close(self, view: View) -> None:
         registry.unregister(view)
 
-    def on_load_project_async(self, window: Window) -> None:
+    def on_load_project(self, window: Window) -> None:
         for view in window.views():
             registry.update(view)
 
-    def on_post_save_project_async(self, window: Window) -> None:
+    def on_post_save_project(self, window: Window) -> None:
         for view in window.views():
             registry.update(view)
 
@@ -105,11 +99,21 @@ class FormatSelectionCommand(TextCommand):
 class FormatToggleEnabledCommand(ApplicationCommand):
     def run(self, name: str | None = None) -> None:
         settings = registry.settings.formatter(name) if name else registry.settings
-        settings.set_enabled(not settings.enabled)
+        settings.enabled = not settings.enabled
 
     def is_checked(self, name: str | None = None) -> bool:
         settings = registry.settings.formatter(name) if name else registry.settings
         return settings.enabled
+
+
+class FormatToggleFormatOnSaveCommand(ApplicationCommand):
+    def run(self, name: str | None = None) -> None:
+        settings = registry.settings.formatter(name) if name else registry.settings
+        settings.format_on_save = not settings.format_on_save
+
+    def is_checked(self, name: str | None = None) -> bool:
+        settings = registry.settings.formatter(name) if name else registry.settings
+        return settings.format_on_save
 
 
 class FormatManageEnabledCommand(ApplicationCommand):
@@ -123,23 +127,13 @@ class FormatManageEnabledCommand(ApplicationCommand):
         def toggle_enabled(selection: int) -> None:
             if selection >= 0 and selection < len(items):
                 formatter = items[selection]
-                registry.settings.formatter(formatter).set_enabled(enable)
+                registry.settings.formatter(formatter).enabled = enable
 
         if items:
             active_window().show_quick_panel(items, toggle_enabled)
         else:
             action = "enabled" if enable else "disabled"
             status_message(f"All formatters {action}.")
-
-
-class FormatToggleFormatOnSaveCommand(ApplicationCommand):
-    def run(self, name: str | None = None) -> None:
-        settings = registry.settings.formatter(name) if name else registry.settings
-        settings.set_format_on_save(not settings.format_on_save)
-
-    def is_checked(self, name: str | None = None) -> bool:
-        settings = registry.settings.formatter(name) if name else registry.settings
-        return settings.format_on_save
 
 
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
@@ -153,7 +147,7 @@ class FormatManageFormatOnSaveCommand(ApplicationCommand):
         def toggle_format_on_save(selection: int) -> None:
             if selection >= 0 and selection < len(items):
                 formatter = items[selection]
-                registry.settings.formatter(formatter).set_format_on_save(enable)
+                registry.settings.formatter(formatter).format_on_save = enable
 
         if items:
             active_window().show_quick_panel(items, toggle_format_on_save)
