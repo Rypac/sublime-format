@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import score_selector, View, Window
+from sublime import score_selector, View
 
 from .formatter import Formatter
 from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettings
@@ -27,13 +27,12 @@ class FormatterRegistry:
         if (view_id := view.id()) in self._view_registries:
             del self._view_registries[view_id]
 
-    def update(self) -> None:
-        for view_registry in self._view_registries.values():
-            view_registry.update()
-
-    def update_window(self, window: Window) -> None:
-        for view in window.views():
+    def update(self, view: View | None = None) -> None:
+        if view is not None:
             if view_registry := self._view_registries.get(view.id()):
+                view_registry.update()
+        else:
+            for view_registry in self._view_registries.values():
                 view_registry.update()
 
     def lookup(self, view: View, scope: str) -> Formatter | None:

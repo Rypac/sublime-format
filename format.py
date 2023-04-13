@@ -42,10 +42,12 @@ class FormatListener(EventListener):
         registry.unregister(view)
 
     def on_load_project_async(self, window: Window) -> None:
-        registry.update_window(window)
+        for view in window.views():
+            registry.update(view)
 
     def on_post_save_project_async(self, window: Window) -> None:
-        registry.update_window(window)
+        for view in window.views():
+            registry.update(view)
 
     def on_pre_save(self, view: View) -> None:
         formatter = registry.lookup(view, view_scope(view))
