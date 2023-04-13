@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import expand_variables, score_selector
+from sublime import expand_variables
 from sublime import Edit, Region, View
 
 import os
@@ -17,14 +17,6 @@ class Formatter:
     def __init__(self, name: str, settings: Settings):
         self.name: str = name
         self.settings: Settings = settings
-
-    def score(self, scope: str) -> int:
-        return (
-            score_selector(scope, selector)
-            if self.settings.enabled
-            and (selector := self.settings.selector) is not None
-            else -1
-        )
 
     def format(self, view: View, edit: Edit, region: Region) -> None:
         text = view.substr(region)
