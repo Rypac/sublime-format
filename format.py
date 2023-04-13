@@ -106,6 +106,16 @@ class FormatToggleEnabledCommand(ApplicationCommand):
         return settings.enabled
 
 
+class FormatToggleFormatOnSaveCommand(ApplicationCommand):
+    def run(self, name: str | None = None) -> None:
+        settings = registry.settings.formatter(name) if name else registry.settings
+        settings.set_format_on_save(not settings.format_on_save)
+
+    def is_checked(self, name: str | None = None) -> bool:
+        settings = registry.settings.formatter(name) if name else registry.settings
+        return settings.format_on_save
+
+
 class FormatManageEnabledCommand(ApplicationCommand):
     def run(self, enable: bool) -> None:
         items = [
@@ -124,16 +134,6 @@ class FormatManageEnabledCommand(ApplicationCommand):
         else:
             action = "enabled" if enable else "disabled"
             status_message(f"All formatters {action}.")
-
-
-class FormatToggleFormatOnSaveCommand(ApplicationCommand):
-    def run(self, name: str | None = None) -> None:
-        settings = registry.settings.formatter(name) if name else registry.settings
-        settings.set_format_on_save(not settings.format_on_save)
-
-    def is_checked(self, name: str | None = None) -> bool:
-        settings = registry.settings.formatter(name) if name else registry.settings
-        return settings.format_on_save
 
 
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
