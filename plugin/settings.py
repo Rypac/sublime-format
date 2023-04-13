@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import load_settings, save_settings, Window
+from sublime import load_settings, save_settings, View, Window
 from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
@@ -108,6 +108,28 @@ class ProjectSettings(TopLevelSettings):
         return {
             key: value
             for key, value in project.get("settings", {}).get("Format", {}).items()
+            if key != "formatters"
+        }
+
+
+class ViewSettings(TopLevelSettings):
+    __slots__ = ["view"]
+
+    def __init__(self, view: View) -> None:
+        self.view = view
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.view.settings().get("Format", {}).get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        settings = self.view.settings().setdefault("Format", {})
+        settings[key] = value
+        self.view.settings()["Format"] = settings
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in self.view.settings().to_dict().items()
             if key != "formatters"
         }
 
