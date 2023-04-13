@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import load_settings, save_settings, Window
+from sublime import load_settings, save_settings, View, Window
 from typing import Any, Callable, Protocol
 
 from .error import ErrorStyle
@@ -13,10 +13,6 @@ class Settings(Protocol):
 
     def set(self, key: str, value: Any) -> None:
         """Stores a value in settings for the given key."""
-        ...
-
-    def to_dict(self) -> dict[str, Any]:
-        """Returns the settings as a dictionary."""
         ...
 
     @property
@@ -73,13 +69,6 @@ class FormatSettings(TopLevelSettings):
         self._sublime_settings[key] = value
         save_settings("Format.sublime-settings")
 
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            key: value
-            for key, value in self._sublime_settings.to_dict().items()
-            if key != "formatters"
-        }
-
     def add_on_change(self, key: str, listener: Callable[[], None]) -> None:
         self._sublime_settings.add_on_change(key, listener)
 
@@ -103,13 +92,20 @@ class ProjectSettings(TopLevelSettings):
         settings[key] = value
         self.window.set_project_data(project)
 
-    def to_dict(self) -> dict[str, Any]:
-        project = self.window.project_data() or {}
-        return {
-            key: value
-            for key, value in project.get("settings", {}).get("Format", {}).items()
-            if key != "formatters"
-        }
+
+class ViewSettings(TopLevelSettings):
+    __slots__ = ["view"]
+
+    def __init__(self, view: View) -> None:
+        self.view = view
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.view.settings().get("Format", {}).get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        settings = self.view.settings().setdefault("Format", {})
+        settings[key] = value
+        self.view.settings()["Format"] = settings
 
 
 class FormatterSettings(Settings):
@@ -128,9 +124,6 @@ class FormatterSettings(Settings):
         formatter[key] = value
         self.settings.set("formatters", formatters)
 
-    def to_dict(self) -> dict[str, Any]:
-        return self.settings.get("formatters", {}).get(self.name, {})
-
 
 class MergedSettings(Settings):
     __slots__ = ["all"]
@@ -148,32 +141,26 @@ class MergedSettings(Settings):
         if source := next(iter(self.all), None):
             source.set(key, value)
 
-    def to_dict(self) -> dict[str, Any]:
-        merged_settings = {}
-        for source in self.all:
-            source_settings = source.to_dict()
-            for key, value in source_settings.items():
-                if not key in merged_settings:
-                    merged_settings[key] = value
-        return merged_settings
-
 
 class CachedSettings(Settings):
-    __slots__ = ["_settings", "_settings_cache"]
+    __slots__ = ["settings", "_cache"]
 
     def __init__(self, settings: Settings) -> None:
-        self._settings = settings
-        self._settings_cache = settings.to_dict()
+        self.settings = settings
+        self._cache: dict[str, Any] = {}
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._settings_cache.get(key, default)
+        if key in self._cache:
+            return self._cache[key]
+
+        value = self.settings.get(key, default)
+        self._cache[key] = value
+
+        return value
 
     def set(self, key: str, value: Any) -> None:
-        self._settings.set(key, value)
-        self._settings_cache[key] = value
-
-    def to_dict(self) -> dict[str, Any]:
-        return self._settings_cache
+        self.settings.set(key, value)
+        self._cache[key] = value
 
     def invalidate(self) -> None:
-        self._settings_cache = self._settings.to_dict()
+        self._cache.clear()
