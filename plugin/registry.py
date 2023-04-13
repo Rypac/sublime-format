@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from sublime import set_timeout_async, View, Window
+from sublime import score_selector, set_timeout_async, View, Window
 
 from .formatter import Formatter
 from .settings import (
-    CachedSettings,
     FormatSettings,
-    FormatterSettings,
     MergedSettings,
     ProjectSettings,
+    ViewSettings,
 )
 
 
@@ -54,7 +53,20 @@ class FormatterRegistry:
         if (window_registry := self._window_registries.get(window.id())) is None:
             return None
 
-        return window_registry.lookup(scope)
+        if (formatter_name := window_registry.lookup(scope)) is None:
+            return None
+
+        view_settings = ViewSettings(view)
+
+        return Formatter(
+            name=formatter_name,
+            settings=MergedSettings(
+                view_settings.formatter(formatter_name),
+                self.settings.formatter(formatter_name),
+                view_settings,
+                self.settings,
+            ),
+        )
 
 
 class WindowFormatterRegistry:
@@ -62,46 +74,36 @@ class WindowFormatterRegistry:
         self.window = window
         self.settings = settings
         self.project = ProjectSettings(window)
-        self._formatters: dict[str, Formatter] = {}
-        self._lookup_cache: dict[str, Formatter] = {}
+        self._enabled_in_settings = False
+        self._enabled_in_project = False
+        self._lookup_cache: dict[str, str] = {}
 
     def update(self) -> None:
-        formatters = self.settings.get("formatters", {}).keys()
-        project_formatters = self.project.get("formatters", {}).keys()
-        latest_formatters = formatters | project_formatters
-
-        current_formatters = self._formatters.keys()
-
-        for formatter in latest_formatters | current_formatters:
-            if formatter not in current_formatters:
-                self._formatters[formatter] = Formatter(
-                    name=formatter,
-                    settings=CachedSettings(
-                        MergedSettings(
-                            FormatterSettings(formatter, self.project),
-                            FormatterSettings(formatter, self.settings),
-                            self.project,
-                            self.settings,
-                        ),
-                    ),
-                )
-            elif formatter not in latest_formatters:
-                del self._formatters[formatter]
-            else:
-                self._formatters[formatter].settings.invalidate()
-
+        self._enabled_in_settings = self.settings.get("enabled", False)
+        self._enabled_in_project = self.project.get("enabled", False)
         self._lookup_cache.clear()
 
-    def lookup(self, scope: str) -> Formatter | None:
+    def lookup(self, scope: str) -> str | None:
         if scope in self._lookup_cache:
             return self._lookup_cache[scope]
 
+        merged_formatters = {
+            **self.settings.get("formatters", {}),
+            **self.project.get("formatters", {}),
+        }
+
         max_score: int = 0
-        max_formatter: Formatter | None = None
-        for formatter in self._formatters.values():
-            if (score := formatter.score(scope)) > max_score:
-                max_score = score
-                max_formatter = formatter
+        max_formatter: str | None = None
+        for name, settings in merged_formatters.items():
+            if (
+                settings.get("enabled")
+                or self._enabled_in_project
+                or self._enabled_in_settings
+            ):
+                score = score_selector(scope, settings.get("selector"))
+                if score > max_score:
+                    max_score = score
+                    max_formatter = name
 
         if max_score == 0:
             return None
