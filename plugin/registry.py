@@ -21,6 +21,7 @@ class FormatterRegistry:
     def register(self, view: View) -> None:
         if (view_id := view.id()) not in self._view_registries:
             view_registry = ViewFormatterRegistry(view, self.settings)
+            view_registry.update()
             self._view_registries[view_id] = view_registry
 
     def unregister(self, view: View) -> None:
@@ -47,9 +48,16 @@ class ViewFormatterRegistry:
     def __init__(self, view: View, settings: FormatSettings) -> None:
         self.settings = settings
         self.view_settings = ViewSettings(view)
+        self.enabled = False
         self._lookup_cache: dict[str, Formatter] = {}
 
     def update(self) -> None:
+        self.enabled = (
+            enabled_in_view
+            if (enabled_in_view := self.view_settings.enabled) is not None
+            else self.settings.enabled
+        )
+
         for formatter in self._lookup_cache.values():
             formatter.settings.invalidate()
 
@@ -64,22 +72,24 @@ class ViewFormatterRegistry:
             **self.view_settings.get("formatters", {}),
         }
 
-        if not merged_formatters:
-            return None
-
-        enabled_in_view = self.view_settings.enabled
-        enabled_in_settings = self.settings.enabled
-
         max_score: int = 0
         matched_formatter: str | None = None
         for name, settings in merged_formatters.items():
-            if settings.get("enabled") or enabled_in_view or enabled_in_settings:
-                score = score_selector(scope, settings.get("selector"))
-                if score > max_score:
-                    max_score = score
-                    matched_formatter = name
+            enabled = (
+                enabled_in_settings
+                if (enabled_in_settings := settings.get("enabled")) is not None
+                else self.enabled
+            )
 
-        if max_score == 0 or matched_formatter is None:
+            if not enabled or (selector := settings.get("selector")) is None:
+                continue
+
+            score = score_selector(scope, selector)
+            if score > max_score:
+                max_score = score
+                matched_formatter = name
+
+        if matched_formatter is None:
             return None
 
         formatter = Formatter(
