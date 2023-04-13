@@ -21,7 +21,6 @@ class FormatterRegistry:
     def register(self, view: View) -> None:
         if (view_id := view.id()) not in self._view_registries:
             view_registry = ViewFormatterRegistry(view, self.settings)
-            view_registry.update()
             self._view_registries[view_id] = view_registry
 
     def unregister(self, view: View) -> None:
@@ -45,19 +44,14 @@ class FormatterRegistry:
 
 
 class ViewFormatterRegistry:
+    __slots__ = ["settings", "view_settings", "_lookup_cache"]
+
     def __init__(self, view: View, settings: FormatSettings) -> None:
         self.settings = settings
         self.view_settings = ViewSettings(view)
-        self.enabled = False
         self._lookup_cache: dict[str, Formatter] = {}
 
     def update(self) -> None:
-        self.enabled = (
-            enabled_in_view
-            if (enabled_in_view := self.view_settings.enabled) is not None
-            else self.settings.enabled
-        )
-
         for formatter in self._lookup_cache.values():
             formatter.settings.invalidate()
 
@@ -72,13 +66,22 @@ class ViewFormatterRegistry:
             **self.view_settings.get("formatters", {}),
         }
 
+        if not merged_formatters:
+            return None
+
+        enabled_in_view = (
+            enabled_in_view
+            if (enabled_in_view := self.view_settings.enabled) is not None
+            else self.settings.enabled
+        )
+
         max_score: int = 0
         matched_formatter: str | None = None
         for name, settings in merged_formatters.items():
             enabled = (
                 enabled_in_settings
                 if (enabled_in_settings := settings.get("enabled")) is not None
-                else self.enabled
+                else enabled_in_view
             )
 
             if not enabled or (selector := settings.get("selector")) is None:
