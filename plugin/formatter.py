@@ -21,7 +21,7 @@ class Formatter:
     def format(self, view: View, edit: Edit, region: Region) -> None:
         text = view.substr(region)
         variables = extract_variables(view)
-        args = [expand_variables(arg, variables) for arg in self.settings.cmd]
+        command = [expand_variables(arg, variables) for arg in self.settings.command]
 
         cwd = (
             os.path.dirname(file_name)
@@ -31,7 +31,7 @@ class Formatter:
 
         try:
             formatted = shell(
-                args=args,
+                args=command,
                 input=text,
                 cwd=cwd,
                 timeout=self.settings.timeout,

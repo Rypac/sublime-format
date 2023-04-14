@@ -20,12 +20,12 @@ For example, this is the configuration for the formatting of Haskell and Rust so
 {
     "formatters": {
         "Haskell": {
-            "selector": "source.haskell",
-            "cmd": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"]
+            "command": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"],
+            "selector": "source.haskell"
         },
         "Rust": {
+            "command": ["rustfmt"],
             "selector": "source.rust",
-            "cmd": ["rustfmt"],
             "format_on_save": true
         }
     }
