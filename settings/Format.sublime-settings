@@ -12,10 +12,6 @@
     // Can be overridden for individual scope selectors.
     "format_on_save": false,
 
-    // A list a paths to be searched when executing a formatter in addition to those found on $PATH.
-    // Paths defined here take precedence over existing paths in environment.
-    "paths": [],
-
     // Controls how errors are displayed. Supported styles are:
     //  - ""           -- hide errors completely
     //  - "console"    -- print errors to the Sublime console
