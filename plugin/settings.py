@@ -20,8 +20,8 @@ class Settings(Protocol):
         return self.get("selector")
 
     @property
-    def cmd(self) -> list[str]:
-        return self.get("cmd")
+    def command(self) -> list[str]:
+        return self.get("command")
 
     @property
     def enabled(self) -> bool:

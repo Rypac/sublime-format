@@ -12,35 +12,32 @@
     // Can be overridden for individual scope selectors.
     "format_on_save": false,
 
-    // A list a paths to be searched when executing a formatter in addition to those found on $PATH.
-    // Paths defined here take precedence over existing paths in environment.
-    "paths": [],
-
     // Controls how errors are displayed. Supported styles are:
-    //  - ""           -- hide errors completely
-    //  - "console"    -- print errors to the Sublime console
-    //  - "panel"      -- show an output panel at the bottom
-    //  - "dialog"     -- show obnoxious dialog windows
+    //  - ""            -- hide errors completely
+    //  - "console"     -- print errors to the Sublime console
+    //  - "panel"       -- show an output panel at the bottom
+    //  - "dialog"      -- show obnoxious dialog windows
     "error_style": "panel",
 
     // The timeout, in seconds, applied to the subprocess running the formatter.
     // An error will be displayed if formatting exceeds the duration of this timeout.
-    "timeout": 60,
+    "timeout": 5,
 
     // Formatting rules.
     //
-    // Every rule is a dictionary, where the only required field is "selector": a
-    // syntax type such as "source.python". See the docs on selectors:
-    // https://www.sublimetext.com/docs/selectors.html. All other fields are
-    // overrides for global settings such as "cmd".
+    // Every rule is a dictionary, where the only required fields are:
+    //  - "command"     -- a list of strings to invoke the formatter process
+    //  - "selector"    -- a syntax type such as "source.python"
+    //
+    // All other fields are optional and override global settings.
     //
     // Example for Go:
     //
     //     "formatters": {
     //         "Go": {
+    //             "command": ["goimports"],
     //             "selector": "source.go",
-    //             "cmd": ["goimports"],
-    //             "format_on_save": true,
+    //             "format_on_save": true
     //         }
     //     }
     "formatters": {}

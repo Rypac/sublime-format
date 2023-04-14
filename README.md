@@ -20,12 +20,12 @@ For example, this is the configuration for the formatting of Haskell and Rust so
 {
     "formatters": {
         "Haskell": {
-            "selector": "source.haskell",
-            "cmd": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"]
+            "command": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"],
+            "selector": "source.haskell"
         },
         "Rust": {
+            "command": ["rustfmt"],
             "selector": "source.rust",
-            "cmd": ["rustfmt"],
             "format_on_save": true
         }
     }
@@ -78,8 +78,8 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 ## Keybindings
 
 - `Format: Format Selection`
-    + OSX: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>S</kbd>)
+    + macOS: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>S</kbd>)
     + Windows/Linux: (<kbd>Ctrl</kbd>+<kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>S</kbd>)
 - `Format: Format File`
-    + OSX: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>F</kbd>)
+    + macOS: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>F</kbd>)
     + Windows/Linux: (<kbd>Ctrl</kbd>+<kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>F</kbd>)

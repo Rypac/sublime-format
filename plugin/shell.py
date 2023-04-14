@@ -8,7 +8,6 @@ def shell(
     args: list[str],
     input: str,
     cwd: str,
-    paths: list[str] = [],
     timeout: int = 60,
 ) -> str:
     startupinfo = None
@@ -16,10 +15,6 @@ def shell(
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
-
-    env = os.environ.copy()
-    if paths:
-        env["PATH"] = os.pathsep.join(paths) + os.pathsep + env["PATH"]
 
     try:
         completed_process = subprocess.run(
@@ -31,7 +26,7 @@ def shell(
             timeout=timeout,
             check=True,
             text=True,
-            env=env,
+            env=os.environ,
             startupinfo=startupinfo,
         )
     except subprocess.CalledProcessError as error:
