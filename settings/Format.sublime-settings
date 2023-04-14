@@ -21,7 +21,7 @@
 
     // The timeout, in seconds, applied to the subprocess running the formatter.
     // An error will be displayed if formatting exceeds the duration of this timeout.
-    "timeout": 60,
+    "timeout": 5,
 
     // Formatting rules.
     //
