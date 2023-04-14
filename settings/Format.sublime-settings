@@ -13,10 +13,10 @@
     "format_on_save": false,
 
     // Controls how errors are displayed. Supported styles are:
-    //  - ""           -- hide errors completely
-    //  - "console"    -- print errors to the Sublime console
-    //  - "panel"      -- show an output panel at the bottom
-    //  - "dialog"     -- show obnoxious dialog windows
+    //  - ""            -- hide errors completely
+    //  - "console"     -- print errors to the Sublime console
+    //  - "panel"       -- show an output panel at the bottom
+    //  - "dialog"      -- show obnoxious dialog windows
     "error_style": "panel",
 
     // The timeout, in seconds, applied to the subprocess running the formatter.
@@ -26,9 +26,8 @@
     // Formatting rules.
     //
     // Every rule is a dictionary, where the only required fields are:
-    //
-    // - "command": a list of strings to invoke the formatter process
-    // - "selector": a syntax type such as "source.python"
+    //  - "command"     -- a list of strings to invoke the formatter process
+    //  - "selector"    -- a syntax type such as "source.python"
     //
     // All other fields are optional and override global settings.
     //
