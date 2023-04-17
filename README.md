@@ -7,7 +7,7 @@ A code formatting plugin for Sublime Text… because you have better things to w
 - [Usage](#usage)
 - [Installation](#installation)
 - [Commands](#commands)
-- [Keybindings](#keybindings)
+- [Key Bindings](#keybindings)
 
 ## Usage
 
@@ -75,11 +75,26 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 - `Format: Disable Format on Save…`
     + Select source file types to disable automatic formatting on save
 
-## Keybindings
+## Key Bindings
 
-- `Format: Format Selection`
-    + macOS: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>S</kbd>)
-    + Windows/Linux: (<kbd>Ctrl</kbd>+<kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>S</kbd>)
-- `Format: Format File`
-    + macOS: (<kbd>Cmd</kbd>+<kbd>K</kbd>, <kbd>Cmd</kbd>+<kbd>F</kbd>)
-    + Windows/Linux: (<kbd>Ctrl</kbd>+<kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>F</kbd>)
+To avoid potential conflicts, this plugin does not enable key bindings by default.
+
+The following is an example that uses a single key binding to format either the entire file or a selection, based on the `selection_empty` context.
+
+```json
+[
+    {
+        "keys": ["primary+k", "primary+f"],
+        "command": "format_file",
+        "context": [
+            { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+        ]
+    },
+    {
+        "keys": ["primary+k", "primary+f"],
+        "command": "format_selection",
+        "context": [
+            { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+        ]
+    }
+]

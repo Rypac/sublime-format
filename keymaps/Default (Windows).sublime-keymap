@@ -1,10 +1,19 @@
 [
-    {
-        "keys": ["ctrl+k", "ctrl+f"],
-        "command": "format_file"
-    },
-    {
-        "keys": ["ctrl+k", "ctrl+s"],
-        "command": "format_selection"
-    }
+    // To avoid potential conflicts, key bindings are not enabled by default.
+    // The following is an example that can be enabled in your own key bindings configuration.
+    //
+    // {
+    //     "keys": ["ctrl+k", "ctrl+f"],
+    //     "command": "format_file",
+    //     "context": [
+    //         { "key": "selection_empty", "operator": "equal", "operand": true, "match_all": true }
+    //     ]
+    // },
+    // {
+    //     "keys": ["ctrl+k", "ctrl+f"],
+    //     "command": "format_selection",
+    //     "context": [
+    //         { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+    //     ]
+    // }
 ]
