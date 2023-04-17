@@ -40,7 +40,7 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 ### Package Control (coming soon…)
 
 1. Install [Package Control](https://packagecontrol.io)
-2. Run `Package Control: Install Package` in the Command Palette (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>)
+2. Run `Package Control: Install Package` in the Command Palette
 3. Install `Format`
 
 ### Manual (via Package Control)
