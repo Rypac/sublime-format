@@ -8,28 +8,28 @@
         "command": "format_file"
     },
     {
-        "caption": "Format: Enable Formatter…",
+        "caption": "Format: Enable Formatter",
         "command": "format_manage_enabled",
         "args": {
             "enable": true
         }
     },
     {
-        "caption": "Format: Disable Formatter…",
+        "caption": "Format: Disable Formatter",
         "command": "format_manage_enabled",
         "args": {
             "enable": false
         }
     },
     {
-        "caption": "Format: Enable Format on Save…",
+        "caption": "Format: Enable Format on Save",
         "command": "format_manage_format_on_save",
         "args": {
             "enable": true
         }
     },
     {
-        "caption": "Format: Disable Format on Save…",
+        "caption": "Format: Disable Format on Save",
         "command": "format_manage_format_on_save",
         "args": {
             "enable": false
