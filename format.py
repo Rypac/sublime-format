@@ -47,8 +47,11 @@ class FormatListener(EventListener):
             registry.update(view)
 
     def on_pre_save(self, view: View) -> None:
-        formatter = registry.lookup(view, view_scope(view))
-        if formatter and formatter.settings.format_on_save:
+        if (
+            (formatter := registry.lookup(view, view_scope(view)))
+            and formatter.settings.enabled
+            and formatter.settings.format_on_save
+        ):
             view.run_command("format_file")
 
 
@@ -61,13 +64,17 @@ class FormatFileCommand(TextCommand):
 
         scope = view_scope(self.view)
 
-        if formatter := registry.lookup(self.view, scope):
+        if not (formatter := registry.lookup(self.view, scope)):
+            status_message(f"No formatter for file with scope: {scope}")
+            return
+
+        if formatter.settings.enabled:
             try:
                 formatter.format(self.view, edit, region)
             except FormatError as error:
                 display_error(error, self.view.window())
         else:
-            status_message(f"No formatter for file with scope: {scope}")
+            status_message(f"Formatter disabled: {formatter.name}")
 
     def is_enabled(self) -> bool:
         return not view_region(self.view).empty()
@@ -83,14 +90,17 @@ class FormatSelectionCommand(TextCommand):
 
             scope = self.view.scope_name(region.begin())
 
-            if formatter := registry.lookup(self.view, scope):
+            if not (formatter := registry.lookup(self.view, scope)):
+                status_message(f"No formatter for selection with scope: {scope}")
+                continue
+
+            if formatter.settings.enabled:
                 try:
                     formatter.format(self.view, edit, region)
                 except FormatError as error:
                     display_error(error, self.view.window())
-                    break
             else:
-                status_message(f"No formatter for selection with scope: {scope}")
+                status_message(f"Formatter disabled: {formatter.name}")
 
     def is_enabled(self) -> bool:
         return any(not region.empty() for region in self.view.sel())

@@ -81,22 +81,10 @@ class ScopedFormatterRegistry:
         if not merged_formatters:
             return None
 
-        enabled_in_settings = (
-            enabled_in_scope
-            if (enabled_in_scope := self.scoped_settings.enabled) is not None
-            else self.settings.enabled
-        )
-
         max_score: int = 0
         matched_formatter: str | None = None
         for name, settings in merged_formatters.items():
-            enabled = (
-                enabled_for_formatter
-                if (enabled_for_formatter := settings.get("enabled")) is not None
-                else enabled_in_settings
-            )
-
-            if not enabled or (selector := settings.get("selector")) is None:
+            if (selector := settings.get("selector")) is None:
                 continue
 
             score = score_selector(scope, selector)
