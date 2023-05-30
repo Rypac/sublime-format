@@ -7,46 +7,58 @@ from .settings import (
     CachedSettings,
     FormatSettings,
     MergedSettings,
+    ProjectSettings,
     TopLevelSettings,
-    ViewSettings,
 )
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
         self.settings = FormatSettings()
-        self._view_registries: dict[int, ScopedFormatterRegistry] = {}
+        self._window_registries: dict[int, ScopedFormatterRegistry] = {}
 
     def startup(self) -> None:
         self.settings.add_on_change("update_registry", self.update)
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
-        self._view_registries.clear()
+        self._window_registries.clear()
 
     def register(self, view: View) -> None:
-        if (view_id := view.id()) not in self._view_registries:
-            self._view_registries[view_id] = ScopedFormatterRegistry(
+        if not (window := view.window()):
+            return
+
+        if (window_id := window.id()) not in self._window_registries:
+            self._window_registries[window_id] = ScopedFormatterRegistry(
                 settings=self.settings,
-                scoped_settings=ViewSettings(view),
+                scoped_settings=ProjectSettings(window),
             )
 
     def unregister(self, view: View) -> None:
-        if (view_id := view.id()) in self._view_registries:
-            del self._view_registries[view_id]
+        if not (window := view.window()):
+            return
+
+        if (window_id := window.id()) in self._window_registries:
+            del self._window_registries[window_id]
 
     def update(self, view: View | None = None) -> None:
         if view is not None:
-            if view_registry := self._view_registries.get(view.id()):
-                view_registry.update()
+            if not (window := view.window()):
+                return
+
+            if window_registry := self._window_registries.get(window.id()):
+                window_registry.update()
         else:
-            for view_registry in self._view_registries.values():
-                view_registry.update()
+            for window_registry in self._window_registries.values():
+                window_registry.update()
 
     def lookup(self, view: View, scope: str) -> Formatter | None:
+        if not (window := view.window()):
+            return
+
         return (
             registry.lookup(scope)
-            if (registry := self._view_registries.get(view.id())) is not None
+            if (registry := self._window_registries.get(window.id())) is not None
             else None
         )
 
