@@ -41,11 +41,8 @@ class FormatterRegistry:
         if (window_id := window.id()) in self._window_registries:
             del self._window_registries[window_id]
 
-    def update(self, view: View | None = None) -> None:
-        if view is not None:
-            if not (window := view.window()):
-                return
-
+    def update(self, window: Window | None = None) -> None:
+        if window is not None:
             if window_registry := self._window_registries.get(window.id()):
                 window_registry.update()
         else:
