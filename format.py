@@ -39,12 +39,10 @@ class FormatListener(EventListener):
         registry.unregister(view)
 
     def on_load_project(self, window: Window) -> None:
-        for view in window.views():
-            registry.update(view)
+        registry.update(window)
 
     def on_post_save_project(self, window: Window) -> None:
-        for view in window.views():
-            registry.update(view)
+        registry.update(window)
 
     def on_pre_save(self, view: View) -> None:
         if (
