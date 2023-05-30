@@ -101,8 +101,6 @@ class ScopedFormatterRegistry:
                 MergedSettings(
                     self.scoped_settings.formatter(matched_formatter),
                     self.settings.formatter(matched_formatter),
-                    self.scoped_settings,
-                    self.settings,
                 ),
             ),
         )
