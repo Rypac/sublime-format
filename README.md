@@ -62,14 +62,16 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 
 ## Commands
 
-- `Format: Format File` – Format the current file
-- `Format: Format Selection` – Format the current selection(s)
-- `Format: Enable Formatter` – Select source file types to enable formatting for
-- `Format: Disable Formatter` – Select source file types to disable formatting for
-- `Format: Enable Format on Save` – Select source file types to enable automatic formatting on save
-- `Format: Disable Format on Save` – Select source file types to disable automatic formatting on save
-- `Preferences: Format Settings` – Edit plugin settings
-- `Preferences: Format Key Bindings` – Edit plugin key bindings
+| **Command**                          | **Description**                                        |
+| ------------------------------------ | ------------------------------------------------------ |
+| **Format: Format File**              | Format the current file                                |
+| **Format: Format Selection**         | Format the current selection(s)                        |
+| **Format: Enable Formatter**         | Select source file types to enable formatting          |
+| **Format: Disable Formatter**        | Select source file types to disable formatting         |
+| **Format: Enable Format on Save**    | Select source file types to enable formatting on save  |
+| **Format: Disable Format on Save**   | Select source file types to disable formatting on save |
+| **Preferences: Format Settings**     | Edit plugin settings                                   |
+| **Preferences: Format Key Bindings** | Edit plugin key bindings                               |
 
 ## Key Bindings
 
