@@ -1,8 +1,8 @@
 {
-    // Default settings for sublime format. DO NOT MODIFY!
+    // Default settings for Sublime Format. DO NOT MODIFY!
     // To make changes, copy and/or modify your user settings.
     // User settings can be accessed from the menu via:
-    //     Preferences > Package Settings > Format > Settings - User
+    //     Settings > Package Settings > Format > Settings
 
     // Controls whether formatting is enabled.
     // Can be overridden for individual scope selectors.
