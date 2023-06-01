@@ -94,3 +94,4 @@ The following is an example that uses a single key binding to format either the 
         ]
     }
 ]
+```
