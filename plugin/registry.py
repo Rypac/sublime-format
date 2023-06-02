@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import score_selector, View
+from sublime import score_selector, View, Window
 
 from .formatter import Formatter
 from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettings
@@ -9,7 +9,7 @@ from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettin
 class FormatterRegistry:
     def __init__(self) -> None:
         self.settings = FormatSettings()
-        self._cache: dict[int, Formatter] = {}
+        self._cache: dict[int, Formatter | str] = {}
 
     def startup(self) -> None:
         self.settings.add_on_change("update_registry", self.update)
@@ -33,11 +33,19 @@ class FormatterRegistry:
         view_id = view.id()
         is_view_scope = " " not in scope
 
-        if is_view_scope and (formatter := self._cache.get(view_id)):
-            if score_selector(scope, formatter.settings.selector) > 0:
-                return formatter
-            else:
-                del self._cache[view_id]
+        def cache(formatter: Formatter | str) -> None:
+            if is_view_scope:
+                self._cache[view_id] = formatter
+
+        if is_view_scope and (formatter := self._cache.get(view_id)) is not None:
+            if isinstance(formatter, Formatter):
+                if score_selector(scope, formatter.settings.selector) > 0:
+                    return formatter
+            elif isinstance(formatter, str):
+                if scope == formatter:
+                    return None
+
+            del self._cache[view_id]
 
         view_settings = ViewSettings(view)
         merged_formatters = {
@@ -46,6 +54,7 @@ class FormatterRegistry:
         }
 
         if not merged_formatters:
+            cache(scope)
             return None
 
         max_score: int = 0
@@ -60,6 +69,7 @@ class FormatterRegistry:
                 matched_formatter = name
 
         if matched_formatter is None:
+            cache(scope)
             return None
 
         formatter = Formatter(
@@ -72,7 +82,6 @@ class FormatterRegistry:
             ),
         )
 
-        if is_view_scope:
-            self._cache[view_id] = formatter
+        cache(formatter)
 
         return formatter
