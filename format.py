@@ -28,6 +28,9 @@ class FormatListener(EventListener):
     def on_close(self, view: View) -> None:
         registry.unregister(view)
 
+    def on_pre_move(self, view: View) -> None:
+        registry.unregister(view)
+
     def on_load_project(self, window: Window) -> None:
         registry.update(window)
 
