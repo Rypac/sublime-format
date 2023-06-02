@@ -25,16 +25,6 @@ def plugin_unloaded():
 
 
 class FormatListener(EventListener):
-    def on_init(self, views: list[View]) -> None:
-        for view in views:
-            registry.register(view)
-
-    def on_new(self, view: View) -> None:
-        registry.register(view)
-
-    def on_load(self, view: View) -> None:
-        registry.register(view)
-
     def on_close(self, view: View) -> None:
         registry.unregister(view)
 

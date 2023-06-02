@@ -3,88 +3,46 @@ from __future__ import annotations
 from sublime import score_selector, View
 
 from .formatter import Formatter
-from .settings import (
-    CachedSettings,
-    FormatSettings,
-    MergedSettings,
-    ProjectSettings,
-    TopLevelSettings,
-)
+from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettings
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
         self.settings = FormatSettings()
-        self._window_registries: dict[int, ScopedFormatterRegistry] = {}
+        self._cache: dict[int, Formatter] = {}
 
     def startup(self) -> None:
         self.settings.add_on_change("update_registry", self.update)
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
-        self._window_registries.clear()
-
-    def register(self, view: View) -> None:
-        if not (window := view.window()):
-            return
-
-        if (window_id := window.id()) not in self._window_registries:
-            self._window_registries[window_id] = ScopedFormatterRegistry(
-                settings=self.settings,
-                scoped_settings=ProjectSettings(window),
-            )
+        self._cache.clear()
 
     def unregister(self, view: View) -> None:
-        if not (window := view.window()):
-            return
-
-        if (window_id := window.id()) in self._window_registries:
-            del self._window_registries[window_id]
+        if (view_id := view.id()) in self._cache:
+            del self._cache[view_id]
 
     def update(self, window: Window | None = None) -> None:
         if window is not None:
-            if window_registry := self._window_registries.get(window.id()):
-                window_registry.update()
+            for view in window.views():
+                self.unregister(view)
         else:
-            for window_registry in self._window_registries.values():
-                window_registry.update()
+            self._cache.clear()
 
     def lookup(self, view: View, scope: str) -> Formatter | None:
-        if not (window := view.window()):
-            return
+        view_id = view.id()
+        is_view_scope = " " not in scope
 
-        return (
-            registry.lookup(scope)
-            if (registry := self._window_registries.get(window.id())) is not None
-            else None
-        )
+        if is_view_scope and (formatter := self._cache.get(view_id)):
+            if score_selector(scope, formatter.settings.selector) > 0:
+                return formatter
+            else:
+                del self._cache[view_id]
 
-
-class ScopedFormatterRegistry:
-    __slots__ = ["settings", "scoped_settings", "_lookup_cache"]
-
-    def __init__(
-        self,
-        settings: TopLevelSettings,
-        scoped_settings: TopLevelSettings,
-    ) -> None:
-        self.settings = settings
-        self.scoped_settings = scoped_settings
-        self._lookup_cache: dict[str, Formatter] = {}
-
-    def update(self) -> None:
-        for formatter in self._lookup_cache.values():
-            formatter.settings.invalidate()
-
-        self._lookup_cache.clear()
-
-    def lookup(self, scope: str) -> Formatter | None:
-        if scope in self._lookup_cache:
-            return self._lookup_cache[scope]
-
+        view_settings = ViewSettings(view)
         merged_formatters = {
             **self.settings.get("formatters", {}),
-            **self.scoped_settings.get("formatters", {}),
+            **view_settings.get("formatters", {}),
         }
 
         if not merged_formatters:
@@ -108,13 +66,13 @@ class ScopedFormatterRegistry:
             name=matched_formatter,
             settings=CachedSettings(
                 MergedSettings(
-                    self.scoped_settings.formatter(matched_formatter),
+                    view_settings.formatter(matched_formatter),
                     self.settings.formatter(matched_formatter),
                 ),
             ),
         )
 
-        if " " not in scope:
-            self._lookup_cache[scope] = formatter
+        if is_view_scope:
+            self._cache[view_id] = formatter
 
         return formatter
