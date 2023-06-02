@@ -7,39 +7,33 @@ from .settings import (
     CachedSettings,
     FormatSettings,
     MergedSettings,
-    ProjectSettings,
     TopLevelSettings,
+    ViewSettings,
 )
 
 
 class FormatterRegistry:
     def __init__(self) -> None:
         self.settings = FormatSettings()
-        self._window_registries: dict[int, ScopedFormatterRegistry] = {}
+        self._view_registries: dict[int, ScopedFormatterRegistry] = {}
 
     def startup(self) -> None:
         self.settings.add_on_change("update_registry", self.update)
 
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
-        self._window_registries.clear()
+        self._view_registries.clear()
 
     def register(self, view: View) -> None:
-        if not (window := view.window()):
-            return
-
-        if (window_id := window.id()) not in self._window_registries:
-            self._window_registries[window_id] = ScopedFormatterRegistry(
+        if (view_id := view.id()) not in self._view_registries:
+            self._view_registries[view_id] = ScopedFormatterRegistry(
                 settings=self.settings,
-                scoped_settings=ProjectSettings(window),
+                scoped_settings=ViewSettings(view),
             )
 
     def unregister(self, view: View) -> None:
-        if not (window := view.window()):
-            return
-
-        if (window_id := window.id()) in self._window_registries:
-            del self._window_registries[window_id]
+        if (view_id := view.id()) in self._view_registries:
+            del self._view_registries[view_id]
 
     def update(self, window: Window | None = None) -> None:
         if window is not None:
@@ -50,12 +44,9 @@ class FormatterRegistry:
                 window_registry.update()
 
     def lookup(self, view: View, scope: str) -> Formatter | None:
-        if not (window := view.window()):
-            return
-
         return (
             registry.lookup(scope)
-            if (registry := self._window_registries.get(window.id())) is not None
+            if (registry := self._view_registries.get(view.id())) is not None
             else None
         )
 
