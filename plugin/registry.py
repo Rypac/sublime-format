@@ -3,7 +3,7 @@ from __future__ import annotations
 from sublime import score_selector, View, Window
 
 from .formatter import Formatter
-from .settings import CachedSettings, FormatSettings, MergedSettings, ViewSettings
+from .settings import FormatSettings, MergedSettings, ViewSettings
 
 
 class FormatterRegistry:
@@ -35,7 +35,7 @@ class FormatterRegistry:
 
         if is_view_scope and (formatter := self._cache.get(view_id)) is not None:
             if isinstance(formatter, Formatter):
-                if score_selector(scope, formatter.settings.selector) > 0:
+                if score_selector(scope, formatter.selector) > 0:
                     return formatter
             elif isinstance(formatter, str):
                 if scope == formatter:
@@ -60,11 +60,10 @@ class FormatterRegistry:
         formatter = (
             Formatter(
                 name=matched_formatter,
-                settings=CachedSettings(
-                    MergedSettings(
-                        view_settings.formatter(matched_formatter),
-                        self.settings.formatter(matched_formatter),
-                    ),
+                selector=formatter_selectors[matched_formatter],
+                settings=MergedSettings(
+                    view_settings.formatter(matched_formatter),
+                    self.settings.formatter(matched_formatter),
                 ),
             )
             if matched_formatter is not None

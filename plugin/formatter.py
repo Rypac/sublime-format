@@ -12,10 +12,11 @@ from .view import extract_variables
 
 
 class Formatter:
-    __slots__ = ["name", "settings"]
+    __slots__ = ["name", "selector", "settings"]
 
-    def __init__(self, name: str, settings: Settings):
+    def __init__(self, name: str, selector: str, settings: Settings):
         self.name: str = name
+        self.selector: str = selector
         self.settings: Settings = settings
 
     def format(self, view: View, edit: Edit, region: Region) -> None:
