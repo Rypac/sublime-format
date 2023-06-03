@@ -85,23 +85,6 @@ class FormatSettings(TopLevelSettings):
         self._sublime_settings.clear_on_change(key)
 
 
-class ProjectSettings(TopLevelSettings):
-    __slots__ = ["window"]
-
-    def __init__(self, window: Window) -> None:
-        self.window = window
-
-    def get(self, key: str, default: Any = None) -> Any:
-        project = self.window.project_data() or {}
-        return project.get("settings", {}).get("Format", {}).get(key, default)
-
-    def set(self, key: str, value: Any) -> None:
-        project = self.window.project_data() or {}
-        settings = project.setdefault("settings", {}).setdefault("Format", {})
-        settings[key] = value
-        self.window.set_project_data(project)
-
-
 class ViewSettings(TopLevelSettings):
     __slots__ = ["view"]
 
