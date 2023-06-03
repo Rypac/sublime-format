@@ -15,10 +15,26 @@
         }
     },
     {
+        "caption": "Format: Enable Formatter in Project",
+        "command": "format_manage_enabled",
+        "args": {
+            "enable": true,
+            "project": true
+        }
+    },
+    {
         "caption": "Format: Disable Formatter",
         "command": "format_manage_enabled",
         "args": {
             "enable": false
+        }
+    },
+    {
+        "caption": "Format: Disable Formatter in Project",
+        "command": "format_manage_enabled",
+        "args": {
+            "enable": false,
+            "project": true
         }
     },
     {
@@ -29,10 +45,26 @@
         }
     },
     {
+        "caption": "Format: Enable Format on Save in Project",
+        "command": "format_manage_format_on_save",
+        "args": {
+            "enable": true,
+            "project": true
+        }
+    },
+    {
         "caption": "Format: Disable Format on Save",
         "command": "format_manage_format_on_save",
         "args": {
             "enable": false
+        }
+    },
+    {
+        "caption": "Format: Disable Format on Save in Project",
+        "command": "format_manage_format_on_save",
+        "args": {
+            "enable": false,
+            "project": true
         }
     },
     {

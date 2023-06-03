@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from sublime import Edit, View, Window, active_window, status_message
-from sublime_plugin import ApplicationCommand, EventListener, TextCommand
+from sublime_plugin import ApplicationCommand, EventListener, TextCommand, WindowCommand
 from typing import cast
 
 from .plugin.error import FormatError, clear_error, display_error
@@ -117,18 +117,22 @@ class FormatToggleFormatOnSaveCommand(ApplicationCommand):
         return settings.format_on_save
 
 
-class FormatManageEnabledCommand(ApplicationCommand):
-    def run(self, enable: bool) -> None:
+class FormatManageEnabledCommand(WindowCommand):
+    def run(self, enable: bool, project: bool = False) -> None:
+        settings = (
+            registry.project_settings(self.window) if project else registry.settings
+        )
+
         items = [
             name
-            for name, settings in registry.settings.formatters().items()
-            if settings.enabled != enable
+            for name, formatter_settings in settings.formatters().items()
+            if formatter_settings.enabled != enable
         ]
 
         def toggle_enabled(selection: int) -> None:
             if selection >= 0 and selection < len(items):
                 formatter = items[selection]
-                registry.settings.formatter(formatter).enabled = enable
+                settings.formatter(formatter).enabled = enable
 
         if items:
             active_window().show_quick_panel(items, toggle_enabled)
@@ -137,18 +141,22 @@ class FormatManageEnabledCommand(ApplicationCommand):
             status_message(f"All formatters {action}.")
 
 
-class FormatManageFormatOnSaveCommand(ApplicationCommand):
-    def run(self, enable: bool) -> None:
+class FormatManageFormatOnSaveCommand(WindowCommand):
+    def run(self, enable: bool, project: bool = False) -> None:
+        settings = (
+            registry.project_settings(self.window) if project else registry.settings
+        )
+
         items = [
             name
-            for name, settings in registry.settings.formatters().items()
-            if settings.format_on_save != enable
+            for name, formatter_settings in settings.formatters().items()
+            if formatter_settings.format_on_save != enable
         ]
 
         def toggle_format_on_save(selection: int) -> None:
             if selection >= 0 and selection < len(items):
                 formatter = items[selection]
-                registry.settings.formatter(formatter).format_on_save = enable
+                settings.formatter(formatter).format_on_save = enable
 
         if items:
             active_window().show_quick_panel(items, toggle_format_on_save)

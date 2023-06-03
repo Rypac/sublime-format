@@ -3,7 +3,7 @@ from __future__ import annotations
 from sublime import score_selector, View, Window
 
 from .formatter import Formatter
-from .settings import FormatSettings, MergedSettings, ViewSettings
+from .settings import FormatSettings, MergedSettings, ProjectSettings, ViewSettings
 
 
 class FormatterRegistry:
@@ -17,6 +17,9 @@ class FormatterRegistry:
     def teardown(self) -> None:
         self.settings.clear_on_change("update_registry")
         self._cache.clear()
+
+    def project_settings(self, window: Window) -> ProjectSettings:
+        return ProjectSettings(window, self.settings)
 
     def unregister(self, view: View) -> None:
         if (view_id := view.id()) in self._cache:
