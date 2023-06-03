@@ -33,10 +33,6 @@ class FormatterRegistry:
         view_id = view.id()
         is_view_scope = " " not in scope
 
-        def cache(formatter: Formatter | str) -> None:
-            if is_view_scope:
-                self._cache[view_id] = formatter
-
         if is_view_scope and (formatter := self._cache.get(view_id)) is not None:
             if isinstance(formatter, Formatter):
                 if score_selector(scope, formatter.settings.selector) > 0:
@@ -48,40 +44,34 @@ class FormatterRegistry:
             del self._cache[view_id]
 
         view_settings = ViewSettings(view)
-        merged_formatters = {
-            **self.settings.get("formatters", {}),
-            **view_settings.get("formatters", {}),
-        }
 
-        if not merged_formatters:
-            cache(scope)
-            return None
+        formatter_selectors = {
+            **self.settings.selectors(),
+            **view_settings.selectors(),
+        }
 
         max_score: int = 0
         matched_formatter: str | None = None
-        for name, settings in merged_formatters.items():
-            if (selector := settings.get("selector")) is None:
-                continue
-
-            score = score_selector(scope, selector)
-            if score > max_score:
+        for name, selector in formatter_selectors.items():
+            if (score := score_selector(scope, selector)) > max_score:
                 max_score = score
                 matched_formatter = name
 
-        if matched_formatter is None:
-            cache(scope)
-            return None
-
-        formatter = Formatter(
-            name=matched_formatter,
-            settings=CachedSettings(
-                MergedSettings(
-                    view_settings.formatter(matched_formatter),
-                    self.settings.formatter(matched_formatter),
+        formatter = (
+            Formatter(
+                name=matched_formatter,
+                settings=CachedSettings(
+                    MergedSettings(
+                        view_settings.formatter(matched_formatter),
+                        self.settings.formatter(matched_formatter),
+                    ),
                 ),
-            ),
+            )
+            if matched_formatter is not None
+            else None
         )
 
-        cache(formatter)
+        if is_view_scope:
+            self._cache[view_id] = formatter or scope
 
         return formatter
