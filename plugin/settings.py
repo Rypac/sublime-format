@@ -149,27 +149,3 @@ class MergedSettings(Settings):
     def set(self, key: str, value: Any) -> None:
         if source := next(iter(self.all), None):
             source.set(key, value)
-
-
-class CachedSettings(Settings):
-    __slots__ = ["settings", "_cache"]
-
-    def __init__(self, settings: Settings) -> None:
-        self.settings = settings
-        self._cache: dict[str, Any] = {}
-
-    def get(self, key: str, default: Any = None) -> Any:
-        if key in self._cache:
-            return self._cache[key]
-
-        value = self.settings.get(key, default)
-        self._cache[key] = value
-
-        return value
-
-    def set(self, key: str, value: Any) -> None:
-        self.settings.set(key, value)
-        self._cache[key] = value
-
-    def invalidate(self) -> None:
-        self._cache.clear()
