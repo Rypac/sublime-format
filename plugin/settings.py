@@ -59,6 +59,13 @@ class TopLevelSettings(Settings, Protocol):
     def formatter(self, name: str) -> Settings:
         return MergedSettings(FormatterSettings(name, settings=self), self)
 
+    def selectors(self) -> dict[str, str]:
+        return {
+            name: selector
+            for name, settings in self.get("formatters", {}).items()
+            if (selector := settings.get("selector")) is not None
+        }
+
 
 class FormatSettings(TopLevelSettings):
     def __init__(self) -> None:
