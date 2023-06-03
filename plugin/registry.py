@@ -33,10 +33,6 @@ class FormatterRegistry:
         view_id = view.id()
         is_view_scope = " " not in scope
 
-        def cache(formatter: Formatter | str) -> None:
-            if is_view_scope:
-                self._cache[view_id] = formatter
-
         if is_view_scope and (formatter := self._cache.get(view_id)) is not None:
             if isinstance(formatter, Formatter):
                 if score_selector(scope, formatter.settings.selector) > 0:
@@ -61,20 +57,21 @@ class FormatterRegistry:
                 max_score = score
                 matched_formatter = name
 
-        if matched_formatter is None:
-            cache(scope)
-            return None
-
-        formatter = Formatter(
-            name=matched_formatter,
-            settings=CachedSettings(
-                MergedSettings(
-                    view_settings.formatter(matched_formatter),
-                    self.settings.formatter(matched_formatter),
+        formatter = (
+            Formatter(
+                name=matched_formatter,
+                settings=CachedSettings(
+                    MergedSettings(
+                        view_settings.formatter(matched_formatter),
+                        self.settings.formatter(matched_formatter),
+                    ),
                 ),
-            ),
+            )
+            if matched_formatter is not None
+            else None
         )
 
-        cache(formatter)
+        if is_view_scope:
+            self._cache[view_id] = formatter or scope
 
         return formatter
