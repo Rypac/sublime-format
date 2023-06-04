@@ -54,8 +54,7 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 ### Clone Repository
 
 1. Select the `Settings > Browse Packages…` menu item
-2. Open the `Packages/` directory in the terminal or a git client
-3. Clone the repository:
+2. Within the `Packages/` directory, clone the repository:
 
     ```
     git clone https://github.com/Rypac/sublime-format.git Format
