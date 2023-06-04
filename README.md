@@ -37,13 +37,7 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 
 ## Installation
 
-### Package Control (coming soon…)
-
-1. Install [Package Control](https://packagecontrol.io)
-2. Run `Package Control: Install Package` in the Command Palette
-3. Install `Format`
-
-### Manual (via Package Control)
+### Package Control
 
 1. Install [Package Control](https://packagecontrol.io)
 2. Run `Package Control: Add Repository` in the Command Palette
@@ -51,10 +45,16 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 4. Run `Package Control: Install Package` in the Command Palette
 5. Install `sublime-format`
 
-### Manual (via `git`)
+### Manual
 
-1. Navigate to the Sublime Text package directory
-2. Clone the repository:
+1. Select the `Settings > Browse Packages…` menu item
+2. Browse up a directory and then into the `Installed Packages/` directory
+3. Download [`Format.sublime-package`](https://github.com/Rypac/sublime-format/releases/download/latest/Format.sublime-package) and copy it into the `Installed Packages/` directory
+
+### Clone Repository
+
+1. Select the `Settings > Browse Packages…` menu item
+2. Within the `Packages/` directory, clone the repository:
 
     ```
     git clone https://github.com/Rypac/sublime-format.git Format
