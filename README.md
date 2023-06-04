@@ -60,6 +60,14 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
     git clone https://github.com/Rypac/sublime-format.git Format
     ```
 
+### Manual (via release artifacts)
+
+1. Download [**Format.sublime-package**](https://github.com/Rypac/sublime-format/releases/download/latest/Format.sublime-package) from the [latest release](https://github.com/Rypac/sublime-format/releases/tag/latest).
+2. Copy the downloaded artifact into the **Installed Packages** directory.
+    - macOS: `~/Library/Application Support/Sublime Text/Installed Packages`
+    - Linux: `~/.config/sublime-text/Installed Packages`
+    - Window: `%APPDATA%\Sublime Text\Installed Packages`
+
 ## Commands
 
 | **Command**                          | **Description**                                        |
