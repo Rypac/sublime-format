@@ -47,19 +47,15 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 
 ### Manual
 
-1. Download [**Format.sublime-package**](https://github.com/Rypac/sublime-format/releases/download/latest/Format.sublime-package) from the [latest release](https://github.com/Rypac/sublime-format/releases/tag/latest)
-2. Copy the downloaded artifact into the **Installed Packages** directory
-    - macOS: `~/Library/Application Support/Sublime Text/Installed Packages`
-    - Linux: `~/.config/sublime-text/Installed Packages`
-    - Window: `%APPDATA%\Sublime Text\Installed Packages`
+1. Select the `Settings > Browse Packages…` menu item
+2. Browse up a directory and then into the `Installed Packages/` directory
+3. Download [`Format.sublime-package`](https://github.com/Rypac/sublime-format/releases/download/latest/Format.sublime-package) and copy it into the `Installed Packages/` directory
 
 ### Clone Repository
 
-1. Navigate to the **Packages** directory
-    - macOS: `~/Library/Application Support/Sublime Text/Packages`
-    - Linux: `~/.config/sublime-text/Packages`
-    - Window: `%APPDATA%\Sublime Text\Packages`
-2. Clone the repository:
+1. Select the `Settings > Browse Packages…` menu item
+2. Open the `Packages/` directory in the terminal or a git client
+3. Clone the repository:
 
     ```
     git clone https://github.com/Rypac/sublime-format.git Format
