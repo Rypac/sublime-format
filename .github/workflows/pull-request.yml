@@ -1,20 +1,32 @@
-name: Pull Request
+name: Lint and Style
 
-on: pull_request
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   format:
+    name: Lint and Style Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: pip install black ruff
+
       - name: Run linter
-        run: |
-          pip install ruff
-          ruff check --format=github .
+        run: ruff check --format=github .
 
       - name: Check code formatting
-        run: |
-          pip install black
-          black --check .
+        run: black --check .
