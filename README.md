@@ -20,7 +20,7 @@ For example, this is the configuration for the formatting of Haskell and Rust so
 {
     "formatters": {
         "Haskell": {
-            "command": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"],
+            "command": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "$file"],
             "selector": "source.haskell"
         },
         "Rust": {
