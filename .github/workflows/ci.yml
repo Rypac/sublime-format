@@ -1,4 +1,4 @@
-name: Lint and Style
+name: Continuous Integration
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   pull_request:
 
 jobs:
-  format:
-    name: Lint and Style Check
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,10 +22,25 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install black ruff
+          python -m pip install ruff
 
       - name: Run linter
         run: ruff check --format=github .
+
+  format:
+    name: Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black
 
       - name: Check code formatting
         run: black --check .
