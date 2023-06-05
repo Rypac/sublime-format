@@ -9,6 +9,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Run linter
+        run: |
+          pip install ruff
+          ruff check --format=github .
+
       - name: Check code formatting
         run: |
           pip install black
