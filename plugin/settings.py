@@ -8,11 +8,9 @@ from .error import ErrorStyle
 
 class Settings(Protocol):
     def get(self, key: str, default: Any = None) -> Any:
-        """Retrieves a value from settings for the given key, with an optional default."""
         ...
 
     def set(self, key: str, value: Any) -> None:
-        """Stores a value in settings for the given key."""
         ...
 
     @property
