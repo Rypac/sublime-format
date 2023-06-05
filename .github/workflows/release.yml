@@ -2,8 +2,8 @@ name: Create Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*.*.*"
 
 jobs:
   release:
@@ -12,34 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Create package
+      - name: Create Sublime package
         run: zip -r Format.sublime-package . -x ".git/*" ".github/*" .gitignore .editorconfig LICENSE README.md
-
-      - name: Add latest tag
-        uses: actions/github-script@v6
-        with:
-          script: |
-            try {
-              await github.rest.git.deleteRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: "tags/latest"
-              })
-            } catch (e) {
-              console.log("Failed to delete latest tag: " + e)
-            }
-
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "refs/tags/latest",
-              sha: context.sha
-            })
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: Format.sublime-package
-          tag_name: latest
-          name: Latest
-          body: Release generated with every commit to the `main` branch.
+          draft: true
