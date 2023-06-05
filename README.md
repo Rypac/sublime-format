@@ -20,7 +20,7 @@ For example, this is the configuration for the formatting of Haskell and Rust so
 {
     "formatters": {
         "Haskell": {
-            "command": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "-"],
+            "command": ["fourmolu", "--indentation", "$tab_size", "--stdin-input-file", "$file"],
             "selector": "source.haskell"
         },
         "Rust": {
@@ -49,7 +49,7 @@ To find the scope at a given position, go to: Menu → Tools → Developer → S
 
 1. Select the `Settings > Browse Packages…` menu item
 2. Browse up a directory and then into the `Installed Packages/` directory
-3. Download [`Format.sublime-package`](https://github.com/Rypac/sublime-format/releases/download/latest/Format.sublime-package) and copy it into the `Installed Packages/` directory
+3. Download [`Format.sublime-package`](https://github.com/Rypac/sublime-format/releases/latest/download/Format.sublime-package) and copy it into the `Installed Packages/` directory
 
 ### Clone Repository
 
