@@ -8,7 +8,6 @@ import subprocess
 
 from .error import FormatError
 from .settings import Settings
-from .view import extract_variables
 
 
 class Formatter:
@@ -21,7 +20,7 @@ class Formatter:
 
     def format(self, view: View, edit: Edit, region: Region) -> None:
         text = view.substr(region)
-        variables = extract_variables(view)
+        variables = self._extract_variables(view)
         command = [expand_variables(arg, variables) for arg in self.settings.command]
 
         cwd = (
@@ -61,3 +60,15 @@ class Formatter:
         position = view.viewport_position()
         view.replace(edit, region, completed_process.stdout)
         view.set_viewport_position(position, animate=False)
+
+    def _extract_variables(view: View) -> dict[str, str]:
+        settings = view.settings()
+        tab_size = settings.get("tab_size") or 0
+        indent = " " * tab_size if settings.get("translate_tabs_to_spaces") else "\t"
+
+        variables = window.extract_variables() if (window := view.window()) else {}
+        variables["tab_size"] = tab_size
+        variables["indent"] = indent
+        variables.update(os.environ)
+
+        return variables
