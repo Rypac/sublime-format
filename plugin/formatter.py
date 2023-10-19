@@ -4,10 +4,10 @@ from sublime import expand_variables
 from sublime import Edit, Region, View
 
 import os
+import subprocess
 
 from .error import FormatError
 from .settings import Settings
-from .shell import shell
 from .view import extract_variables
 
 
@@ -30,16 +30,34 @@ class Formatter:
             else next(iter(view.window().folders()), None)
         )
 
+        startupinfo = None
+        if os.name == "nt":
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+
         try:
-            formatted = shell(
+            completed_process = subprocess.run(
                 args=command,
                 input=text,
+                capture_output=True,
+                shell=False,
                 cwd=cwd,
                 timeout=self.settings.timeout,
+                check=True,
+                text=True,
+                env=os.environ,
+                startupinfo=startupinfo,
             )
-        except Exception as err:
-            raise FormatError(message=str(err), style=self.settings.error_style)
+        except subprocess.CalledProcessError as error:
+            message = str(error)
+            if stderr := error.stderr:
+                message += f"\n${stderr}"
+            elif stdout := error.stdout:
+                message += f"\n${stdout}"
+
+            raise FormatError(message=message, style=self.settings.error_style)
 
         position = view.viewport_position()
-        view.replace(edit, region, formatted)
+        view.replace(edit, region, completed_process.stdout)
         view.set_viewport_position(position, animate=False)
