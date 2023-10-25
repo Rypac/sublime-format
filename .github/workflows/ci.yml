@@ -25,7 +25,7 @@ jobs:
           python -m pip install ruff
 
       - name: Run linter
-        run: ruff check --format=github .
+        run: ruff check --output-format=github .
 
       - name: Run formatting check
         run: ruff format --check .
