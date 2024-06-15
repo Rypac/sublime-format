@@ -67,7 +67,7 @@ class Formatter:
         indent = " " * tab_size if settings.get("translate_tabs_to_spaces") else "\t"
 
         variables = window.extract_variables() if (window := view.window()) else {}
-        variables["tab_size"] = tab_size
+        variables["tab_size"] = str(tab_size)
         variables["indent"] = indent
         variables.update(os.environ)
 
