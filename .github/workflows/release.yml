@@ -16,7 +16,7 @@ jobs:
         run: git archive --format=zip --output=Format.sublime-package HEAD
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: Format.sublime-package
           draft: true
