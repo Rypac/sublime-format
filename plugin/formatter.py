@@ -61,7 +61,7 @@ class Formatter:
         view.replace(edit, region, completed_process.stdout)
         view.set_viewport_position(position, animate=False)
 
-    def _extract_variables(view: View) -> dict[str, str]:
+    def _extract_variables(self, view: View) -> dict[str, str]:
         settings = view.settings()
         tab_size = settings.get("tab_size") or 0
         indent = " " * tab_size if settings.get("translate_tabs_to_spaces") else "\t"
