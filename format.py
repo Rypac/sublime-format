@@ -26,16 +26,13 @@ def plugin_unloaded():
 
 class FormatListener(EventListener):
     def on_close(self, view: View) -> None:
-        registry.unregister(view)
-
-    def on_pre_move(self, view: View) -> None:
-        registry.unregister(view)
+        registry.invalidate_view(view)
 
     def on_load_project(self, window: Window) -> None:
-        registry.update(window)
+        registry.invalidate_window(window)
 
     def on_post_save_project(self, window: Window) -> None:
-        registry.update(window)
+        registry.invalidate_window(window)
 
     def on_pre_save(self, view: View) -> None:
         if (
