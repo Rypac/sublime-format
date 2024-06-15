@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from sublime import Edit, View, Window, active_window, status_message
+from sublime import Edit, Region, View, Window, active_window, status_message
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
 from typing import cast
 
 from .plugin.error import FormatError, clear_error, display_error
 from .plugin.registry import FormatterRegistry
-from .plugin.view import view_region, view_scope
 
 
 registry: FormatterRegistry = cast(FormatterRegistry, None)
@@ -35,8 +34,10 @@ class FormatListener(EventListener):
         registry.invalidate_window(window)
 
     def on_pre_save(self, view: View) -> None:
+        view_scope = view.scope_name(0).split(" ", maxsplit=1)[0]
+
         if (
-            (formatter := registry.lookup(view, view_scope(view)))
+            (formatter := registry.lookup(view, view_scope))
             and formatter.settings.enabled
             and formatter.settings.format_on_save
         ):
@@ -47,10 +48,10 @@ class FormatFileCommand(TextCommand):
     def run(self, edit: Edit) -> None:
         clear_error(self.view.window())
 
-        if (region := view_region(self.view)).empty():
+        if (region := Region(0, self.view.size())).empty():
             return
 
-        scope = view_scope(self.view)
+        scope = self.view.scope_name(0).split(" ", maxsplit=1)[0]
 
         if not (formatter := registry.lookup(self.view, scope)):
             status_message(f"No formatter for file with scope: {scope}")
@@ -66,7 +67,7 @@ class FormatFileCommand(TextCommand):
             display_error(error, self.view.window())
 
     def is_enabled(self) -> bool:
-        return not view_region(self.view).empty()
+        return not Region(0, self.view.size()).empty()
 
 
 class FormatSelectionCommand(TextCommand):
