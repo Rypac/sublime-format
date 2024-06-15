@@ -18,16 +18,13 @@ class FormatterRegistry:
         self.settings.clear_on_change("update_registry")
         self._cache.clear()
 
-    def unregister(self, view: View) -> None:
+    def invalidate_view(self, view: View) -> None:
         if (view_id := view.id()) in self._cache:
             del self._cache[view_id]
 
-    def update(self, window: Window | None = None) -> None:
-        if window is not None:
-            for view in window.views():
-                self.unregister(view)
-        else:
-            self._cache.clear()
+    def invalidate_window(self, window: Window) -> None:
+        for view in window.views():
+            self.unregister(view)
 
     def lookup(self, view: View, scope: str) -> Formatter | None:
         view_id = view.id()
