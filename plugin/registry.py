@@ -27,7 +27,7 @@ class FormatterRegistry:
 
     def invalidate_window(self, window: Window) -> None:
         for view in window.views():
-            self.unregister(view)
+            self.invalidate_view(view)
 
     def lookup(self, view: View, scope: str) -> Formatter | None:
         view_id = view.id()
