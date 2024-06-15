@@ -12,10 +12,13 @@ class FormatterRegistry:
         self._cache: dict[int, Formatter | str] = {}
 
     def startup(self) -> None:
-        self.settings.add_on_change("update_registry", self.update)
+        self.settings.add_on_change("invalidate", self.invalidate)
 
     def teardown(self) -> None:
-        self.settings.clear_on_change("update_registry")
+        self.settings.clear_on_change("invalidate")
+        self.invalidate()
+
+    def invalidate(self) -> None:
         self._cache.clear()
 
     def invalidate_view(self, view: View) -> None:
