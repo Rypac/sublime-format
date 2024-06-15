@@ -59,13 +59,14 @@ class FormatFileCommand(TextCommand):
             status_message(f"No formatter for file with scope: {scope}")
             return
 
-        if formatter.settings.enabled:
-            try:
-                formatter.format(self.view, edit, region)
-            except FormatError as error:
-                display_error(error, self.view.window())
-        else:
+        if not formatter.settings.enabled:
             status_message(f"Formatter disabled: {formatter.name}")
+            return
+
+        try:
+            formatter.format(self.view, edit, region)
+        except FormatError as error:
+            display_error(error, self.view.window())
 
     def is_enabled(self) -> bool:
         return not view_region(self.view).empty()
@@ -85,13 +86,14 @@ class FormatSelectionCommand(TextCommand):
                 status_message(f"No formatter for selection with scope: {scope}")
                 continue
 
-            if formatter.settings.enabled:
-                try:
-                    formatter.format(self.view, edit, region)
-                except FormatError as error:
-                    display_error(error, self.view.window())
-            else:
+            if not formatter.settings.enabled:
                 status_message(f"Formatter disabled: {formatter.name}")
+                continue
+
+            try:
+                formatter.format(self.view, edit, region)
+            except FormatError as error:
+                display_error(error, self.view.window())
 
     def is_enabled(self) -> bool:
         return any(not region.empty() for region in self.view.sel())
