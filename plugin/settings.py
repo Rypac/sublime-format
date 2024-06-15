@@ -7,11 +7,9 @@ from .error import ErrorStyle
 
 
 class Settings(Protocol):
-    def get(self, key: str, default: Any = None) -> Any:
-        ...
+    def get(self, key: str, default: Any = None) -> Any: ...
 
-    def set(self, key: str, value: Any) -> None:
-        ...
+    def set(self, key: str, value: Any) -> None: ...
 
     @property
     def selector(self) -> str:
