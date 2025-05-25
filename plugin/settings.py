@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from sublime import load_settings, save_settings, View
 from typing import Any, Callable, Protocol
+
+from sublime import View, load_settings, save_settings
 
 from .error import ErrorStyle
 

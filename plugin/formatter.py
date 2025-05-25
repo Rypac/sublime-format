@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from sublime import expand_variables
-from sublime import Edit, Region, View
-
 import os
 import subprocess
+
+from sublime import Edit, Region, View, expand_variables
 
 from .error import FormatError
 from .settings import Settings

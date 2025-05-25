@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sublime import score_selector, View, Window
+from sublime import View, Window, score_selector
 
 from .formatter import Formatter
 from .settings import FormatSettings, MergedSettings, ViewSettings

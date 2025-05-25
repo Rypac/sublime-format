@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum
-from sublime import active_window, error_message, Window
+
+from sublime import Window, active_window, error_message
 
 
 class ErrorStyle(Enum):
