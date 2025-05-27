@@ -34,7 +34,7 @@ class FormatListener(EventListener):
         registry.invalidate_window(window)
 
     def on_pre_save(self, view: View) -> None:
-        view_scope = view.scope_name(0).split(" ", maxsplit=1)[0]
+        view_scope = view.scope_name(0).split(maxsplit=1)[0]
 
         if (
             (formatter := registry.lookup(view, view_scope))
@@ -51,7 +51,7 @@ class FormatFileCommand(TextCommand):
         if (region := Region(0, self.view.size())).empty():
             return
 
-        scope = self.view.scope_name(0).split(" ", maxsplit=1)[0]
+        scope = self.view.scope_name(0).split(maxsplit=1)[0]
 
         if not (formatter := registry.lookup(self.view, scope)):
             status_message(f"No formatter for file with scope: {scope}")
