@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum
-from sublime import active_window, error_message, Window
+
+from sublime import Window, active_window, error_message
 
 
 class ErrorStyle(Enum):
@@ -23,8 +24,6 @@ class FormatError(Exception):
 
 
 def display_error(error: FormatError, window: Window | None = None) -> None:
-    window = window or active_window()
-
     if error.style == ErrorStyle.NONE:
         return
 
@@ -32,6 +31,7 @@ def display_error(error: FormatError, window: Window | None = None) -> None:
         print(error)
 
     elif error.style == ErrorStyle.PANEL:
+        window = window or active_window()
         panel = window.create_output_panel("Format")
         panel.settings().update({"line_numbers": False})
         panel.run_command("insert", {"characters": str(error)})
@@ -43,5 +43,4 @@ def display_error(error: FormatError, window: Window | None = None) -> None:
 
 def clear_error(window: Window | None = None) -> None:
     window = window or active_window()
-
     window.destroy_output_panel("Format")
