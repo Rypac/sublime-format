@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 
 from sublime import Window, active_window, error_message

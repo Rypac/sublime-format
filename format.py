@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import cast, override
 
 from sublime import Edit, Region, View, Window, active_window, status_message

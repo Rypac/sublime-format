@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any, Callable, Protocol, override
 
 from sublime import View, load_settings, save_settings
