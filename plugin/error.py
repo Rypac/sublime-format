@@ -24,21 +24,22 @@ class FormatError(Exception):
 
 
 def display_error(error: FormatError, window: Window | None = None) -> None:
-    if error.style == ErrorStyle.NONE:
-        return
+    match error.style:
+        case ErrorStyle.NONE:
+            pass
 
-    elif error.style == ErrorStyle.CONSOLE:
-        print(error)
+        case ErrorStyle.CONSOLE:
+            print(error)
 
-    elif error.style == ErrorStyle.PANEL:
-        window = window or active_window()
-        panel = window.create_output_panel("Format")
-        panel.settings().update({"line_numbers": False})
-        panel.run_command("insert", {"characters": str(error)})
-        window.run_command("show_panel", {"panel": "output.Format"})
+        case ErrorStyle.DIALOG:
+            error_message(str(error))
 
-    elif error.style == ErrorStyle.DIALOG:
-        error_message(str(error))
+        case ErrorStyle.PANEL:
+            window = window or active_window()
+            panel = window.create_output_panel("Format")
+            panel.settings().update({"line_numbers": False})
+            panel.run_command("insert", {"characters": str(error)})
+            window.run_command("show_panel", {"panel": "output.Format"})
 
 
 def clear_error(window: Window | None = None) -> None:
