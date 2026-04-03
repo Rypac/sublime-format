@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import cast, override
 
 from sublime import Edit, Region, View, Window, active_window, status_message
 from sublime_plugin import ApplicationCommand, EventListener, TextCommand
@@ -24,15 +24,19 @@ def plugin_unloaded():
 
 
 class FormatListener(EventListener):
+    @override
     def on_close(self, view: View) -> None:
         registry.invalidate_view(view)
 
+    @override
     def on_load_project(self, window: Window) -> None:
         registry.invalidate_window(window)
 
+    @override
     def on_post_save_project(self, window: Window) -> None:
         registry.invalidate_window(window)
 
+    @override
     def on_pre_save(self, view: View) -> None:
         view_scope = view.scope_name(0).split(maxsplit=1)[0]
 
@@ -45,6 +49,7 @@ class FormatListener(EventListener):
 
 
 class FormatFileCommand(TextCommand):
+    @override
     def run(self, edit: Edit) -> None:
         clear_error(self.view.window())
 
@@ -66,11 +71,13 @@ class FormatFileCommand(TextCommand):
         except FormatError as error:
             display_error(error, self.view.window())
 
+    @override
     def is_enabled(self) -> bool:
         return not Region(0, self.view.size()).empty()
 
 
 class FormatSelectionCommand(TextCommand):
+    @override
     def run(self, edit: Edit) -> None:
         clear_error(self.view.window())
 
@@ -93,31 +100,37 @@ class FormatSelectionCommand(TextCommand):
             except FormatError as error:
                 display_error(error, self.view.window())
 
+    @override
     def is_enabled(self) -> bool:
         return any(not region.empty() for region in self.view.sel())
 
 
 class FormatToggleEnabledCommand(ApplicationCommand):
+    @override
     def run(self, name: str | None = None) -> None:
         settings = registry.settings.formatter(name) if name else registry.settings
         settings.enabled = not settings.enabled
 
+    @override
     def is_checked(self, name: str | None = None) -> bool:
         settings = registry.settings.formatter(name) if name else registry.settings
         return settings.enabled
 
 
 class FormatToggleFormatOnSaveCommand(ApplicationCommand):
+    @override
     def run(self, name: str | None = None) -> None:
         settings = registry.settings.formatter(name) if name else registry.settings
         settings.format_on_save = not settings.format_on_save
 
+    @override
     def is_checked(self, name: str | None = None) -> bool:
         settings = registry.settings.formatter(name) if name else registry.settings
         return settings.format_on_save
 
 
 class FormatManageEnabledCommand(ApplicationCommand):
+    @override
     def run(self, enable: bool) -> None:
         items = [
             name
@@ -138,6 +151,7 @@ class FormatManageEnabledCommand(ApplicationCommand):
 
 
 class FormatManageFormatOnSaveCommand(ApplicationCommand):
+    @override
     def run(self, enable: bool) -> None:
         items = [
             name

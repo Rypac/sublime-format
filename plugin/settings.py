@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Protocol, override
 
 from sublime import View, load_settings, save_settings
 
@@ -68,9 +68,11 @@ class FormatSettings(TopLevelSettings):
     def __init__(self) -> None:
         self._sublime_settings = load_settings("Format.sublime-settings")
 
+    @override
     def get(self, key: str, default: Any = None) -> Any:
         return self._sublime_settings.get(key, default)
 
+    @override
     def set(self, key: str, value: Any) -> None:
         self._sublime_settings[key] = value
         save_settings("Format.sublime-settings")
@@ -88,9 +90,11 @@ class ViewSettings(TopLevelSettings):
     def __init__(self, view: View) -> None:
         self.view = view
 
+    @override
     def get(self, key: str, default: Any = None) -> Any:
         return self.view.settings().get("Format", {}).get(key, default)
 
+    @override
     def set(self, key: str, value: Any) -> None:
         settings = self.view.settings().setdefault("Format", {})
         settings[key] = value
@@ -104,9 +108,11 @@ class FormatterSettings(Settings):
         self.name = name
         self.settings = settings
 
+    @override
     def get(self, key: str, default: Any = None) -> Any:
         return self.settings.get("formatters", {}).get(self.name, {}).get(key, default)
 
+    @override
     def set(self, key: str, value: Any) -> None:
         formatters = self.settings.get("formatters", {})
         formatter = formatters.setdefault(self.name, {})
@@ -120,12 +126,14 @@ class MergedSettings(Settings):
     def __init__(self, *args: Settings) -> None:
         self.all = args
 
+    @override
     def get(self, key: str, default: Any = None) -> Any:
         return next(
             (value for source in self.all if (value := source.get(key)) is not None),
             default,
         )
 
+    @override
     def set(self, key: str, value: Any) -> None:
         if source := next(iter(self.all), None):
             source.set(key, value)
