@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from sublime import View, Window, score_selector
 
 from .formatter import Formatter
